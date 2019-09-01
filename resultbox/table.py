@@ -24,33 +24,43 @@ class Tabulator():
         ''' Create nested dictionary of all key-value combinations '''
         val_dict = {}
         d = {}
+        n = len(var_list)
         for row in filtered:
             current = d
-            for k in var_list:
+            for i, k in enumerate(var_list):
                 val = row[k]
-                s = str(val)
-                val_dict[k + '.' + s] = val
+                s = str(val) # Hash better, but not always available, see python-xxhash, https://stackoverflow.com/questions/16589791/most-efficient-property-to-hash-for-numpy-array
+                val_dict[k + '.' + s] = val # Track actual values
                 if s not in current:
                     current[s] = {}
-                current = current[s]
+                current = current[s] # Get next nesting layer
+                if i == n - 1:
+                    # No more variables to nest
+                    if '__index__' not in current:
+                        current['__index__'] = []
+                    current['__index__'].append(row['index'])
         return d, val_dict
         
     def make_index(self, filtered, var_list):
         ''' Make a full list of dictionaries for key-value combinations '''
         nested, val_dict = self.make_nested_index(filtered, var_list)
         out = []
+        indices = []
         def unfold(dct, row=None, i=0):
-            if len(dct) == 0:
-                out.append(row.copy())
+            if '__index__' in dct:
+                # Not more nested variables
+                out.append(row.copy()) # Add in the index row
+                indices.append(dct['__index__']) # Record the indices
                 return
             row = {} if row is None else row
             for s, v in dct.items():
-                k = var_list[i]
-                row[k] = val_dict[k + '.' + s]
+                k = var_list[i] # Get key
+                row[k] = val_dict[k + '.' + s] # put together values
                 if isinstance(v, dict):
-                    unfold(v, row, i+1)
+                    unfold(v, row, i+1) # Add next layers of nested structure
         unfold(nested)
-        return out
+        out_ind = {i: j for j, lst in enumerate(indices) for i in lst}
+        return out, out_ind
         
             
         
