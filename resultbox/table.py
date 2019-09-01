@@ -5,7 +5,21 @@ Created on Sun Sep  1 21:12:24 2019
 @author: Reuben
 """
 
+import hashlib
 from collections import defaultdict
+
+
+def encoded(obj):
+    if isinstance(obj, str):
+        return bytes(obj, 'utf-8')
+    return bytes(obj)
+
+def safe_hash(lst):
+    h = hashlib.md5()
+    for obj in lst:
+        h.update(encoded(obj))
+    return h.digest()
+    
 
 class Table():
     pass
@@ -29,8 +43,8 @@ class Tabulator():
             current = d
             for i, k in enumerate(var_list):
                 val = row[k]
-                s = str(val) # Hash better, but not always available, see python-xxhash, https://stackoverflow.com/questions/16589791/most-efficient-property-to-hash-for-numpy-array
-                val_dict[k + '.' + s] = val # Track actual values
+                s = safe_hash([val]) # Hash better, but not always available, see python-xxhash, https://stackoverflow.com/questions/16589791/most-efficient-property-to-hash-for-numpy-array
+                val_dict[safe_hash([k, s])] = val # Track actual values
                 if s not in current:
                     current[s] = {}
                 current = current[s] # Get next nesting layer
@@ -55,7 +69,7 @@ class Tabulator():
             row = {} if row is None else row
             for s, v in dct.items():
                 k = var_list[i] # Get key
-                row[k] = val_dict[k + '.' + s] # put together values
+                row[k] = val_dict[safe_hash([k, s])] # put together values
                 if isinstance(v, dict):
                     unfold(v, row, i+1) # Add next layers of nested structure
         unfold(nested)
