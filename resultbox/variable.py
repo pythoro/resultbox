@@ -10,3 +10,14 @@ class Variable(dict):
         self.name = name
         self.desc = desc
         self.unit = unit
+        
+        
+class Aliases(dict):
+    def __init__(self, data):
+        self.update(data)
+        
+    def from_dict(self, dct):
+        return {k: self[k] for k in dct.keys()}
+
+    def from_list(self, lst):
+        return {k: self[k] for k in lst}

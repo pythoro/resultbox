@@ -5,6 +5,6 @@ Created on Sun Sep  1 14:22:13 2019
 @author: Reuben
 """
 
-from .variable import Variable
+from .variable import Variable, Aliases
 from .dct import Dict
 from .box import Box

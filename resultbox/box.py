@@ -6,6 +6,7 @@ Created on Sat Aug 31 08:47:07 2019
 """
 
 
+
 class Box(list):
         
     def add(self, dct, key, value):
@@ -14,9 +15,5 @@ class Box(list):
         d.update(dct)
         d[key] = value
         self.append(d)
-        
-    def set_variables(self, dct):
-        ''' Set more info for the aliases '''
-        self.variables = dct
         
     
