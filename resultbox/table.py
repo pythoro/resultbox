@@ -28,11 +28,11 @@ class Table():
 
 class Tabulator():
     
-    def tabulate(self, box, row_vars, col_vars):
+    def tabulate(self, box, row_vars, col_vars, cell_var):
         keys = row_vars + col_vars
         filtered = box.filtered(keys)
-        row_index = self.make_index(filtered, row_vars)
-        col_index = self.make_index(filtered, col_vars)
+        rows, row_inds = self.make_index(filtered, row_vars)
+        cols, col_inds = self.make_index(filtered, col_vars)
         
     def make_nested_index(self, filtered, var_list):
         ''' Create nested dictionary of all key-value combinations '''
@@ -76,6 +76,10 @@ class Tabulator():
         out_ind = {i: j for j, lst in enumerate(indices) for i in lst}
         return out, out_ind
         
-            
-        
-        
+    def allocate(self, filtered, row_inds, col_inds, cell_var):
+        n = max(col_inds.values()) + 1
+        m = max(row_inds.values()) + 1
+        table = [[0 for i in range(n)] for j in range(m)]
+        for i, row in enumerate(filtered):
+            table[row_inds[i]][col_inds[i]] = row[cell_var]
+        return table

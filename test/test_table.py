@@ -10,14 +10,14 @@ import unittest
 from resultbox import Tabulator, Table
 
 def get_lst():
-    lst = [{'index': 0, 'a': 1, 'b': 1, 'c': 1},
-           {'index': 1, 'a': 1, 'b': 2, 'c': 1},
-           {'index': 2, 'a': 1, 'b': 2, 'c': 1},
-           {'index': 3, 'a': 1, 'b': 1, 'c': 2},
-           {'index': 4, 'a': 2, 'b': 1, 'c': 1},
-           {'index': 5, 'a': 2, 'b': 1, 'c': 2},
-           {'index': 6, 'a': 2, 'b': 2, 'c': 1},
-           {'index': 7, 'a': 2, 'b': 2, 'c': 2}]
+    lst = [{'index': 0, 'a': 1, 'b': 1, 'c': 1, 'd': 11},
+           {'index': 1, 'a': 1, 'b': 2, 'c': 2, 'd': 12},
+           {'index': 2, 'a': 1, 'b': 2, 'c': 1, 'd': 13},
+           {'index': 3, 'a': 1, 'b': 1, 'c': 2, 'd': 14},
+           {'index': 4, 'a': 2, 'b': 1, 'c': 1, 'd': 15},
+           {'index': 5, 'a': 2, 'b': 1, 'c': 2, 'd': 16},
+           {'index': 6, 'a': 2, 'b': 2, 'c': 1, 'd': 17},
+           {'index': 7, 'a': 2, 'b': 2, 'c': 2, 'd': 18}]
     return lst
     
 class Test_Tabulator(unittest.TestCase):
@@ -35,11 +35,22 @@ class Test_Tabulator(unittest.TestCase):
         t = Tabulator()
         lst = get_lst()
         var_list = ['a', 'b']
-        index, indices = t.make_index(lst, var_list)
-        return
-        expected = {'1': {'1': {}, '2': {}}, '2': {'1': {}, '2': {}}}
-        self.assertDictEqual(nested, expected)
-        self.assertDictEqual(val_dict, {'a.1': 1, 'a.2': 2, 'b.1': 1, 'b.2': 2})
+        rows, row_ind = t.make_index(lst, var_list)
+        expected = [{'a': 1, 'b': 1}, {'a': 1, 'b': 2}, {'a': 2, 'b': 1}, {'a': 2, 'b': 2}]
+        self.assertListEqual(rows, expected)
+        expected2 = {0: 0, 3: 0, 1: 1, 2: 1, 4: 2, 5: 2, 6: 3, 7: 3}
+        self.assertDictEqual(row_ind, expected2)
         
+    def test_allocate(self):
+        t = Tabulator()
+        lst = get_lst()
+        row_vars = ['a', 'b']
+        col_vars = ['c']
+        cell_var = 'd'
+        rows, row_inds = t.make_index(lst, row_vars)
+        cols, col_inds = t.make_index(lst, col_vars)
+        table = t.allocate(lst, row_inds, col_inds, cell_var)
+        expected = [[11, 14], [13, 12], [15, 16], [17, 18]]
+        self.assertListEqual(table, expected)
 
 
