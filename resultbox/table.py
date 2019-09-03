@@ -42,14 +42,14 @@ class Tabulator():
         
         values = listify(values)
         columns = [] if columns is None else listify(columns)
-        filtered = box.filtered(values + columns)
-        combined = box.combined(filtered)
+        combined = box.combined()
+        filtered = box.filtered(values + columns, combined)
         index = set()
-        for row in combined:
+        for row in filtered:
             keys = set(row.keys())
             remove_others(keys)
             index = index.union(keys)
-        for row in combined:
+        for row in filtered:
             keys = set(row.keys())
             remove_others(keys)
             if len(keys) == len(index):
@@ -66,14 +66,16 @@ class Tabulator():
             return range(m)
         index = self.guess_index(box, values, columns) if index is None else index
         keys = listify(index) + listify(columns) + listify(values)
-        filtered = box.filtered(keys)
-        combined = box.combined(filtered)
+        combined = box.combined()
+        filtered = box.filtered(keys, combined)
+        if len(filtered) == 0:
+            raise ValueError('No records left in filtered results.')
         if aliases is not None:
-            combined = aliases.translate(combined)
+            filtered = aliases.translate(filtered)
             values = aliases.translate(values)
             index = aliases.translate(index)
             columns = aliases.translate(columns)
-        rows = [pd.DataFrame(row, index=indices(row)) for row in combined]
+        rows = [pd.DataFrame(row, index=indices(row)) for row in filtered]
         df = rows[0].copy()
         for row in rows[1:]:
             df = df.append(row)

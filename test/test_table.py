@@ -28,6 +28,14 @@ def get_lst2():
            {'index': 7, 'independent': {'a': 2, 'b': 2, 'c': [1, 2]}, 'key': 'd', 'value': [19, 37]}]
     return lst
 
+
+def get_lst3():
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1}, 'key': 'd', 'value': [12, 30]},
+           {'index': 1, 'independent': {'a': 1, 'b': 2}, 'key': 'd', 'value': [13, 31]},
+           {'index': 4, 'independent': {'a': 1, 'b': 1}, 'key': 'e', 'value': [1, 2]},
+           {'index': 7, 'independent': {'a': 1, 'b': 2}, 'key': 'e', 'value': [1, 2]}]
+    return lst
+
     
 class Test_Tabulator(unittest.TestCase):
     def test_tabulate(self):
@@ -74,4 +82,13 @@ class Test_Tabulator(unittest.TestCase):
         pt = t.tabulate(box=box, values=values, columns=columns)
         expected = 'c     1   2\na b        \n1 1  11  14\n  2  13  12\n2 1  15  16\n  2  17  18'
         self.assertEqual(str(pt), expected)
-        
+
+    def test_tabulate3(self):
+        t = Tabulator()
+        box = Box(get_lst3())
+        index = ['a', 'b']
+        columns = ['e']
+        values = 'd'
+        pt = t.tabulate(box=box, values=values, columns=columns, index=index)
+        expected = 'e     1   2\na b        \n1 1  12  30\n  2  13  31'
+        self.assertEqual(str(pt), expected)        

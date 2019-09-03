@@ -38,24 +38,45 @@ class Box(list):
                     'key': key,
                     'value': value})
         
-    def filter(self, keys):
+    def filter(self, keys, lst=None):
+        if lst is None:
+            lst = self
+            filt_self = True
+        else:
+            filt_self = False
+            
         def filt_func(d):
-            return all([k in d['independent'] or k == d['key'] for k in listify(keys)])
-        return filter(filt_func, self)
+            if filt_self:
+                return all([k in d['independent'] or k == d['key']
+                            for k in listify(keys)])
+            else:
+                return all([k in d for k in listify(keys)])
+            
+        return filter(filt_func, lst)
     
-    def filtered(self, keys):
-        return [row for row in self.filter(keys)]
+    def filtered(self, keys, lst=None):
+        return [row for row in self.filter(keys, lst)]
     
-    def iwhere(self, dct=None, **kwargs):
+    def iwhere(self, dct=None, lst=None, **kwargs):
         dct = {} if dct is None else dct
         m = {**dct, **kwargs}
+        if lst is None:
+            lst = self
+            filt_self = True
+        else:
+            filt_self = False
+            
         def filt_func(d):
-            return all([v == d['independent'].get(k, d.get('value', False))
+            if filt_self:
+                return all([v == d['independent'].get(k, d.get('value', None))
                             for k, v in m.items()])
-        return filter(filt_func, self)
+            else:
+                return all([v == d.get(k, None) for k, v in m.items()])
+            
+        return filter(filt_func, lst)
     
-    def where(self, dct=None, **kwargs):
-        return [row for row in self.iwhere(dct, **kwargs)]
+    def where(self, dct=None, lst=None, **kwargs):
+        return [row for row in self.iwhere(dct, lst, **kwargs)]
     
     def combined(self, lst=None):
         lst = self if lst is None else lst
