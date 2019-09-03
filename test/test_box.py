@@ -25,7 +25,8 @@ class Test_Box(unittest.TestCase):
         dct = get_dct()
         b.add(dct, 'test', 7)
         self.assertEqual(len(b), 1)
-        expected = {'index': 0, 'a': 1, 'b': 2, 'test': 7}
+        expected = {'index': 0, 'independent': {'a': 1, 'b': 2},
+                    'key': 'test', 'value': 7}
         self.assertEqual(b[0], expected)
         
     def test_filtered(self):
@@ -37,8 +38,10 @@ class Test_Box(unittest.TestCase):
         b.add(dct, 'test2', 9)
         dct['b'] = 6
         b.add(dct, 'test', 11)
-        expected = [{'index': 1, 'a': 1, 'b': 2, 'test2': 8},
-                    {'index': 2, 'a': 1, 'b': 3, 'test2': 9}]
+        expected = [{'index': 1, 'independent': {'a': 1, 'b': 2},
+                     'key': 'test2', 'value': 8},
+                    {'index': 2, 'independent': {'a': 1, 'b': 3},
+                     'key': 'test2', 'value': 9}]
         ret = b.filtered('test2')
         self.assertEqual(ret, expected)
         ret = b.filtered(['test2'])
@@ -52,10 +55,22 @@ class Test_Box(unittest.TestCase):
         dct['b'] = 3
         b.add(dct, 'test', 9)
         b.add(dct, 'test2', 11)
-        expected = [{'index': 2, 'a': 1, 'b': 3, 'test': 9},
-                    {'index': 3, 'a': 1, 'b': 3, 'test2': 11}]
+        expected = [{'index': 2, 'independent': {'a': 1, 'b': 3},\
+                     'key': 'test', 'value': 9},
+                    {'index': 3, 'independent': {'a': 1, 'b': 3},
+                     'key': 'test2', 'value': 11}]
         ret = b.where({'b': 3})
         self.assertEqual(ret, expected)
         ret = b.where(b=3)
         self.assertEqual(ret, expected)
+        
+    def test_combined(self):
+        b = Box()    
+        dct = get_dct()
+        b.add(dct, 'test', 7)
+        b.add(dct, 'test2', 8)
+        combined = b.combined()
+        expected = [{'a': 1, 'b': 2, 'test': 7, 'test2': 8}]
+        self.assertEqual(combined, expected)
+        
         

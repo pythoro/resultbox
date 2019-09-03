@@ -35,7 +35,6 @@ class Table():
 class Tabulator():
     def guess_index(self, box, values, columns=None):
         def remove_others(keys):
-            keys.remove('index')
             for v in values:
                 keys.remove(v)
             for v in columns:
@@ -44,12 +43,13 @@ class Tabulator():
         values = listify(values)
         columns = [] if columns is None else listify(columns)
         filtered = box.filtered(values + columns)
+        combined = box.combined(filtered)
         index = set()
-        for row in filtered:
+        for row in combined:
             keys = set(row.keys())
             remove_others(keys)
             index = index.union(keys)
-        for row in filtered:
+        for row in combined:
             keys = set(row.keys())
             remove_others(keys)
             if len(keys) == len(index):
@@ -67,12 +67,13 @@ class Tabulator():
         index = self.guess_index(box, values, columns) if index is None else index
         keys = listify(index) + listify(columns) + listify(values)
         filtered = box.filtered(keys)
+        combined = box.combined(filtered)
         if aliases is not None:
-            filtered = aliases.translate(filtered)
+            combined = aliases.translate(combined)
             values = aliases.translate(values)
             index = aliases.translate(index)
             columns = aliases.translate(columns)
-        rows = [pd.DataFrame(row, index=indices(row)) for row in filtered]
+        rows = [pd.DataFrame(row, index=indices(row)) for row in combined]
         df = rows[0].copy()
         for row in rows[1:]:
             df = df.append(row)

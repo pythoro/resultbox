@@ -10,22 +10,22 @@ import unittest
 from resultbox import Box, Tabulator, Table, Variable, Aliases
 
 def get_lst():
-    lst = [{'index': 0, 'a': 1, 'b': 1, 'c': 1, 'd': 11},
-           {'index': 1, 'a': 1, 'b': 2, 'c': 2, 'd': 12},
-           {'index': 2, 'a': 1, 'b': 2, 'c': 1, 'd': 13},
-           {'index': 3, 'a': 1, 'b': 1, 'c': 2, 'd': 14},
-           {'index': 4, 'a': 2, 'b': 1, 'c': 1, 'd': 15},
-           {'index': 5, 'a': 2, 'b': 1, 'c': 2, 'd': 16},
-           {'index': 6, 'a': 2, 'b': 2, 'c': 1, 'd': 17},
-           {'index': 7, 'a': 2, 'b': 2, 'c': 2, 'd': 18}]
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1, 'c': 1}, 'key': 'd', 'value': 11},
+           {'index': 1, 'independent': {'a': 1, 'b': 2, 'c': 2}, 'key': 'd', 'value': 12},
+           {'index': 2, 'independent': {'a': 1, 'b': 2, 'c': 1}, 'key': 'd', 'value': 13},
+           {'index': 3, 'independent': {'a': 1, 'b': 1, 'c': 2}, 'key': 'd', 'value': 14},
+           {'index': 4, 'independent': {'a': 2, 'b': 1, 'c': 1}, 'key': 'd', 'value': 15},
+           {'index': 5, 'independent': {'a': 2, 'b': 1, 'c': 2}, 'key': 'd', 'value': 16},
+           {'index': 6, 'independent': {'a': 2, 'b': 2, 'c': 1}, 'key': 'd', 'value': 17},
+           {'index': 7, 'independent': {'a': 2, 'b': 2, 'c': 2}, 'key': 'd', 'value': 18}]
     return lst
 
 
 def get_lst2():
-    lst = [{'index': 0, 'a': 1, 'b': 1, 'c': [1, 2], 'd': [12, 30]},
-           {'index': 1, 'a': 1, 'b': 2, 'c': [1, 2], 'd': [13, 31]},
-           {'index': 4, 'a': 2, 'b': 1, 'c': [1, 2], 'd': [16, 34]},
-           {'index': 7, 'a': 2, 'b': 2, 'c': [1, 2], 'd': [19, 37]}]
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1, 'c': [1, 2]}, 'key': 'd', 'value': [12, 30]},
+           {'index': 1, 'independent': {'a': 1, 'b': 2, 'c': [1, 2]}, 'key': 'd', 'value': [13, 31]},
+           {'index': 4, 'independent': {'a': 2, 'b': 1, 'c': [1, 2]}, 'key': 'd', 'value': [16, 34]},
+           {'index': 7, 'independent': {'a': 2, 'b': 2, 'c': [1, 2]}, 'key': 'd', 'value': [19, 37]}]
     return lst
 
     
