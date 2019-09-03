@@ -33,8 +33,22 @@ class Table():
 
 
 class Tabulator():
+    def guess_index(self, box, values, columns=None):
+        values = listify(values)
+        columns = [] if columns is None else listify(columns)
+        filtered = box.filtered(values + columns)
+        index = set()
+        for row in filtered:
+            keys = set(row.keys())
+            keys.remove('index')
+            for v in values:
+                keys.remove(v)
+            for v in columns:
+                keys.remove(v)
+            index = index.union(keys)
+        return list(index)
     
-    def tabulate(self, box, values, index, columns, aggfunc='mean',
+    def tabulate(self, box, values, columns, index=None, aggfunc='mean',
                  aliases=None):
         def indices(d):
             m = 1
@@ -42,7 +56,7 @@ class Tabulator():
                 if isinstance(val, list):
                     m = max(m, len(val))
             return range(m)
-        
+        index = self.guess_index(box, values, columns) if index is None else index
         keys = listify(index) + listify(columns) + listify(values)
         filtered = box.filtered(keys)
         if aliases is not None:
