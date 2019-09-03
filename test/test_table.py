@@ -65,3 +65,5 @@ class Test_Tabulator(unittest.TestCase):
                         aliases=a)
         expected = 'three [N]          1   2\none [mm] two [s]        \n1        1        11  14\n         2        13  12\n2        1        15  16\n         2        17  18'
         self.assertEqual(str(pt), expected)
+        
+        

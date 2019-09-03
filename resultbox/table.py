@@ -43,7 +43,7 @@ class Tabulator():
                     m = max(m, len(val))
             return range(m)
         
-        keys = listify(index) + listify(columns)
+        keys = listify(index) + listify(columns) + listify(values)
         filtered = box.filtered(keys)
         if aliases is not None:
             filtered = aliases.translate(filtered)

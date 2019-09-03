@@ -23,6 +23,8 @@ class Aliases(dict):
         return key
 
     def translate(self, obj):
+        if obj is None:
+            return None
         if isinstance(obj, str):
             return self.translate_str(obj)
         elif isinstance(obj, list):
