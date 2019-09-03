@@ -20,9 +20,14 @@ def to_bytes(obj):
 
 def hash_dict(dct):
     h = hashlib.md5()
-    for k, v in dct.items():
-        h.update(to_bytes(k))
-        h.update(to_bytes(v))
+    def update(d):
+        for k, v in d.items():
+            h.update(to_bytes(k))
+            if isinstance(v, dict):
+                update(v)
+            else:
+                h.update(to_bytes(v))
+    update(dct)
     return h.digest()
 
 class Box(list):
