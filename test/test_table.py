@@ -7,7 +7,7 @@ Created on Sun Sep  1 21:45:56 2019
 
 import unittest
 
-from resultbox import Tabulator, Table
+from resultbox import Box, Tabulator, Table, Variable, Aliases
 
 def get_lst():
     lst = [{'index': 0, 'a': 1, 'b': 1, 'c': 1, 'd': 11},
@@ -19,38 +19,49 @@ def get_lst():
            {'index': 6, 'a': 2, 'b': 2, 'c': 1, 'd': 17},
            {'index': 7, 'a': 2, 'b': 2, 'c': 2, 'd': 18}]
     return lst
+
+
+def get_lst2():
+    lst = [{'index': 0, 'a': 1, 'b': 1, 'c': [1, 2], 'd': [12, 30]},
+           {'index': 1, 'a': 1, 'b': 2, 'c': [1, 2], 'd': [13, 31]},
+           {'index': 4, 'a': 2, 'b': 1, 'c': [1, 2], 'd': [16, 34]},
+           {'index': 7, 'a': 2, 'b': 2, 'c': [1, 2], 'd': [19, 37]}]
+    return lst
+
     
 class Test_Tabulator(unittest.TestCase):
-    def test_make_nested_index(self):
+    def test_tabulate(self):
         t = Tabulator()
-        lst = get_lst()
-        var_list = ['a', 'b']
-        nested, val_dict = t.make_nested_index(lst, var_list)
-        expected = {b'\x93\xb8\x85\xad\xfe\r\xa0\x89\xcd\xf64\x90O\xd5\x9fq': {b'\x93\xb8\x85\xad\xfe\r\xa0\x89\xcd\xf64\x90O\xd5\x9fq': {'__index__': [0, 3]}, b"\xc4\x10?\x12-'g|\x9d\xb1D\xca\xe19Jf": {'__index__': [1, 2]}}, b"\xc4\x10?\x12-'g|\x9d\xb1D\xca\xe19Jf": {b'\x93\xb8\x85\xad\xfe\r\xa0\x89\xcd\xf64\x90O\xd5\x9fq': {'__index__': [4, 5]}, b"\xc4\x10?\x12-'g|\x9d\xb1D\xca\xe19Jf": {'__index__': [6, 7]}}}
-        self.assertDictEqual(nested, expected)
-        expected2 = {b'\xcb\xa3\xf4\x85\x8b\x07\x83\xce\x80\xb8{\xed\xeb\xa1\x85\xb5': 1, b'~\x91C\x00\xd2\xcf\xe3\x1ag\x8af9\x10\xc5\x13\xa0': 1, b'?\x82n\x18\x9c\x92\xa3\x02\x05\x16\x1a\xd7\x89\x1d\x89\xbf': 2, b'\\\x04\xa9\x89\xc8S[>.c\x10\xd1\xa5~\xe8\x8d': 2}
-        self.assertDictEqual(val_dict, expected2)
+        box = Box(get_lst())
+        index = ['a', 'b']
+        columns = ['c']
+        values = 'd'
+        pt = t.tabulate(box=box, values=values, index=index, columns=columns)
+        expected = 'c     1   2\na b        \n1 1  11  14\n  2  13  12\n2 1  15  16\n  2  17  18'
+        self.assertEqual(str(pt), expected)
         
-    def test_make_index(self):
+    def test_tabulate2(self):
         t = Tabulator()
-        lst = get_lst()
-        var_list = ['a', 'b']
-        rows, row_ind = t.make_index(lst, var_list)
-        expected = [{'a': 1, 'b': 1}, {'a': 1, 'b': 2}, {'a': 2, 'b': 1}, {'a': 2, 'b': 2}]
-        self.assertListEqual(rows, expected)
-        expected2 = {0: 0, 3: 0, 1: 1, 2: 1, 4: 2, 5: 2, 6: 3, 7: 3}
-        self.assertDictEqual(row_ind, expected2)
-        
-    def test_allocate(self):
+        box = Box(get_lst2())
+        index = ['a', 'b']
+        columns = ['c']
+        values = 'd'
+        pt = t.tabulate(box=box, values=values, index=index, columns=columns)
+        expected = 'c     1   2\na b        \n1 1  12  30\n  2  13  31\n2 1  16  34\n  2  19  37'
+        self.assertEqual(str(pt), expected)
+
+    def test_tabulate_translated(self):
+        dct = {'a': Variable('one', 'blah', 'mm'),
+               'b': Variable('two', 'blah2', 's'),
+               'c': Variable('three', 'blah2', 'N')}
+        a = Aliases(dct)
+
         t = Tabulator()
-        lst = get_lst()
-        row_vars = ['a', 'b']
-        col_vars = ['c']
-        cell_var = 'd'
-        rows, row_inds = t.make_index(lst, row_vars)
-        cols, col_inds = t.make_index(lst, col_vars)
-        table = t.allocate(lst, row_inds, col_inds, cell_var)
-        expected = [[11, 14], [13, 12], [15, 16], [17, 18]]
-        self.assertListEqual(table, expected)
-
-
+        box = Box(get_lst())
+        index = ['a', 'b']
+        columns = ['c']
+        values = 'd'
+        pt = t.tabulate(box=box, values=values, index=index, columns=columns,
+                        aliases=a)
+        expected = 'three [N]          1   2\none [mm] two [s]        \n1        1        11  14\n         2        13  12\n2        1        15  16\n         2        17  18'
+        self.assertEqual(str(pt), expected)

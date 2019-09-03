@@ -11,13 +11,34 @@ class Variable(dict):
         self.desc = desc
         self.unit = unit
         
+    def __str__(self):
+        return self.name + ' [' + self.unit + ']'
+    
         
 class Aliases(dict):
     def __init__(self, data):
         self.update(data)
         
-    def from_dict(self, dct):
-        return {k: self[k] for k in dct.keys()}
+    def __missing__(self, key):
+        return key
 
-    def from_list(self, lst):
-        return {k: self[k] for k in lst}
+    def translate(self, obj):
+        if isinstance(obj, str):
+            return self.translate_str(obj)
+        elif isinstance(obj, list):
+            return self.translate_list(obj)
+        elif isinstance(obj, dict):
+            return self.translate_dict(obj)
+
+    def translate_str(self, s):
+        return str(self[s])
+
+    def translate_dict_vals(self, dct):
+        return {k: str(self[v]) for k, v in dct.items()}
+        
+    def translate_dict(self, dct):
+        return {str(self[k]): v for k, v in dct.items()}
+
+    def translate_list(self, lst):
+        return [self.translate(k) for k in lst]
+
