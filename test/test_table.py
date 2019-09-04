@@ -10,30 +10,30 @@ import unittest
 from resultbox import Box, Tabulator, Table, Variable, Aliases
 
 def get_lst():
-    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1, 'c': 1}, 'key': 'd', 'value': 11},
-           {'index': 1, 'independent': {'a': 1, 'b': 2, 'c': 2}, 'key': 'd', 'value': 12},
-           {'index': 2, 'independent': {'a': 1, 'b': 2, 'c': 1}, 'key': 'd', 'value': 13},
-           {'index': 3, 'independent': {'a': 1, 'b': 1, 'c': 2}, 'key': 'd', 'value': 14},
-           {'index': 4, 'independent': {'a': 2, 'b': 1, 'c': 1}, 'key': 'd', 'value': 15},
-           {'index': 5, 'independent': {'a': 2, 'b': 1, 'c': 2}, 'key': 'd', 'value': 16},
-           {'index': 6, 'independent': {'a': 2, 'b': 2, 'c': 1}, 'key': 'd', 'value': 17},
-           {'index': 7, 'independent': {'a': 2, 'b': 2, 'c': 2}, 'key': 'd', 'value': 18}]
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1, 'c': 1}, 'dependent': {'d': 11}},
+           {'index': 1, 'independent': {'a': 1, 'b': 2, 'c': 2}, 'dependent': {'d': 12}},
+           {'index': 2, 'independent': {'a': 1, 'b': 2, 'c': 1}, 'dependent': {'d': 13}},
+           {'index': 3, 'independent': {'a': 1, 'b': 1, 'c': 2}, 'dependent': {'d': 14}},
+           {'index': 4, 'independent': {'a': 2, 'b': 1, 'c': 1}, 'dependent': {'d': 15}},
+           {'index': 5, 'independent': {'a': 2, 'b': 1, 'c': 2}, 'dependent': {'d': 16}},
+           {'index': 6, 'independent': {'a': 2, 'b': 2, 'c': 1}, 'dependent': {'d': 17}},
+           {'index': 7, 'independent': {'a': 2, 'b': 2, 'c': 2}, 'dependent': {'d': 18}}]
     return lst
 
 
 def get_lst2():
-    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1, 'c': [1, 2]}, 'key': 'd', 'value': [12, 30]},
-           {'index': 1, 'independent': {'a': 1, 'b': 2, 'c': [1, 2]}, 'key': 'd', 'value': [13, 31]},
-           {'index': 4, 'independent': {'a': 2, 'b': 1, 'c': [1, 2]}, 'key': 'd', 'value': [16, 34]},
-           {'index': 7, 'independent': {'a': 2, 'b': 2, 'c': [1, 2]}, 'key': 'd', 'value': [19, 37]}]
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1, 'c': [1, 2]}, 'dependent': {'d': [12, 30]}},
+           {'index': 1, 'independent': {'a': 1, 'b': 2, 'c': [1, 2]}, 'dependent': {'d': [13, 31]}},
+           {'index': 4, 'independent': {'a': 2, 'b': 1, 'c': [1, 2]}, 'dependent': {'d': [16, 34]}},
+           {'index': 7, 'independent': {'a': 2, 'b': 2, 'c': [1, 2]}, 'dependent': {'d': [19, 37]}}]
     return lst
 
 
 def get_lst3():
-    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1}, 'key': 'd', 'value': [12, 30]},
-           {'index': 1, 'independent': {'a': 1, 'b': 2}, 'key': 'd', 'value': [13, 31]},
-           {'index': 4, 'independent': {'a': 1, 'b': 1}, 'key': 'e', 'value': [1, 2]},
-           {'index': 7, 'independent': {'a': 1, 'b': 2}, 'key': 'e', 'value': [1, 2]}]
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1}, 'dependent': {'d': [12, 30]}},
+           {'index': 1, 'independent': {'a': 1, 'b': 2}, 'dependent': {'d': [13, 31]}},
+           {'index': 4, 'independent': {'a': 1, 'b': 1}, 'dependent': {'e': [1, 2]}},
+           {'index': 7, 'independent': {'a': 1, 'b': 2}, 'dependent': {'e': [1, 2]}}]
     return lst
 
     

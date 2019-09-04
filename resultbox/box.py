@@ -32,11 +32,14 @@ def hash_dict(dct):
 
 class Box(list):
         
-    def add(self, dct, key, value):
+    def add(self, dct, key=None, value=None, dep=None, **kwargs):
+        d = {key: value} if key is not None and value is not None else {}
+        if dep is not None:
+            d.update(dep)
+        d.update(kwargs)
         self.append({'index': len(self),
                     'independent': dct.copy(),
-                    'key': key,
-                    'value': value})
+                    'dependent': d})
         
     def filter(self, keys, lst=None):
         if lst is None:
@@ -47,7 +50,7 @@ class Box(list):
             
         def filt_func(d):
             if filt_self:
-                return all([k in d['independent'] or k == d['key']
+                return all([k in d['independent'] or k in d['dependent']
                             for k in listify(keys)])
             else:
                 return all([k in d for k in listify(keys)])
@@ -68,7 +71,7 @@ class Box(list):
             
         def filt_func(d):
             if filt_self:
-                return all([v == d['independent'].get(k, d.get('value', None))
+                return all([v == d['independent'].get(k, d['dependent'].get(k, None))
                             for k, v in m.items()])
             else:
                 return all([v == d.get(k, None) for k, v in m.items()])
@@ -86,7 +89,7 @@ class Box(list):
             h = hash_dict(independent)
             if h not in d:
                 d[h] = independent.copy()
-            d[h][dct['key']] = dct['value']
+            d[h].update(dct['dependent'])
         return [c for key, c in d.items()]
     
     
