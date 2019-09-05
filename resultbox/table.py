@@ -83,3 +83,35 @@ class Tabulator():
         pt = pd.pivot_table(df, values=values, index=index, columns=columns,
                             aggfunc=aggfunc)
         return pt
+
+
+class Vector_Tabulator():
+    def tabulate(self, box, values, columns):
+        keys = listify(columns) + listify(values)
+        merged = box.merged()
+        filtered = box.filtered(keys, merged)
+        out = []
+        for dct in filtered:
+            d = {}
+            d['independent'] = dct['independent'].copy()
+            ind = dct['dependent']
+            d['dependent'] = {k: ind[k] for k in ind if k in keys}
+            out.append(d)
+        return out
+    
+    def vecs(self, box, values, columns):
+        lst = self.tabulate(box, values, columns)
+        out = []
+        for dct in lst:
+            d = {'label': str(dct['independent']),
+                 'values': dct['dependent'][values],
+                 'columns': dct['dependent'][columns]}
+            out.append(d)
+        return out
+            
+        
+        
+    
+    
+            
+        
