@@ -44,12 +44,13 @@ class Box(list):
     def filter(self, keys, lst=None):
         if lst is None:
             lst = self
-            filt_self = True
+        if 'dependent' in lst[0] and 'independent' in lst[0]:
+            filt_dep = True
         else:
-            filt_self = False
+            filt_dep = False
             
         def filt_func(d):
-            if filt_self:
+            if filt_dep:
                 return all([k in d['independent'] or k in d['dependent']
                             for k in listify(keys)])
             else:
@@ -65,12 +66,13 @@ class Box(list):
         m = {**dct, **kwargs}
         if lst is None:
             lst = self
-            filt_self = True
+        if 'dependent' in lst[0] and 'independent' in lst[0]:
+            filt_dep = True
         else:
-            filt_self = False
+            filt_dep = False
             
         def filt_func(d):
-            if filt_self:
+            if filt_dep:
                 return all([v == d['independent'].get(k, d['dependent'].get(k, None))
                             for k, v in m.items()])
             else:
@@ -92,4 +94,13 @@ class Box(list):
             d[h].update(dct['dependent'])
         return [c for key, c in d.items()]
     
-    
+    def merged(self, lst=None):
+        lst = self if lst is None else lst
+        d = {}
+        for dct in lst:
+            independent = dct['independent']
+            h = hash_dict(independent)
+            if h not in d:
+                d[h] = dct.copy()
+            d[h]['dependent'].update(dct['dependent'])
+        return [c for key, c in d.items()]
