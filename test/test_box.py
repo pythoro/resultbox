@@ -73,4 +73,13 @@ class Test_Box(unittest.TestCase):
         expected = [{'a': 1, 'b': 2, 'test': 7, 'test2': 8}]
         self.assertEqual(combined, expected)
         
+    def test_merged(self):
+        b = Box()    
+        dct = get_dct()
+        b.add(dct, 'test', 7)
+        b.add(dct, 'test2', 8)
+        combined = b.merged()
+        expected = [{'independent': {'a': 1, 'b': 2}, 
+                     'dependent': {'test': 7, 'test2': 8}}]
+        self.assertEqual(combined, expected)
         

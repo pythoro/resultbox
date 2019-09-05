@@ -101,6 +101,8 @@ class Box(list):
             independent = dct['independent']
             h = hash_dict(independent)
             if h not in d:
-                d[h] = dct.copy()
+                d2 = dct.copy()
+                d2.pop('index')
+                d[h] = d2
             d[h]['dependent'].update(dct['dependent'])
         return [c for key, c in d.items()]
