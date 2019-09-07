@@ -30,6 +30,12 @@ def hash_dict(dct):
     update(dct)
     return h.digest()
 
+
+def make_str(dct):
+    out = [str(k) + '=' + str(v) for k, v in dct.items()]
+    return ', '.join(out)
+
+
 class Box(list):
         
     def add(self, dct, key=None, value=None, dep=None, **kwargs):
@@ -83,6 +89,16 @@ class Box(list):
     def where(self, dct=None, lst=None, **kwargs):
         return [row for row in self.iwhere(dct, lst, **kwargs)]
     
+    def minimal(self, lst=None):
+        lst = self if lst is None else lst
+        combined = self.combined(lst)
+        out = []
+        for row in combined:
+            d = row['independent'].copy()
+            d.update(row['dependent'])
+            out.append(d)
+        return out
+    
     def combined(self, lst=None):
         lst = self if lst is None else lst
         d = {}
@@ -90,8 +106,8 @@ class Box(list):
             independent = dct['independent']
             h = hash_dict(independent)
             if h not in d:
-                d[h] = independent.copy()
-            d[h].update(dct['dependent'])
+                d[h] = {'independent': independent.copy(), 'dependent': {}}
+            d[h]['dependent'].update(dct['dependent'])
         return [c for key, c in d.items()]
     
     def merged(self, lst=None):

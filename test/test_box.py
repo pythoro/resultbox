@@ -64,22 +64,22 @@ class Test_Box(unittest.TestCase):
         ret = b.where(b=3)
         self.assertEqual(ret, expected)
         
-    def test_combined(self):
+    def test_minimal(self):
         b = Box()    
         dct = get_dct()
         b.add(dct, 'test', 7)
         b.add(dct, 'test2', 8)
-        combined = b.combined()
+        minimal = b.minimal()
         expected = [{'a': 1, 'b': 2, 'test': 7, 'test2': 8}]
-        self.assertEqual(combined, expected)
+        self.assertEqual(minimal, expected)
         
     def test_merged(self):
         b = Box()    
         dct = get_dct()
         b.add(dct, 'test', 7)
         b.add(dct, 'test2', 8)
-        combined = b.merged()
+        merged = b.merged()
         expected = [{'independent': {'a': 1, 'b': 2}, 
                      'dependent': {'test': 7, 'test2': 8}}]
-        self.assertEqual(combined, expected)
+        self.assertEqual(merged, expected)
         

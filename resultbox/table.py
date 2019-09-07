@@ -42,8 +42,8 @@ class Tabulator():
         
         values = listify(values)
         columns = [] if columns is None else listify(columns)
-        combined = box.combined()
-        filtered = box.filtered(values + columns, combined)
+        minimal = box.minimal()
+        filtered = box.filtered(values + columns, minimal)
         index = set()
         for row in filtered:
             keys = set(row.keys())
@@ -66,8 +66,8 @@ class Tabulator():
             return range(m)
         index = self.guess_index(box, values, columns) if index is None else index
         keys = listify(index) + listify(columns) + listify(values)
-        combined = box.combined()
-        filtered = box.filtered(keys, combined)
+        minimal = box.minimal()
+        filtered = box.filtered(keys, minimal)
         if len(filtered) == 0:
             raise ValueError('No records left in filtered results.')
         if aliases is not None:

@@ -5,6 +5,15 @@ Created on Sun Sep  1 14:27:27 2019
 @author: Reuben
 """
 
+
+class Store(dict):
+    def new(self, name, desc, unit):
+        new = Variable(name, desc, unit)
+        self[name] = new
+        return str(new)
+    
+    
+
 class Variable(dict):
     def __init__(self, name, desc, unit):
         self.name = name
