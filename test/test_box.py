@@ -15,6 +15,12 @@ def get_dct():
     d = Dict(dct)
     return d
    
+def get_lst3():
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1}, 'dependent': {'d': [12, 30]}},
+           {'index': 1, 'independent': {'a': 1, 'b': 2}, 'dependent': {'d': [13, 31]}},
+           {'index': 4, 'independent': {'a': 1, 'b': 1}, 'dependent': {'e': [1, 2]}},
+           {'index': 7, 'independent': {'a': 1, 'b': 2}, 'dependent': {'e': [1, 2]}}]
+    return lst
 
 class Test_Box(unittest.TestCase):
     def test_init(self):
@@ -83,3 +89,7 @@ class Test_Box(unittest.TestCase):
                      'dependent': {'test': 7, 'test2': 8}}]
         self.assertEqual(merged, expected)
         
+    def test_getitem(self):
+        b = Box(get_lst3())
+        keys = ['d', 'e']
+        print(b[keys])

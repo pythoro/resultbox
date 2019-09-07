@@ -122,3 +122,21 @@ class Box(list):
                 d[h] = d2
             d[h]['dependent'].update(dct['dependent'])
         return [c for key, c in d.items()]
+    
+    def __getitem__(self, keys):
+        if isinstance(keys, int):
+            return super().__getitem__(keys)
+        else:
+            keys = listify(keys)
+            combined = self.combined()
+            filtered = self.filtered(keys, lst=combined)
+            out = {k: [] for k in keys}
+            out['labels'] = []
+            for dct in filtered:
+                out['labels'].append(make_str(dct['independent']))
+                dep = dct['dependent']
+                for k in keys:
+                    out[k].append(dep[k])
+            return [v for k, v in out.items()]
+                
+        
