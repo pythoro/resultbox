@@ -22,7 +22,7 @@ def get_lst():
            {'index': 7, 'independent': {'a': 2, 'b': 2, 'c': 2}, 'key': 'd', 'value': 18}]
     return lst
 
-class Test_Tabulator(unittest.TestCase):
+class Test_JSON(unittest.TestCase):
     def test_uncompresed_save_load(self):
         box = Box(get_lst())
         with tempfile.TemporaryDirectory() as tmpdirname:
