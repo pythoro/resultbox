@@ -69,7 +69,8 @@ class Box(list):
     
     def iwhere(self, dct=None, lst=None, **kwargs):
         dct = {} if dct is None else dct
-        m = {**dct, **kwargs}
+        m = dct.copy()
+        m.update(kwargs)
         if lst is None:
             lst = self
         if 'dependent' in lst[0] and 'independent' in lst[0]:
@@ -123,20 +124,25 @@ class Box(list):
             d[h]['dependent'].update(dct['dependent'])
         return [c for key, c in d.items()]
     
+    def vectors(self, keys, dct=None):
+        keys = listify(keys)
+        combined = self.combined()
+        filtered = self.filtered(keys, lst=combined)
+        if dct is not None:
+            filtered = self.where(dct, filtered)
+        out = {k: [] for k in keys}
+        out['labels'] = []
+        for dct in filtered:
+            out['labels'].append(make_str(dct['independent']))
+            dep = dct['dependent']
+            for k in keys:
+                out[k].append(dep[k])
+        return [v for k, v in out.items()]
+    
     def __getitem__(self, keys):
         if isinstance(keys, int):
             return super().__getitem__(keys)
         else:
-            keys = listify(keys)
-            combined = self.combined()
-            filtered = self.filtered(keys, lst=combined)
-            out = {k: [] for k in keys}
-            out['labels'] = []
-            for dct in filtered:
-                out['labels'].append(make_str(dct['independent']))
-                dep = dct['dependent']
-                for k in keys:
-                    out[k].append(dep[k])
-            return [v for k, v in out.items()]
+            return self.vectors(keys)
                 
         
