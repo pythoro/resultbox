@@ -7,7 +7,7 @@ Created on Sun Sep  1 21:45:56 2019
 
 import unittest
 
-from resultbox import Box, Tabulator, Vector_Tabulator, Table, Variable, Aliases
+from resultbox import Box, Tabulator, Table, Variable, Aliases
 
 def get_lst():
     lst = [{'index': 0, 'independent': {'a': 1, 'b': 1, 'c': 1}, 'dependent': {'d': 11}},
@@ -94,27 +94,3 @@ class Test_Tabulator(unittest.TestCase):
         self.assertEqual(str(pt), expected)        
         
         
-class Test_Vector_Tabulator(unittest.TestCase):
-    def test_tabulate(self):
-        t = Vector_Tabulator()
-        box = Box(get_lst3())
-        columns = 'd'
-        values = 'e'
-        data = t.tabulate(box=box, values=values, columns=columns)
-        expected = [{'independent': {'a': 1, 'b': 1},
-                     'dependent': {'d': [12, 30], 'e': [1, 2]}},
-                    {'independent': {'a': 1, 'b': 2},
-                     'dependent': {'d': [13, 31], 'e': [1, 2]}}]
-        self.assertListEqual(data, expected)
-
-    def test_vecs(self):
-        t = Vector_Tabulator()
-        box = Box(get_lst3())
-        columns = 'd'
-        values = 'e'
-        data = t.vecs(box=box, values=values, columns=columns)
-        expected = [{'label': "{'a': 1, 'b': 1}",
-                     'values': [1, 2], 'columns': [12, 30]},
-                    {'label': "{'a': 1, 'b': 2}",
-                     'values': [1, 2], 'columns': [13, 31]}]
-        self.assertListEqual(data, expected)

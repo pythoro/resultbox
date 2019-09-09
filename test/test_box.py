@@ -92,4 +92,6 @@ class Test_Box(unittest.TestCase):
     def test_getitem(self):
         b = Box(get_lst3())
         keys = ['d', 'e']
-        print(b[keys])
+        res = b[keys]
+        expected = [[[12, 30], [13, 31]], [[1, 2], [1, 2]], ['a=1, b=1', 'a=1, b=2']]
+        self.assertListEqual(expected, res)
