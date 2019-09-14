@@ -79,15 +79,46 @@ class Test_Box(unittest.TestCase):
         expected = [{'a': 1, 'b': 2, 'test': 7, 'test2': 8}]
         self.assertEqual(minimal, expected)
         
-    def test_merged(self):
+    def test_combined(self):
         b = Box()    
         dct = get_dct()
         b.add(dct, 'test', 7)
         b.add(dct, 'test2', 8)
-        merged = b.merged()
-        expected = [{'independent': {'a': 1, 'b': 2}, 
+        combined = b.combined()
+        expected = [{'independent': {'a': 1, 'b': 2},
                      'dependent': {'test': 7, 'test2': 8}}]
-        self.assertEqual(merged, expected)
+        self.assertEqual(combined, expected)
+        
+    def test_merge_in_place(self):
+        b1 = Box()
+        b2 = Box()
+        dct = get_dct()
+        b1.add(dct, 'test', 7)
+        b2.add(dct, 'test2', 8)
+        b1.merge(b2)
+        expected = [{'index': 0,
+                     'independent': {'a': 1, 'b': 2}, 
+                     'dependent': {'test': 7}},
+                    {'index': 1,
+                     'independent': {'a': 1, 'b': 2}, 
+                     'dependent': {'test2': 8}}]
+        self.assertListEqual(b1, expected)
+
+    def test_merge_not_in_place(self):
+        b1 = Box()
+        b2 = Box()
+        dct = get_dct()
+        b1.add(dct, 'test', 7)
+        b2.add(dct, 'test2', 8)
+        b3 = b1.merge(b2, in_place=False)
+        expected = [{'index': 0,
+                     'independent': {'a': 1, 'b': 2}, 
+                     'dependent': {'test': 7}},
+                    {'index': 1,
+                     'independent': {'a': 1, 'b': 2}, 
+                     'dependent': {'test2': 8}}]
+        self.assertListEqual(b3, expected)
+
         
     def test_getitem(self):
         b = Box(get_lst3())

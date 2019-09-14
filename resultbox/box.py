@@ -37,15 +37,23 @@ def make_str(dct):
 
 
 class Box(list):
+    def __init__(self, lst=None):
+        self._combined = {}
+        if lst is not None:
+            super().__init__(lst)
+            for row in lst:
+                self._combine(row)
         
     def add(self, dct, key=None, value=None, dep=None, **kwargs):
         d = {key: value} if key is not None and value is not None else {}
         if dep is not None:
             d.update(dep)
         d.update(kwargs)
-        self.append({'index': len(self),
-                    'independent': dct.copy(),
-                    'dependent': d})
+        dfull = {'index': len(self),
+                 'independent': dct.copy(),
+                 'dependent': d}
+        self.append(dfull)
+        self._combine(dfull)
         
     def filter(self, keys, lst=None):
         if lst is None:
@@ -90,39 +98,39 @@ class Box(list):
     def where(self, dct=None, lst=None, **kwargs):
         return [row for row in self.iwhere(dct, lst, **kwargs)]
     
-    def minimal(self, lst=None):
-        lst = self if lst is None else lst
-        combined = self.combined(lst)
+    def minimal(self):
+        combined = self._combined
         out = []
-        for row in combined:
-            d = row['independent'].copy()
-            d.update(row['dependent'])
-            out.append(d)
+        for k, d in combined.items():
+            dct = d['independent'].copy()
+            dct.update(d['dependent'])
+            out.append(dct)
         return out
     
-    def combined(self, lst=None):
-        lst = self if lst is None else lst
-        d = {}
-        for dct in lst:
-            independent = dct['independent']
-            h = hash_dict(independent)
-            if h not in d:
-                d[h] = {'independent': independent.copy(), 'dependent': {}}
-            d[h]['dependent'].update(dct['dependent'])
+    def _combine(self, dct):
+        d = self._combined
+        independent = dct['independent']
+        h = hash_dict(independent)
+        if h not in d:
+            d[h] = {'independent': independent.copy(), 'dependent': {}}
+        d[h]['dependent'].update(dct['dependent'])
+    
+    def combined(self):
+        d = self._combined
         return [c for key, c in d.items()]
     
-    def merged(self, lst=None):
-        lst = self if lst is None else lst
-        d = {}
-        for dct in lst:
-            independent = dct['independent']
-            h = hash_dict(independent)
-            if h not in d:
-                d2 = dct.copy()
-                d2.pop('index')
-                d[h] = d2
-            d[h]['dependent'].update(dct['dependent'])
-        return [c for key, c in d.items()]
+    def merge(self, box, in_place=True):
+        def _merge(base_box, box):
+            for row in box:
+                row['index'] = len(base_box)
+                base_box.append(row)
+                base_box._combine(row)
+        if in_place:
+            _merge(self, box)
+        else:
+            base = self.copy()
+            _merge(base, box)
+            return base
     
     def vectors(self, keys, dct=None):
         keys = listify(keys)
@@ -144,5 +152,7 @@ class Box(list):
             return super().__getitem__(keys)
         else:
             return self.vectors(keys)
-                
+    
+    def copy(self):
+        return Box(self)
         
