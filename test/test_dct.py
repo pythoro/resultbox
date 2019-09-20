@@ -7,30 +7,29 @@ Created on Sun Sep  1 20:04:58 2019
 
 import unittest
 
-from resultbox import Dict
+from resultbox import Dict_Container, get_dict
 
 
-def get_dct():
-    dct = {'a': 1, 'b': 2}
-    d = Dict(dct)
-    return d
+def dct1():
+    return {'a': 1, 'b': 2}
+
+def dct2():
+    return {'a': 3, 'b': 4, 'c': 5}
    
 
-class Test_Dict(unittest.TestCase):
+class Test_Dict_Container(unittest.TestCase):
     def test_init(self):
-        dct = {'a': 1, 'b': 2}
-        d = Dict(dct)
-        self.assertEqual(d, dct)
+        dc = Dict_Container()
 
-    def test_subdict(self):
-        d = get_dct()
-        d2 = d.subdict('c', 5)
-        expected = {'a': 1, 'b': 2, 'c': 5}
-        self.assertDictEqual(d2, expected)
-        self.assertTrue(isinstance(d2, Dict))
+    def test_get_new(self):
+        dc = Dict_Container()
+        test = dc['test']
+        self.assertTrue(isinstance(test, dict))
         
-    def test_copy(self):
-        d = get_dct()
-        d2 = d.copy()
-        self.assertDictEqual(d2, d)
-        self.assertTrue(isinstance(d2, Dict))
+    def test_get_again(self):
+        dc = Dict_Container()
+        test = dc['test']
+        test2 = dc['test2']
+        test3 = dc['test']
+        self.assertTrue(test is test3)
+        

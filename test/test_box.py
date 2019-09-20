@@ -7,13 +7,12 @@ Created on Sun Sep  1 20:13:44 2019
 
 import unittest
 
-from resultbox import Box, Dict
+from resultbox import Box
 
 
 def get_dct():
     dct = {'a': 1, 'b': 2}
-    d = Dict(dct)
-    return d
+    return dct
    
 def get_lst3():
     lst = [{'index': 0, 'independent': {'a': 1, 'b': 1}, 'dependent': {'d': [12, 30]}},
