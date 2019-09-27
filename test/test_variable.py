@@ -7,7 +7,31 @@ Created on Sun Sep  1 20:04:58 2019
 
 import unittest
 
-from resultbox import Variable, Aliases
+from resultbox import Store, Variable, Aliases
+
+
+class Test_Store(unittest.TestCase):
+    def test_new(self):
+        s = Store()
+        name = 'a'
+        desc = 'b'
+        unit = 'c'
+        v = s.new(name, desc, unit)
+        v_check = Variable(name, desc, unit)
+        self.assertEqual(str(v_check), str(v))
+        self.assertTrue(v in s)
+        self.assertEqual(str(s[v]), str(v))
+
+    def test_new_list(self):
+        s = Store()
+        name = 'a'
+        desc = 'b'
+        unit = 'c'
+        suffixes = ['x', 'y', 'z']
+        lst = s.new_list(name, desc, unit, suffixes)
+        self.assertEqual(len(lst), 3)
+        self.assertTrue(all([l in s for l in lst]))
+
 
 class Test_Variable(unittest.TestCase):
     def test_init(self):

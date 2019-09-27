@@ -12,9 +12,15 @@ class Store(dict):
             raise KeyError('Key "' + str(name) + '" already exists. Names '
                           + 'must be unique.')
         new = Variable(name, desc, unit)
-        self[name] = new
-        return str(new)
+        self[new.str] = new
+        return new.str
     
+    def new_list(self, name, desc, unit, suffixes):
+        out = []
+        for suffix in suffixes:
+            full_name = name + ' - ' + suffix
+            out.append(self.new(full_name, desc, unit))
+        return out
     
 
 class Variable(dict):
@@ -22,9 +28,10 @@ class Variable(dict):
         self.name = name
         self.desc = desc
         self.unit = unit
+        self.str = self.name + ' [' + self.unit + ']'
         
     def __str__(self):
-        return self.name + ' [' + self.unit + ']'
+        return self.str
     
         
 class Aliases(dict):
