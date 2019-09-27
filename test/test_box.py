@@ -33,6 +33,28 @@ class Test_Box(unittest.TestCase):
         expected = {'index': 0, 'independent': {'a': 1, 'b': 2},
                     'dependent': {'test': 7}}
         self.assertEqual(b[0], expected)
+
+    def test_add_array_list(self):
+        b = Box()    
+        dct = get_dct()
+        arr = [0, 1, 2]
+        labels = ['a', 'b', 'c']
+        b.add_array(dct, labels, arr)
+        self.assertEqual(len(b), 1)
+        expected = {'index': 0, 'independent': {'a': 1, 'b': 2},
+                    'dependent': {'a': 0, 'b': 1, 'c': 2}}
+        self.assertEqual(b[0], expected)
+        
+    def test_add_array(self):
+        b = Box()    
+        dct = get_dct()
+        arr = [[0, 1], [2, 3], [4, 5]]
+        labels = ['a', 'b', 'c']
+        b.add_array(dct, labels, arr)
+        self.assertEqual(len(b), 1)
+        expected = {'index': 0, 'independent': {'a': 1, 'b': 2},
+                    'dependent': {'a': [0, 1], 'b': [2, 3], 'c': [4, 5]}}
+        self.assertEqual(b[0], expected)
         
     def test_filtered(self):
         b = Box()    

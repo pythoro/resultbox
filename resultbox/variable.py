@@ -8,6 +8,9 @@ Created on Sun Sep  1 14:27:27 2019
 
 class Store(dict):
     def new(self, name, desc, unit):
+        if name in self:
+            raise KeyError('Key "' + str(name) + '" already exists. Names '
+                          + 'must be unique.')
         new = Variable(name, desc, unit)
         self[name] = new
         return str(new)

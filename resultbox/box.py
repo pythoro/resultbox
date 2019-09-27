@@ -55,6 +55,21 @@ class Box(list):
         self.append(dfull)
         self._combine(dfull)
         
+    def add_array(self, dct, keys, values):
+        ''' Add a 2d array of values 
+        
+        Args:
+            dct (dict): A dictionary of independent key-value pairs
+            keys (list): A list of keys
+            values (arraylike): The values. Rows must correspond with the keys.
+        '''
+        if len(keys) != len(values):
+            raise KeyError('Keys do not match with rows of values.')
+        dep = {}
+        for key, value in zip(keys, values):
+            dep[key] = value
+        self.add(dct, dep=dep)
+        
     def filter(self, keys, lst=None):
         if lst is None:
             lst = self
