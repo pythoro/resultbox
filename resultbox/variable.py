@@ -7,7 +7,7 @@ Created on Sun Sep  1 14:27:27 2019
 
 
 class Store(dict):
-    def new(self, name, desc, unit, components=None, sep=' - '):
+    def new(self, name, desc=None, unit=None, components=None, sep=' - '):
         if name in self:
             raise KeyError('Key "' + str(name) + '" already exists. Names '
                           + 'must be unique.')
@@ -17,12 +17,19 @@ class Store(dict):
     
 
 class Variable():
-    def __init__(self, name, desc, unit, components=None, sep=' - '):
+    def __init__(self,
+                 name,
+                 desc=None,
+                 unit=None,
+                 components=None,
+                 sep=' - ',
+                 category=None):
         self.name = name
-        self.desc = desc
-        self.unit = unit
+        self.desc = name if desc is None else desc
+        self.unit = '' if unit is None else unit
         self.components = components
         self.sep = sep
+        self.category = category
         self.str = self._append_unit(self.name)
         
     def __str__(self):
