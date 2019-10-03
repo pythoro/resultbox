@@ -7,13 +7,15 @@ Created on Sun Sep  1 14:27:27 2019
 
 
 class Store(dict):
-    def new(self, name, doc=None, unit=None, components=None, sep=' - '):
+    def new(self, name, doc=None, unit=None, components=None, sep=' - ',
+            category=None, tags=None):
         if name in self:
             raise KeyError('Key "' + str(name) + '" already exists. Names '
                           + 'must be unique.')
-        new = Variable(name, doc, unit, components=components, sep=sep)
-        self[new.str] = new
-        return new.str
+        new = Variable(name, doc, unit, components=components, sep=sep,
+                       category=category, tags=tags)
+        self[new.key] = new
+        return new.key
     
 
 class Variable():
@@ -23,17 +25,19 @@ class Variable():
                  unit=None,
                  components=None,
                  sep=' - ',
-                 category=None):
+                 category=None,
+                 tags=None):
         self.name = name
         self.doc = name if doc is None else doc
         self.unit = '' if unit is None else unit
         self.components = components
         self.sep = sep
         self.category = category
-        self.str = self._append_unit(self.name)
+        self.tags = [] if tags is None else tags
+        self.key = self._append_unit(self.name)
         
     def __str__(self):
-        return self.str
+        return self.key
     
     def _append_unit(self, string):
         return string + ' [' + self.unit + ']'
@@ -43,14 +47,10 @@ class Variable():
         return self._append_unit(component_name)
     
     @property
-    def key(self):
-        return self.str
-    
-    @property
     def subkeys(self):
         ''' Return a list of keys for the variable, including components '''
         if self.components is None:
-            return self.str
+            return self.key
         component_names = []
         for component in self.components:
             component_names.append(self._component_name(component))
