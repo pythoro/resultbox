@@ -163,11 +163,34 @@ class Box(list):
                 out[k].append(dep[k])
         return [v for k, v in out.items()]
     
+    def find(self, key, lst=None):
+        lst = self if lst is None else lst
+        out = {}
+        for row in lst:
+            if key in row['dependent']:
+                out[row['index']] = row['dependent'][key]
+            elif key in row['independent']:
+                out[row['index']] = row['independent'][key]
+        return out
+    
+    def item(self, index, key):
+        row = self[index]
+        if key in row['dependent']:
+            return row['dependent'][key]
+        elif key in row['independent']:
+            return row['independent'][key]
+        else:
+            raise KeyError
+    
     def __getitem__(self, keys):
         if isinstance(keys, int):
             return super().__getitem__(keys)
-        else:
+        elif isinstance(keys, list):
             return self.vectors(keys)
+        elif isinstance(keys, str):
+            return self.find(keys)
+        elif isinstance(keys, tuple):
+            return self.item(keys[0], keys[1])
     
     def copy(self):
         return Box(self)
