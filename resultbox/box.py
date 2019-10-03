@@ -45,31 +45,43 @@ class Box(list):
             for row in lst:
                 self._combine(row)
         
-    def add(self, dct, key=None, value=None, dep=None, **kwargs):
-        d = {key: value} if key is not None and value is not None else {}
-        if dep is not None:
-            d.update(dep)
-        d.update(kwargs)
+    def add(self, indep, key=None, value=None, dep=None,
+            keys=None, values=None, **kwargs):
+        ''' Add a new entry '''
+        if key is not None and value is not None:
+            if isinstance(key, str):
+                self.add_value(indep, key, value)
+            elif isinstance(key, list):
+                self.add_array(indep, key, value)
+        elif keys is not None and values is not None:
+            self.add_array(indep, keys, values)
+        elif dep is not None:
+            self.add_dict(indep, dep)
+        elif len(kwargs) > 0:
+            self.add_dict(indep, kwargs)
+        
+    def add_value(self, indep, key, value):
+        self.add_dict(indep, {key: value})
+        
+    def add_dict(self, indep, dep):
         dfull = {'index': len(self),
-                 'independent': dct.copy(),
-                 'dependent': d}
+                 'independent': indep.copy(),
+                 'dependent': dep}
         self.append(dfull)
         self._combine(dfull)
         
-    def add_array(self, dct, keys, values):
+    def add_array(self, indep, keys, values):
         ''' Add an array of values 
         
         Args:
-            dct (dict): A dictionary of independent key-value pairs
+            indep (dict): A dictionary of independent key-value pairs
             keys (list): A list of keys
             values (arraylike): The values. Rows must correspond with the keys.
         '''
         if len(keys) != len(values):
             raise KeyError('Keys do not match with rows of values.')
-        dep = {}
-        for key, value in zip(keys, values):
-            dep[key] = value
-        self.add(dct, dep=dep)
+        dep = {k: v for k, v in zip(keys, values)}
+        self.add_dict(indep, dep)
         
     def filter(self, keys, lst=None):
         if lst is None:
