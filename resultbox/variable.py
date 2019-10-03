@@ -7,11 +7,11 @@ Created on Sun Sep  1 14:27:27 2019
 
 
 class Store(dict):
-    def new(self, name, desc=None, unit=None, components=None, sep=' - '):
+    def new(self, name, doc=None, unit=None, components=None, sep=' - '):
         if name in self:
             raise KeyError('Key "' + str(name) + '" already exists. Names '
                           + 'must be unique.')
-        new = Variable(name, desc, unit, components=components, sep=sep)
+        new = Variable(name, doc, unit, components=components, sep=sep)
         self[new.str] = new
         return new.str
     
@@ -19,13 +19,13 @@ class Store(dict):
 class Variable():
     def __init__(self,
                  name,
-                 desc=None,
+                 doc=None,
                  unit=None,
                  components=None,
                  sep=' - ',
                  category=None):
         self.name = name
-        self.desc = name if desc is None else desc
+        self.doc = name if doc is None else doc
         self.unit = '' if unit is None else unit
         self.components = components
         self.sep = sep

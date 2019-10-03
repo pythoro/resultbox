@@ -14,10 +14,10 @@ class Test_Store(unittest.TestCase):
     def test_new(self):
         s = Store()
         name = 'a'
-        desc = 'b'
+        doc = 'b'
         unit = 'c'
-        v = s.new(name, desc, unit)
-        v_check = Variable(name, desc, unit)
+        v = s.new(name, doc, unit)
+        v_check = Variable(name, doc, unit)
         self.assertEqual(str(v_check), str(v))
         self.assertTrue(v in s)
         self.assertEqual(str(s[v]), str(v))
@@ -25,45 +25,45 @@ class Test_Store(unittest.TestCase):
 class Test_Variable(unittest.TestCase):
     def test_init(self):
         name = 'a'
-        desc = 'b'
+        doc = 'b'
         unit = 'c'
-        v = Variable(name, desc, unit)
+        v = Variable(name, doc, unit)
         self.assertEqual(v.name, name)
-        self.assertEqual(v.desc, desc)
+        self.assertEqual(v.doc, doc)
         self.assertEqual(v.unit, unit)
         
     def test_str(self):
         name = 'a'
-        desc = 'b'
+        doc = 'b'
         unit = 'mm'
-        v = Variable(name, desc, unit)
+        v = Variable(name, doc, unit)
         self.assertEqual(str(v), 'a [mm]')
         
     def test_components_getitem(self):
         name = 'a'
-        desc = 'b'
+        doc = 'b'
         unit = 'mm'
         xyz = ['x', 'y', 'z']
         sep = ' - '
-        v = Variable(name, desc, unit, components=xyz, sep=sep)
+        v = Variable(name, doc, unit, components=xyz, sep=sep)
         self.assertEqual(v['x'], 'a - x [mm]')
         
     def test_components_key(self):
         name = 'a'
-        desc = 'b'
+        doc = 'b'
         unit = 'mm'
         xyz = ['x', 'y', 'z']
         sep = ' - '
-        v = Variable(name, desc, unit, components=xyz, sep=sep)
+        v = Variable(name, doc, unit, components=xyz, sep=sep)
         self.assertEqual(v.key, 'a [mm]')
         
     def test_components_keys(self):
         name = 'a'
-        desc = 'b'
+        doc = 'b'
         unit = 'mm'
         xyz = ['x', 'y', 'z']
         sep = ' - '
-        v = Variable(name, desc, unit, components=xyz, sep=sep)
+        v = Variable(name, doc, unit, components=xyz, sep=sep)
         keys = ['a - x [mm]', 'a - y [mm]', 'a - z [mm]']
         self.assertListEqual(v.subkeys, keys)
         
