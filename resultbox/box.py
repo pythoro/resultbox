@@ -6,7 +6,6 @@ Created on Sat Aug 31 08:47:07 2019
 """
 
 import hashlib
-import pprint
 import numpy as np
 
 def listify(obj):
@@ -176,19 +175,37 @@ class Box(list):
     def __str__(self):
         def f(v):
             if np.size(v) == 1:
-                return v
+                return str(v)
             elif np.size(v) > 1:
                 return str(np.shape(v))
             else:
-                return v
+                return str(v)
         
-        out = []
+        def buffer(l, m, n=25):
+            end = len(l) - 1
+            buffered = []
+            for i in range(m):
+                if i > end:
+                    buffered.append(''.ljust(n))
+                else:
+                    buffered.append(l[i].ljust(n))
+            return buffered
+        
+        out = ['index'.ljust(7) +
+               'independent'.ljust(50) +
+                'dependent'.ljust(50)]
         for row in self:
-            d = {'index': row['index']}
-            for key in ['dependent', 'independent']:
-                d[key] = {k: f(v) for k, v in row[key].items()}
-            out.append(d)
-        return pprint.pformat(out)
+            ind = [str(row['index'])]
+            dep = [k + ': ' + f(v) for k, v in row['dependent'].items()]
+            indep = [k + ': ' + f(v) for k, v in row['independent'].items()]
+            m = max(len(dep), len(indep), 1)
+            ind = buffer(ind, m, 7)
+            dep = buffer(dep, m, 50)
+            indep = buffer(indep, m, 50)
+            for a, b, c in zip(ind, indep, dep):
+                out.append(a + b + c)
+            out.append('')
+        return '\n'.join(out)
     
     def __repr__(self):
         return self.__str__()
