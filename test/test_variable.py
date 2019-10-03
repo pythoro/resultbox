@@ -22,17 +22,6 @@ class Test_Store(unittest.TestCase):
         self.assertTrue(v in s)
         self.assertEqual(str(s[v]), str(v))
 
-    def test_new_list(self):
-        s = Store()
-        name = 'a'
-        desc = 'b'
-        unit = 'c'
-        suffixes = ['x', 'y', 'z']
-        lst = s.new_list(name, desc, unit, suffixes)
-        self.assertEqual(len(lst), 3)
-        self.assertTrue(all([l in s for l in lst]))
-
-
 class Test_Variable(unittest.TestCase):
     def test_init(self):
         name = 'a'
@@ -49,6 +38,34 @@ class Test_Variable(unittest.TestCase):
         unit = 'mm'
         v = Variable(name, desc, unit)
         self.assertEqual(str(v), 'a [mm]')
+        
+    def test_components_getitem(self):
+        name = 'a'
+        desc = 'b'
+        unit = 'mm'
+        xyz = ['x', 'y', 'z']
+        sep = ' - '
+        v = Variable(name, desc, unit, components=xyz, sep=sep)
+        self.assertEqual(v['x'], 'a - x [mm]')
+        
+    def test_components_key(self):
+        name = 'a'
+        desc = 'b'
+        unit = 'mm'
+        xyz = ['x', 'y', 'z']
+        sep = ' - '
+        v = Variable(name, desc, unit, components=xyz, sep=sep)
+        self.assertEqual(v.key, 'a [mm]')
+        
+    def test_components_keys(self):
+        name = 'a'
+        desc = 'b'
+        unit = 'mm'
+        xyz = ['x', 'y', 'z']
+        sep = ' - '
+        v = Variable(name, desc, unit, components=xyz, sep=sep)
+        keys = ['a - x [mm]', 'a - y [mm]', 'a - z [mm]']
+        self.assertListEqual(v.subkeys, keys)
         
         
 class Test_Aliases(unittest.TestCase):

@@ -56,7 +56,7 @@ class Box(list):
         self._combine(dfull)
         
     def add_array(self, dct, keys, values):
-        ''' Add a 2d array of values 
+        ''' Add an array of values 
         
         Args:
             dct (dict): A dictionary of independent key-value pairs

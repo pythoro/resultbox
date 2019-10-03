@@ -7,31 +7,51 @@ Created on Sun Sep  1 14:27:27 2019
 
 
 class Store(dict):
-    def new(self, name, desc, unit):
+    def new(self, name, desc, unit, components=None, sep=' - '):
         if name in self:
             raise KeyError('Key "' + str(name) + '" already exists. Names '
                           + 'must be unique.')
-        new = Variable(name, desc, unit)
+        new = Variable(name, desc, unit, components=components, sep=sep)
         self[new.str] = new
         return new.str
     
-    def new_list(self, name, desc, unit, suffixes):
-        out = []
-        for suffix in suffixes:
-            full_name = name + ' - ' + suffix
-            out.append(self.new(full_name, desc, unit))
-        return out
-    
 
-class Variable(dict):
-    def __init__(self, name, desc, unit):
+class Variable():
+    def __init__(self, name, desc, unit, components=None, sep=' - '):
         self.name = name
         self.desc = desc
         self.unit = unit
-        self.str = self.name + ' [' + self.unit + ']'
+        self.components = components
+        self.sep = sep
+        self.str = self._append_unit(self.name)
         
     def __str__(self):
         return self.str
+    
+    def _append_unit(self, string):
+        return string + ' [' + self.unit + ']'
+    
+    def _component_name(self, component):
+        component_name = self.name + self.sep + component
+        return self._append_unit(component_name)
+    
+    @property
+    def key(self):
+        return self.str
+    
+    @property
+    def subkeys(self):
+        ''' Return a list of keys for the variable, including components '''
+        if self.components is None:
+            return self.str
+        component_names = []
+        for component in self.components:
+            component_names.append(self._component_name(component))
+        return component_names
+    
+    def __getitem__(self, component):
+        if component in self.components:
+            return self._component_name(component)
     
         
 class Aliases(dict):
