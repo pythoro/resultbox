@@ -6,6 +6,8 @@ Created on Sat Aug 31 08:47:07 2019
 """
 
 import hashlib
+import pprint
+import numpy as np
 
 def listify(obj):
     if not isinstance(obj, list):
@@ -171,3 +173,23 @@ class Box(list):
     def copy(self):
         return Box(self)
         
+    def __str__(self):
+        def f(v):
+            if np.size(v) == 1:
+                return v
+            elif np.size(v) > 1:
+                return str(np.shape(v))
+            else:
+                return v
+        
+        out = []
+        for row in self:
+            d = {'index': row['index']}
+            for key in ['dependent', 'independent']:
+                d[key] = {k: f(v) for k, v in row[key].items()}
+            out.append(d)
+        return pprint.pformat(out)
+    
+    def __repr__(self):
+        return self.__str__()
+    
