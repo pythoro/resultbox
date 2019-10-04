@@ -56,3 +56,34 @@ def interp(xs, ys, new_xs, min_diff=1e-4, bounds_error=False,
     f = interp1d(xs, ys, bounds_error=bounds_error, fill_value=fill_value,
                  **kwargs)
     return f(new_xs)
+
+def list_to_str(lst, length=18, brackets=True):
+    l = [val_to_str(num) for num in lst]
+    s = ' '.join(l)[:length]
+    if brackets:
+        return '[' + s + ']'
+    else:
+        return s
+
+def val_to_str(num, precision=2):
+    format_str = '{:0.' + str(precision) + 'g}'
+    if isinstance(num, str):
+        return num
+    elif isinstance(num, int):
+        return str(num)
+    elif isinstance(num, float):
+        return format_str.format(num)
+    elif isinstance(num, list):
+        return list_to_str(num)
+    elif isinstance(num, np.ndarray):
+        if num.size == 1:
+            return format_str.format(num.item())
+        else:
+            return list_to_str(num.flatten().tolist())
+        
+def dict_to_str(dct, val_sep=' ', key_sep=' '):
+    lst = []
+    for key, val in dct.items():
+        s = str(key) + val_sep + val_to_str(val)
+        lst.append(s)
+    return key_sep.join(lst)

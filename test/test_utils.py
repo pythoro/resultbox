@@ -40,3 +40,38 @@ class Test_Interp(unittest.TestCase):
         ys_new = utils.interp(xs, ys, xs_new)
         expected = np.array([5.0, 5.5, 6.5, 7.5, 8.0])
         self.assertTrue(all(np.isclose(expected, ys_new)))
+
+
+class Test_Val_To_Str(unittest.TestCase):
+    def test_str(self):
+        self.assertEqual('test', utils.val_to_str('test'))
+        
+    def test_int(self):
+        self.assertEqual('56', utils.val_to_str(56))
+        
+    def test_signed_int(self):
+        self.assertEqual('-56', utils.val_to_str(-56))
+        
+    def test_float(self):
+        self.assertEqual('4.6', utils.val_to_str(4.6))
+
+    def test_float_2(self):
+        self.assertEqual('4', utils.val_to_str(4.0))
+        
+    def test_ndarray_int(self):
+        self.assertEqual('[1 2]', utils.val_to_str(np.array([1, 2])))
+        
+    def test_ndarray_float(self):
+        self.assertEqual('[1.5 2]', utils.val_to_str(np.array([1.5, 2.0])))
+
+
+class Test_List_To_Str(unittest.TestCase):
+    def test_list(self):
+        self.assertEqual('[4 5.6]', utils.val_to_str([4, 5.6]))
+        
+        
+class Test_Dict_To_Str(unittest.TestCase):
+    def test_str(self):
+        d = {'apple': 5.7, 'banana': 7.8}
+        expected = 'apple 5.7 banana 7.8'
+        self.assertEqual(expected, utils.dict_to_str(d))
