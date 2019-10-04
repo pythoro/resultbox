@@ -7,12 +7,7 @@ Created on Sat Aug 31 08:47:07 2019
 
 import hashlib
 import numpy as np
-
-def listify(obj):
-    if not isinstance(obj, list):
-        return [obj]
-    else:
-        return obj
+from .utils import listify, dict_to_str
 
 def to_bytes(obj):
     if isinstance(obj, str):
@@ -30,11 +25,6 @@ def hash_dict(dct):
                 h.update(to_bytes(v))
     update(dct)
     return h.digest()
-
-
-def make_str(dct):
-    out = [str(k) + '=' + str(v) for k, v in dct.items()]
-    return ', '.join(out)
 
 
 class Box(list):
@@ -171,7 +161,9 @@ class Box(list):
         out = {k: [] for k in keys}
         out['labels'] = []
         for dct in filtered:
-            out['labels'].append(make_str(dct['independent']))
+            out['labels'].append(dict_to_str(dct['independent'],
+                                             val_sep='=',
+                                             key_sep=', '))
             dep = dct['dependent']
             for k in keys:
                 out[k].append(dep[k])

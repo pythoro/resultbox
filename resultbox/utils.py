@@ -9,6 +9,12 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 
+def listify(obj):
+    if not isinstance(obj, list):
+        return [obj]
+    else:
+        return obj
+
 def cosort(xs, ys, min_diff=0):
     ''' Sort into monotonic x 
     
