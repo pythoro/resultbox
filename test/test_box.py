@@ -144,6 +144,28 @@ class Test_Box(unittest.TestCase):
     def test_getitem(self):
         b = Box(get_lst3())
         keys = ['d', 'e']
-        res = b[keys]
-        expected = [[[12, 30], [13, 31]], [[1, 2], [1, 2]], ['a=1, b=1', 'a=1, b=2']]
-        self.assertListEqual(expected, res)
+        vecs, labels = b[keys]
+        expected_vecs = ([[12, 30], [13, 31]], [[1, 2], [1, 2]])
+        expected_labels = ['a=1, b=1', 'a=1, b=2']
+        self.assertListEqual(expected_vecs[0], vecs[0])
+        self.assertListEqual(expected_vecs[1], vecs[1])
+        
+    def test_vectors(self):
+        b = Box(get_lst3())
+        keys = ['d', 'e']
+        vecs, labels = b.vectors(keys)
+        expected_vecs = ([[12, 30], [13, 31]], [[1, 2], [1, 2]])
+        expected_labels = ['a=1, b=1', 'a=1, b=2']
+        self.assertListEqual(expected_vecs[0], vecs[0])
+        self.assertListEqual(expected_vecs[1], vecs[1])
+        self.assertListEqual(expected_labels, labels)
+        
+    def test_vectors_nonstr(self):
+        b = Box(get_lst3())
+        keys = ['d', 'e']
+        vecs, labels = b.vectors(keys, labels='dict')
+        expected_vecs = ([[12, 30], [13, 31]], [[1, 2], [1, 2]])
+        expected_labels = [{'a': 1, 'b': 1}, {'a': 1, 'b': 2}]
+        self.assertListEqual(expected_vecs[0], vecs[0])
+        self.assertListEqual(expected_vecs[1], vecs[1])
+        self.assertListEqual(expected_labels, labels)

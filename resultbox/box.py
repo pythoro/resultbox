@@ -152,22 +152,26 @@ class Box(list):
             _merge(base, box)
             return base
     
-    def vectors(self, keys, dct=None):
+    def vectors(self, keys, dct=None, labels='str'):
         keys = listify(keys)
         combined = self.combined()
         filtered = self.filtered(keys, lst=combined)
         if dct is not None:
             filtered = self.where(dct, filtered)
         out = {k: [] for k in keys}
-        out['labels'] = []
+        label_list = []
         for dct in filtered:
-            out['labels'].append(dict_to_str(dct['independent'],
+            if labels=='str':
+                label = dict_to_str(dct['independent'],
                                              val_sep='=',
-                                             key_sep=', '))
+                                             key_sep=', ')
+            else:
+                label = dct['independent']
+            label_list.append(label)
             dep = dct['dependent']
             for k in keys:
                 out[k].append(dep[k])
-        return [v for k, v in out.items()]
+        return [out[k] for k in keys], label_list
     
     def find(self, key, lst=None):
         lst = self if lst is None else lst
