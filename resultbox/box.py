@@ -57,6 +57,8 @@ class Box(list):
             self.add_array(indep, keys, values)
         elif dep is not None:
             self.add_dict(indep, dep)
+        elif isinstance(key, dict):
+            self.add_dict(indep, key)
         elif len(kwargs) > 0:
             self.add_dict(indep, kwargs)
         
