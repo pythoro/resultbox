@@ -8,7 +8,8 @@ Created on Sun Sep  1 21:12:24 2019
 import hashlib
 import pandas as pd
 from collections import defaultdict
-
+from . import utils
+import numpy as np
 
 def encoded(obj):
     if isinstance(obj, str):
@@ -58,6 +59,10 @@ class Tabulator():
     
     def tabulate(self, box, values, columns, index=None, aggfunc='mean',
                  aliases=None):
+        ''' General purpose tabulation
+        
+        Can handle mixtures of scalars and vectors
+        '''
         def indices(d):
             m = 1
             for key, val in d.items():
@@ -75,6 +80,7 @@ class Tabulator():
             values = aliases.translate(values)
             index = aliases.translate(index)
             columns = aliases.translate(columns)
+        # Use dataframes for 'rows' to handle vectors
         rows = [pd.DataFrame(row, index=indices(row)) for row in filtered]
         df = rows[0].copy()
         for row in rows[1:]:
@@ -83,10 +89,31 @@ class Tabulator():
         pt = pd.pivot_table(df, values=values, index=index, columns=columns,
                             aggfunc=aggfunc)
         return pt
-
             
+    def vector_table(self, box, values, index, index_vals, orient='rows'):
+        ''' A table of vectors 
         
-        
+        Args:
+            box (Box): The box of data
+            values (str): The key for the values
+            index (str): The key for the index (vector-wise)
+            index-vals (list-like): The index values for the vector
+            
+        Note:
+            Headings are automatically created.
+        '''
+        vectors, labels = box.vectors([values, index], labels='dict')
+        values_list, index_list = vectors
+        interp_list = []
+        ind = pd.MultiIndex.from_frame(pd.DataFrame(labels))
+        for vec, ind_vec in zip(values_list, index_list):
+            interp_list.append(utils.interp(ind_vec, vec, index_vals))
+        if orient=='rows':
+            df = pd.DataFrame(np.array(interp_list).T, index=index_vals, columns=ind)
+        else:
+            df = pd.DataFrame(interp_list, index=ind, columns=index_vals)
+        return df
+    
     
     
             
