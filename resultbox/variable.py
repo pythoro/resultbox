@@ -5,20 +5,29 @@ Created on Sun Sep  1 14:27:27 2019
 @author: Reuben
 """
 
-def expand(dct, store):
-    out = {}
-    for key, val in dct.items():
-        if isinstance(val, dict):
-            out[key] = expand(val, store)
-        else:
-            if key in store:
-                if store[key].components is not None:
-                    subkeys = store[key].subkeys
-                    if len(val) == len(subkeys):
-                        for subkey, v in zip(subkeys, val):
-                            out[subkey] = v
-                        continue
-            out[key] = val
+def _expand_single(key, val, store):
+    if isinstance(val, dict):
+        return {key: expand(val, store)}
+    else:
+        if key in store:
+            if store[key].components is not None:
+                subkeys = store[key].subkeys
+                if len(val) == len(subkeys):
+                    out = {}
+                    for subkey, v in zip(subkeys, val):
+                        out[subkey] = v
+                    return out
+        return {key: val}
+
+def expand(source, store):
+    if isinstance(source, list):
+        out = []
+        for val in source:
+            out.append(expand(val, store))
+    elif isinstance(source, dict):
+        out = {}
+        for key, val in source.items():
+            out.update( _expand_single(key, val, store))
     return out
 
 
