@@ -5,6 +5,22 @@ Created on Sun Sep  1 14:27:27 2019
 @author: Reuben
 """
 
+def expand(dct, store):
+    out = {}
+    for key, val in dct.items():
+        if isinstance(val, dict):
+            out[key] = expand(val, store)
+        else:
+            if key in store:
+                if store[key].components is not None:
+                    subkeys = store[key].subkeys
+                    if len(val) == len(subkeys):
+                        for subkey, v in zip(subkeys, val):
+                            out[subkey] = v
+                        continue
+            out[key] = val
+    return out
+
 
 class Store(dict):
     def new(self, name, doc=None, unit=None, components=None, sep=' - ',
@@ -29,7 +45,7 @@ class Variable():
                  tags=None):
         self.name = name
         self.doc = name if doc is None else doc
-        self.unit = '' if unit is None else unit
+        self.unit = unit
         self.components = components
         self.sep = sep
         self.category = category
@@ -40,7 +56,10 @@ class Variable():
         return self.key
     
     def _append_unit(self, string):
-        return string + ' [' + self.unit + ']'
+        if self.unit is not None:
+            return string + ' [' + self.unit + ']'
+        else:
+            return string
     
     def _component_name(self, component):
         component_name = self.name + self.sep + component
@@ -50,7 +69,7 @@ class Variable():
     def subkeys(self):
         ''' Return a list of keys for the variable, including components '''
         if self.components is None:
-            return self.key
+            return None
         component_names = []
         for component in self.components:
             component_names.append(self._component_name(component))

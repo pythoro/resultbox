@@ -8,6 +8,24 @@ Created on Sun Sep  1 20:04:58 2019
 import unittest
 
 from resultbox import Store, Variable, Aliases
+from resultbox import variable
+
+class Test_Expand(unittest.TestCase):
+    def test_expand_basic(self):
+        s = Store()
+        key_a = s.new('a', components=['x', 'y'])
+        dct = {key_a: [0, 1]}
+        out = variable.expand(dct, s)
+        expected = {'a - x': 0, 'a - y': 1}
+        self.assertDictEqual(out, expected)
+
+    def test_expand_nested(self):
+        s = Store()
+        key_a = s.new('a', components=['x', 'y'])
+        dct = {'dependent': {'another_level': {key_a: [0, 1]}}}
+        out = variable.expand(dct, s)
+        expected = {'dependent': {'another_level': {'a - x': 0, 'a - y': 1}}}
+        self.assertDictEqual(out, expected)
 
 
 class Test_Store(unittest.TestCase):
