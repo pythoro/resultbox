@@ -5,9 +5,10 @@ Created on Sun Sep  1 14:27:27 2019
 @author: Reuben
 """
 
-def _expand_single(key, val, store):
+def _expand_single(key, val, store, expanded=None):
     if isinstance(val, dict):
-        return {key: expand(val, store)}
+        r, _ = expand(val, store, expanded)
+        return {key: r}
     else:
         if key in store:
             if store[key].components is not None:
@@ -16,19 +17,22 @@ def _expand_single(key, val, store):
                     out = {}
                     for subkey, v in zip(subkeys, val):
                         out[subkey] = v
+                    expanded.add(key)
                     return out
         return {key: val}
 
-def expand(source, store):
+def expand(source, store, expanded=None):
+    expanded = set() if expanded is None else expanded
     if isinstance(source, list):
         out = []
         for val in source:
-            out.append(expand(val, store))
+            r, _ = expand(val, store, expanded)
+            out.append(r)
     elif isinstance(source, dict):
         out = {}
         for key, val in source.items():
-            out.update( _expand_single(key, val, store))
-    return out
+            out.update( _expand_single(key, val, store, expanded))
+    return out, list(expanded)
 
 
 class Store(dict):

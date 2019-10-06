@@ -15,7 +15,7 @@ class Test_Expand(unittest.TestCase):
         s = Store()
         key_a = s.new('a', components=['x', 'y'])
         dct = {key_a: [0, 1]}
-        out = variable.expand(dct, s)
+        out, expanded = variable.expand(dct, s)
         expected = {'a - x': 0, 'a - y': 1}
         self.assertDictEqual(out, expected)
 
@@ -23,7 +23,7 @@ class Test_Expand(unittest.TestCase):
         s = Store()
         key_a = s.new('a', components=['x', 'y'])
         dct = {'dependent': {'another_level': {key_a: [0, 1]}}}
-        out = variable.expand(dct, s)
+        out, expanded = variable.expand(dct, s)
         expected = {'dependent': {'another_level': {'a - x': 0, 'a - y': 1}}}
         self.assertDictEqual(out, expected)
 
@@ -31,7 +31,7 @@ class Test_Expand(unittest.TestCase):
         s = Store()
         key_a = s.new('a', components=['x', 'y'])
         dct = [{'index': 0, 'dependent': {key_a: [0, 1]}}]
-        out = variable.expand(dct, s)
+        out, expanded = variable.expand(dct, s)
         expected = [{'index': 0, 'dependent': {'a - x': 0, 'a - y': 1}}]
         self.assertListEqual(out, expected)
 
