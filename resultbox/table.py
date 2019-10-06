@@ -9,6 +9,7 @@ import hashlib
 import pandas as pd
 from collections import defaultdict
 from . import utils
+from . import variable
 import numpy as np
 
 def encoded(obj):
@@ -57,8 +58,22 @@ class Tabulator():
                 return [k for k in row.keys() if k in index]
         return list(index)
     
+    
+    def _prepare_data(self, box, values, columns, index=None,
+                 store=None):
+        expanded = []
+        keys = listify(index) + listify(columns) + listify(values)
+        minimal = box.minimal()
+        if store is not None:
+            minimal, expanded = variable.expand(minimal, store)
+        filtered = box.filtered(keys, minimal)
+        if len(filtered) == 0:
+            raise ValueError('No records left in filtered results.')
+        return filtered, expanded
+    
+    
     def tabulate(self, box, values, columns, index=None, aggfunc='mean',
-                 aliases=None):
+                 aliases=None, store=None):
         ''' General purpose tabulation
         
         Can handle mixtures of scalars and vectors
@@ -70,26 +85,31 @@ class Tabulator():
                     m = max(m, len(val))
             return range(m)
         index = self.guess_index(box, values, columns) if index is None else index
-        keys = listify(index) + listify(columns) + listify(values)
-        minimal = box.minimal()
-        filtered = box.filtered(keys, minimal)
-        if len(filtered) == 0:
-            raise ValueError('No records left in filtered results.')
+        filtered, expanded = self._prepare_data(box, values, columns, index, store)
         if aliases is not None:
             filtered = aliases.translate(filtered)
             values = aliases.translate(values)
             index = aliases.translate(index)
             columns = aliases.translate(columns)
         # Use dataframes for 'rows' to handle vectors
-        rows = [pd.DataFrame(row, index=indices(row)) for row in filtered]
-        df = rows[0].copy()
-        for row in rows[1:]:
-            df = df.append(row)
-        df = df.reset_index(drop=True)
+        if store is not None:
+            df = pd.DataFrame(filtered)
+            df["id"] = df.index
+            for e in expanded:
+                df = pd.wide_to_long(df, stubnames=e, i='id', j=e + ' comp.',
+                                      sep=' - ', suffix='\\w+')
+                print(df)
+        else:
+            rows = [pd.DataFrame(row, index=indices(row)) for row in filtered]
+            df = rows[0].copy()
+            for row in rows[1:]:
+                df = df.append(row)
+            df = df.reset_index(drop=True)
         pt = pd.pivot_table(df, values=values, index=index, columns=columns,
                             aggfunc=aggfunc)
         return pt
-            
+
+
     def vector_table(self, box, values, index, index_vals, orient='rows'):
         ''' A table of vectors 
         

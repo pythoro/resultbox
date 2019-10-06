@@ -7,7 +7,7 @@ Created on Sun Sep  1 21:45:56 2019
 
 import unittest
 
-from resultbox import Box, Tabulator, Table, Variable, Aliases
+from resultbox import Box, Tabulator, Table, Store, Variable, Aliases
 
 def get_lst():
     lst = [{'index': 0, 'independent': {'a': 1, 'b': 1, 'c': 1}, 'dependent': {'d': 11}},
@@ -26,6 +26,13 @@ def get_lst2():
            {'index': 1, 'independent': {'a': 1, 'b': 2, 'c': [1, 2]}, 'dependent': {'d': [13, 31]}},
            {'index': 4, 'independent': {'a': 2, 'b': 1, 'c': [1, 2]}, 'dependent': {'d': [16, 34]}},
            {'index': 7, 'independent': {'a': 2, 'b': 2, 'c': [1, 2]}, 'dependent': {'d': [19, 37]}}]
+    return lst
+
+def get_lst2_b():
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1}, 'dependent': {'d': [12, 30]}},
+           {'index': 1, 'independent': {'a': 1, 'b': 2}, 'dependent': {'d': [13, 31]}},
+           {'index': 4, 'independent': {'a': 2, 'b': 1}, 'dependent': {'d': [16, 34]}},
+           {'index': 7, 'independent': {'a': 2, 'b': 2}, 'dependent': {'d': [19, 37]}}]
     return lst
 
 
@@ -64,6 +71,52 @@ class Test_Tabulator(unittest.TestCase):
         pt = t.tabulate(box=box, values=values, columns=columns, index=index)
         expected = 'c     1   2\na b        \n1 1  12  30\n  2  13  31\n2 1  16  34\n  2  19  37'
         self.assertEqual(str(pt), expected)
+
+    def test_tabulate2b(self):
+        t = Tabulator()
+        box = Box(get_lst2())
+        index = ['c']
+        columns = ['a', 'b']
+        values = 'd'
+        pt = t.tabulate(box=box, values=values, columns=columns, index=index)
+        expected = 'a   1       2    \nb   1   2   1   2\nc                \n1  12  13  16  19\n2  30  31  34  37'
+        self.assertEqual(str(pt), expected)
+
+    def test_tabulate_store(self):
+        t = Tabulator()
+        box = Box(get_lst2_b())
+        store = Store()
+        key_d = store.new('d', components=['x', 'y'])
+        index = ['a', 'b']
+        columns = []
+        values = store[key_d].subkeys
+        pt = t.tabulate(box=box, values=values, columns=columns, index=index, store=store)
+        expected = '''     d - x  d - y
+a b              
+1 1     12     30
+  2     13     31
+2 1     16     34
+  2     19     37'''
+        self.assertEqual(str(pt), expected)
+
+    def test_tabulate_store2(self):
+        # TODO: FIX
+        t = Tabulator()
+        box = Box(get_lst2_b())
+        store = Store()
+        key_d = store.new('d', components=['x', 'y'])
+        index = []
+        columns = ['a', 'b']
+        values = store[key_d].subkeys
+        pt = t.tabulate(box=box, values=values, columns=columns, index=index, store=store)
+        print(pt)
+        expected = '''     d - x  d - y
+a b              
+1 1     12     30
+  2     13     31
+2 1     16     34
+  2     19     37'''
+        # self.assertEqual(str(pt), expected)
 
     def test_tabulate_translated(self):
         dct = {'a': Variable('one', 'blah', 'mm'),
