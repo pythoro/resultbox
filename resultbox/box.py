@@ -243,3 +243,13 @@ class Box(list):
     def __repr__(self):
         return self.__str__()
     
+    def keys(self, dependent=True, independent=False):
+        out = set()
+        for row in self:
+            if independent:
+                out.update(row['independent'].keys())
+            if dependent:
+                out.update(row['dependent'].keys())
+        return out
+        
+    
