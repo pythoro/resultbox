@@ -58,18 +58,32 @@ class Tabulator():
                 return [k for k in row.keys() if k in index]
         return list(index)
     
+    def all_keys(self, *args):
+        out = []
+        for arg in args:
+            l = listify(arg)
+            out.extend([a for a in l if not a.startswith('(')])
+        return out
     
     def _prepare_data(self, box, values, columns, index=None,
                  store=None):
-        expanded = []
-        keys = listify(index) + listify(columns) + listify(values)
+        keys = self.all_keys(values, columns, index)
         minimal = box.minimal()
         if store is not None:
-            minimal, expanded = variable.expand(minimal, store)
-        filtered = box.filtered(keys, minimal)
+            minimal = variable.expand(minimal, store)
+            new_keys = []
+            for k in keys:
+                if k in store:
+                    if store[k].subkeys is not None:
+                        new_keys.extend(store[k].subkeys)
+                        continue
+                new_keys.append(k)
+        else:
+            new_keys = keys
+        filtered = box.filtered(new_keys, minimal)
         if len(filtered) == 0:
             raise ValueError('No records left in filtered results.')
-        return filtered, expanded
+        return filtered
     
     
     def tabulate(self, box, values, columns, index=None, aggfunc='mean',
@@ -85,7 +99,7 @@ class Tabulator():
                     m = max(m, len(val))
             return range(m)
         index = self.guess_index(box, values, columns) if index is None else index
-        filtered, expanded = self._prepare_data(box, values, columns, index, store)
+        filtered = self._prepare_data(box, values, columns, index, store)
         if aliases is not None:
             filtered = aliases.translate(filtered)
             values = aliases.translate(values)
@@ -93,12 +107,17 @@ class Tabulator():
             columns = aliases.translate(columns)
         # Use dataframes for 'rows' to handle vectors
         if store is not None:
+            keys = self.all_keys(values, columns, index)
             df = pd.DataFrame(filtered)
             df["id"] = df.index
-            for e in expanded:
-                df = pd.wide_to_long(df, stubnames=e, i='id', j=e + ' comp.',
-                                      sep=' - ', suffix='\\w+')
-                print(df)
+            for e in keys:
+                if not isinstance(e, variable.Variable):
+                    continue
+                if e.subkeys is not None:
+                    df = pd.wide_to_long(df, stubnames=e, i='id', j=e.label,
+                                          sep=e.sep, suffix='\\w+')
+                    keys.remove(e)
+                    keys.append(e.label)
         else:
             rows = [pd.DataFrame(row, index=indices(row)) for row in filtered]
             df = rows[0].copy()

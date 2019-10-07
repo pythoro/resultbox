@@ -7,32 +7,30 @@ Created on Sun Sep  1 14:27:27 2019
 
 def _expand_single(key, val, store, expanded=None):
     if isinstance(val, dict):
-        r, _ = expand(val, store, expanded)
+        r = expand(val, store)
         return {key: r}
     else:
         if key in store:
-            if store[key].components is not None:
+            if store[key].subkeys is not None:
                 subkeys = store[key].subkeys
                 if len(val) == len(subkeys):
                     out = {}
                     for subkey, v in zip(subkeys, val):
                         out[subkey] = v
-                    expanded.add(key)
                     return out
         return {key: val}
 
-def expand(source, store, expanded=None):
-    expanded = set() if expanded is None else expanded
+def expand(source, store):
     if isinstance(source, list):
         out = []
         for val in source:
-            r, _ = expand(val, store, expanded)
+            r = expand(val, store)
             out.append(r)
     elif isinstance(source, dict):
         out = {}
         for key, val in source.items():
-            out.update( _expand_single(key, val, store, expanded))
-    return out, list(expanded)
+            out.update( _expand_single(key, val, store))
+    return out
 
 
 class Store(dict):
@@ -44,7 +42,7 @@ class Store(dict):
         new = Variable(name, doc, unit, components=components, sep=sep,
                        category=category, tags=tags)
         self[new.key] = new
-        return new.key
+        return new
     
 
 class Variable(str):
