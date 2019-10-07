@@ -47,7 +47,17 @@ class Store(dict):
         return new.key
     
 
-class Variable():
+class Variable(str):
+    def __new__(cls,
+               name,
+               doc=None,
+               unit=None,
+               components=None,
+               sep=' - ',
+               category=None,
+               tags=None):
+        return super().__new__(cls, cls._append_unit(name, unit))
+    
     def __init__(self,
                  name,
                  doc=None,
@@ -63,20 +73,21 @@ class Variable():
         self.sep = sep
         self.category = category
         self.tags = [] if tags is None else tags
-        self.key = self._append_unit(self.name)
+        self.key = self._append_unit(self.name, self.unit)
         
     def __str__(self):
         return self.key
-    
-    def _append_unit(self, string):
-        if self.unit is not None:
-            return string + ' [' + self.unit + ']'
+
+    @classmethod
+    def _append_unit(cls, string, unit):
+        if unit is not None:
+            return string + ' [' + unit + ']'
         else:
             return string
     
     def _component_name(self, component):
         component_name = self.name + self.sep + component
-        return self._append_unit(component_name)
+        return self._append_unit(component_name, self.unit)
     
     @property
     def subkeys(self):
@@ -87,6 +98,10 @@ class Variable():
         for component in self.components:
             component_names.append(self._component_name(component))
         return component_names
+    
+    @property
+    def label(self):
+        return '(' + self.name + ')'
     
     def __getitem__(self, component):
         if component in self.components:
