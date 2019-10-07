@@ -157,5 +157,9 @@ class Tabulator():
     
     
     
-            
-        
+tabulator = Tabulator()
+vector_table = tabulator.vector_table
+tabulate = tabulator.tabulate
+
+def to_csv(df, fname, *args, **kwargs):
+    return df.to_csv(fname, *args, **kwargs)
