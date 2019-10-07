@@ -99,7 +99,7 @@ class Variable(str):
     
     @property
     def label(self):
-        return '(' + self.name + ')'
+        return self.name + ':'
     
     def __getitem__(self, component):
         if component in self.components:

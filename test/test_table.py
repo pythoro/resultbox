@@ -88,10 +88,10 @@ class Test_Tabulator(unittest.TestCase):
         store = Store()
         d = store.new('d', components=['x', 'y'])
         index = ['a', 'b']
-        columns = [d.label]
+        columns = d.label
         values = d
         pt = t.tabulate(box=box, values=values, columns=columns, index=index, store=store)
-        expected = '''(d)   x   y
+        expected = '''d:    x   y
 a b        
 1 1  12  30
   2  13  31
@@ -105,15 +105,15 @@ a b
         box = Box(get_lst2_b())
         store = Store()
         d = store.new('d', components=['x', 'y'])
-        index = [d.label]
+        index = d.label
         columns = ['a', 'b']
         values = d
         pt = t.tabulate(box=box, values=values, columns=columns, index=index, store=store)
-        expected = '''a     1       2    
-b     1   2   1   2
-(d)                
-x    12  13  16  19
-y    30  31  34  37'''
+        expected = '''a    1       2    
+b    1   2   1   2
+d:                
+x   12  13  16  19
+y   30  31  34  37'''
         self.assertEqual(str(pt), expected)
 
     def test_tabulate_translated(self):

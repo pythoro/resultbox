@@ -62,7 +62,7 @@ class Tabulator():
         out = []
         for arg in args:
             l = listify(arg)
-            out.extend([a for a in l if not a.startswith('(')])
+            out.extend([a for a in l if not a.endswith(':')])
         return out
     
     def _prepare_data(self, box, values, columns, index=None,
