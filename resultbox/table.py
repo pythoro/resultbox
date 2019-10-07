@@ -130,7 +130,7 @@ class Tabulator():
 
 
     def vector_table(self, box, values, index, index_vals, orient='rows'):
-        ''' A table of vectors 
+        ''' A table of vectors with an interpolated index
         
         Args:
             box (Box): The box of data
@@ -149,8 +149,10 @@ class Tabulator():
             interp_list.append(utils.interp(ind_vec, vec, index_vals))
         if orient=='rows':
             df = pd.DataFrame(np.array(interp_list).T, index=index_vals, columns=ind)
+            df = df.rename_axis(index, axis=0)
         else:
             df = pd.DataFrame(interp_list, index=ind, columns=index_vals)
+            df = df.rename_axis(index, axis=1)
         return df
     
     

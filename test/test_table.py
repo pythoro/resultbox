@@ -160,6 +160,7 @@ y   30  31  34  37'''
         df = t.vector_table(box, values, index, index_vals)
         expected = '''a     1           2      
 b     1     2     1     2
+c                        
 1  12.0  13.0  16.0  19.0
 2  30.0  31.0  34.0  37.0'''
         self.assertEqual(expected, str(df))
@@ -171,12 +172,11 @@ b     1     2     1     2
         index = 'c'
         index_vals = [1, 2]
         df = t.vector_table(box, values, index, index_vals, orient='cols')
-        expected = '''        1     2
+        expected = '''c       1     2
 a b            
 1 1  12.0  30.0
   2  13.0  31.0
 2 1  16.0  34.0
   2  19.0  37.0'''
         self.assertEqual(expected, str(df))
-        
         
