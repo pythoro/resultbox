@@ -137,17 +137,27 @@ class Box(list):
         d = self._combined
         return [c for key, c in d.items()]
     
-    def merge(self, box, in_place=True):
-        def _merge(base_box, box):
+    def _merge(self, box_list):
+        if isinstance(box_list, self.__class__):
+            box_list = [box_list]
+        for box in box_list:
             for row in box:
-                row['index'] = len(base_box)
-                base_box.append(row)
-                base_box._combine(row)
+                row['index'] = len(self)
+                self.append(row)
+                self._combine(row)
+    
+    def merge(self, box, in_place=True):
+        ''' Merge with one or more other boxes 
+        
+        Args:
+            box (Box): A Box instance of list of Box instances.
+            in_place(bool): Either merge in place or return a new Box.
+        '''
         if in_place:
-            _merge(self, box)
+            self._merge(box)
         else:
             base = self.copy()
-            _merge(base, box)
+            base._merge(box)
             return base
     
     def vectors(self, keys, dct=None, labels='str'):
