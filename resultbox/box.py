@@ -9,20 +9,18 @@ import hashlib
 import numpy as np
 from .utils import listify, dict_to_str
 
-def to_bytes(obj):
-    if isinstance(obj, str):
-        return bytes(obj, 'utf-8')
-    return bytes(obj)
+def hashable(obj):
+    return bytes(str(obj), 'utf-8')
 
 def hash_dict(dct):
     h = hashlib.md5()
     def update(d):
         for k, v in d.items():
-            h.update(to_bytes(k))
+            h.update(hashable(k))
             if isinstance(v, dict):
                 update(v)
             else:
-                h.update(to_bytes(v))
+                h.update(hashable(v))
     update(dct)
     return h.digest()
 
