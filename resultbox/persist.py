@@ -30,11 +30,8 @@ class Manager():
         for k, handler in self.handlers.items():
             if handler.suitable(source, **kwargs):
                 return handler.load(source, **kwargs)
-            else:
-                f = source + '.cbox'
-                return self.handlers[self.default_handler].load(f, **kwargs)
-        raise ValueError('No suitable load handler found for source: "'
-                          + source + '"')
+        f = source + '.cbox'
+        return self.handlers[self.default_handler].load(f, **kwargs)
 
     def save(self, box, target, handler=None, **kwargs):
         if handler is not None:
@@ -44,11 +41,8 @@ class Manager():
         for k, handler in self.handlers.items():
             if handler.suitable(target, **kwargs):
                 return handler.save(box, target, **kwargs)
-            else:
-                f = target + '.cbox'
-                return self.handlers[self.default_handler].save(box, f, **kwargs)
-        raise ValueError('No suitable save handler found for target: "' 
-                         + target + '"')
+        f = target + '.cbox'
+        return self.handlers[self.default_handler].save(box, f, **kwargs)
 
 
 class JSON():
