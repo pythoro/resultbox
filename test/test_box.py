@@ -7,7 +7,7 @@ Created on Sun Sep  1 20:13:44 2019
 
 import unittest
 
-from resultbox import Box
+from resultbox import Box, Variable
 
 
 def get_dct():
@@ -21,6 +21,7 @@ def get_lst3():
            {'index': 7, 'independent': {'a': 1, 'b': 2}, 'dependent': {'e': [1, 2]}}]
     return lst
 
+
 class Test_Box(unittest.TestCase):
     def test_init(self):
         b = Box()
@@ -32,6 +33,17 @@ class Test_Box(unittest.TestCase):
         self.assertEqual(len(b), 1)
         expected = {'index': 0, 'independent': {'a': 1, 'b': 2},
                     'dependent': {'test': 7}}
+        self.assertEqual(b[0], expected)
+
+    def test_add_arr(self):
+        b = Box()
+        dct = get_dct()
+        var = Variable('a', components=['x', 'y', 'z'])
+        val = [[0, 1], [2, 3], [4, 5]]
+        b.add(dct, var, val)
+        self.assertEqual(len(b), 1)
+        expected = {'index': 0, 'independent': {'a': 1, 'b': 2},
+                    'dependent': {'a': val}}
         self.assertEqual(b[0], expected)
 
     def test_add_array_list(self):
