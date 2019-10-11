@@ -137,7 +137,7 @@ class Tabulator():
             d2 = d.copy()
             d2.update({k: v})
             return d2
-        arr2 = [v for row in arr for v in row]
+        arr2 = [np.squeeze(v) for row in arr for v in row]
         labels2 = [add(d, variable, c) for d in labels for c in components]
         return arr2, labels2
 
@@ -165,7 +165,9 @@ class Tabulator():
         interp_list = []
         labels = [{k: str(v) for k, v in label.items()} for label in labels]
         for vec, ind_vec in zip(values_list, index_list):
-            interp_list.append(utils.interp(ind_vec, vec, index_vals))
+            interp_list.append(utils.interp(ind_vec,
+                                            np.squeeze(vec),
+                                            np.squeeze(index_vals)))
         if np.ndim(interp_list) == 3:
             interp_list, labels = self._unfold_3D(interp_list, labels,
                           values + ':', components)
