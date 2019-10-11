@@ -54,14 +54,53 @@ def deduplicate_xs(tups, min_diff=0):
         m = t[0]
     return out
 
-def interp(xs, ys, new_xs, min_diff=1e-4, bounds_error=False, 
+def orient(arr, n, axis='rows'):
+    ''' Orient a 2D array so that it has n rows or columns
+    
+    Args:
+        arr (array-like): The array
+        n (int): The number of rows for the desired output. Must equal the
+        length of one array axis
+    
+    Returns:
+        ndarray: The oriented array. It behaves as a list.
+    '''
+    a = np.atleast_2d(arr)
+    ax = None
+    for i in range(2):
+        if a.shape[i] == n:
+            ax = i
+    if ax is None:
+        raise ValueError('Neither dimension in arr has ' + str(n) + ' elements.')
+    if (axis == 'rows' and ax == 0) or (axis != 'rows' and ax == 1):
+        return a
+    else:
+        return a.T
+
+def _interp_1D(xs, ys, new_xs, min_diff=1e-4, bounds_error=False, 
            fill_value=None, **kwargs):
+    ''' Return interpolated values for 1D array '''
     xs, ys = cosort(xs, ys, min_diff=min_diff)
     if fill_value is None:
         fill_value = (ys[0], ys[-1])
     f = interp1d(xs, ys, bounds_error=bounds_error, fill_value=fill_value,
                  **kwargs)
-    return f(new_xs)
+    return f(new_xs)    
+
+def interp(xs, ys, new_xs, min_diff=1e-4, bounds_error=False, 
+           fill_value=None, **kwargs):
+    n = np.ndim(ys)
+    if n == 1:
+        return _interp_1D(xs, ys, new_xs, min_diff, bounds_error, fill_value,
+                          **kwargs)
+    elif n == 2:
+        a = orient(ys, n, 'cols')
+        out = [_interp_1D(xs, row, new_xs, min_diff, bounds_error, fill_value,
+                          **kwargs) for row in a]
+        out = np.array(out) if isinstance(ys, np.ndarray) else out
+        return out
+    raise ValueError('ys must have 1 or 2 dimensions')
+            
 
 def list_to_str(lst, length=18, brackets=True):
     l = [val_to_str(num) for num in lst]
