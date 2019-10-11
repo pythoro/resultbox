@@ -59,14 +59,15 @@ def orient(arr, n, axis='rows'):
     
     Args:
         arr (array-like): The array
-        n (int): The number of rows for the desired output. Must equal the
-        length of one array axis
+        n (int, list): The number of rows for the desired output. Must equal the
+        length of one array axis. Or a list of elements.
     
     Returns:
         ndarray: The oriented array. It behaves as a list.
     '''
     a = np.atleast_2d(arr)
     ax = None
+    n = len(n) if isinstance(n, list) else n
     for i in range(2):
         if a.shape[i] == n:
             ax = i
