@@ -78,6 +78,9 @@ def orient(arr, n, axis='rows'):
     else:
         return a.T
 
+def unpack(arr, labels):
+    return [v for v in orient(arr, labels, axis='rows')]
+
 def _interp_1D(xs, ys, new_xs, min_diff=1e-4, bounds_error=False, 
            fill_value=None, **kwargs):
     ''' Return interpolated values for 1D array '''
