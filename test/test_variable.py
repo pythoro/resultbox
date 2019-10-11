@@ -48,6 +48,19 @@ class Test_Store(unittest.TestCase):
         self.assertTrue(v in s)
         self.assertEqual(str(s[v]), str(v))
 
+    def test_add(self):
+        s = Store()
+        v = s.add('test')
+
+    def test_nearest(self):
+        s = Store()
+        s.new('dummy')
+        s.new('the one we want')
+        s.new('irrelevant')
+        v = s.nearest('one we wnt')
+        self.assertEqual(v.name, 'the one we want')
+            
+
 class Test_Variable(unittest.TestCase):
     def test_init(self):
         name = 'a'

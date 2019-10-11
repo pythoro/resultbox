@@ -5,6 +5,8 @@ Created on Sun Sep  1 14:27:27 2019
 @author: Reuben
 """
 
+from difflib import SequenceMatcher
+
 def _expand_single(key, val, store, expanded=None):
     if isinstance(val, dict):
         r = expand(val, store)
@@ -44,6 +46,12 @@ class Store(dict):
         self[new.key] = new
         return new
     
+    def nearest(self, key):
+        keys = list(self.keys())
+        ratios = [SequenceMatcher(None, key, k).ratio() for k in keys]
+        return self[keys[ratios.index(max(ratios))]]
+    
+    add = new
 
 class Variable(str):
     def __new__(cls,
