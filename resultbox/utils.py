@@ -91,6 +91,7 @@ def _interp_1D(xs, ys, new_xs, min_diff=1e-4, bounds_error=False,
 def interp(xs, ys, new_xs, min_diff=1e-4, bounds_error=False, 
            fill_value=None, **kwargs):
     n = np.ndim(ys)
+    xs = xs.flatten() if isinstance(xs, np.ndarray) else xs
     if n == 1:
         return _interp_1D(xs, ys, new_xs, min_diff, bounds_error, fill_value,
                           **kwargs)
