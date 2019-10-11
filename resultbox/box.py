@@ -217,7 +217,9 @@ class Box(list):
         def f(v):
             if np.size(v) == 1:
                 return str(v)
-            elif np.size(v) > 1:
+            elif np.size(v) > 3:
+                return str(np.shape(v))
+            elif np.ndim(v) > 1:
                 return str(np.shape(v))
             else:
                 return str(v)
