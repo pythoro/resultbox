@@ -134,3 +134,22 @@ def dict_to_str(dct, val_sep=' ', key_sep=' '):
         s = str(key) + val_sep + val_to_str(val)
         lst.append(s)
     return key_sep.join(lst)
+
+def strip_unit(s):
+    ''' Removes units within square brakets from file names '''
+    start = s.find('[')
+    end = s.find(']')
+    if start > 0 and end > 0:
+        return s[:start-1] + s[end+1:]
+    return s
+
+def safe_fname(fname):
+    fname = strip_unit(fname)
+    return fname
+
+def ensure_ext(fname, ext):
+    ext = ext if ext.startswith('.') else '.' + ext
+    if fname.endswith(ext):
+        return fname
+    else:
+        return fname + ext

@@ -187,4 +187,6 @@ vector_table = tabulator.vector_table
 tabulate = tabulator.tabulate
 
 def to_csv(df, fname, *args, **kwargs):
+    fname = utils.safe_fname(fname)
+    fname = utils.ensure_ext(fname, '.csv')
     return df.to_csv(fname, *args, **kwargs)
