@@ -96,7 +96,7 @@ def interp(xs, ys, new_xs, min_diff=1e-4, bounds_error=False,
         return _interp_1D(xs, ys, new_xs, min_diff, bounds_error, fill_value,
                           **kwargs)
     elif n == 2:
-        a = orient(ys, n, 'cols')
+        a = orient(ys, len(xs), 'cols')
         out = [_interp_1D(xs, row, new_xs, min_diff, bounds_error, fill_value,
                           **kwargs) for row in a]
         out = np.array(out) if isinstance(ys, np.ndarray) else out
