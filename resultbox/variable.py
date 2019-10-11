@@ -110,8 +110,12 @@ class Variable(str):
         return self.name + ':'
     
     def __getitem__(self, component):
+        if not isinstance(component, str):
+            return super().__getitem__(component)
         if component in self.components:
             return self._component_name(component)
+        else:
+            return super().__getitem__(component)
     
         
 class Aliases(dict):
