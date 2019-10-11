@@ -128,15 +128,34 @@ class Tabulator():
                             aggfunc=aggfunc)
         return pt
 
+    def _unfold_3D(self, arr, labels, variable, components):
+        ''' Unfold a 3D array into a 2D array 
+        
+        Used for vector tables in which each value is a 2D array
+        '''
+        def add(d, k, v):
+            d2 = d.copy()
+            d2.update({k: v})
+            return d2
+        arr2 = [v for row in arr for v in row]
+        labels2 = [add(d, variable, c) for d in labels for c in components]
+        return arr2, labels2
 
-    def vector_table(self, box, values, index, index_vals, orient='rows'):
+    def vector_table(self, box, values, index, index_vals, orient='rows',
+                     components=None):
         ''' A table of vectors with an interpolated index
         
         Args:
             box (Box): The box of data
-            values (str): The key for the values
+            values (str): The key for the values. If the values are 2D,
+            components must also be specified.
             index (str): The key for the index (vector-wise)
-            index-vals (list-like): The index values for the vector
+            index_vals (list-like): The index values for the vector
+            orient (str): The direction of the vectors. Defaults to 'rows'
+            and can be set to 'cols'.
+            components (list[str]): A list of component names. Only required
+            if the values are 2D. If the 'values' is a Variable, this cam
+            be gained through variable.components.
             
         Note:
             Headings are automatically created.
@@ -144,9 +163,13 @@ class Tabulator():
         vectors, labels = box.vectors([values, index], labels='dict')
         values_list, index_list = vectors
         interp_list = []
-        ind = pd.MultiIndex.from_frame(pd.DataFrame(labels))
+        labels = [{k: str(v) for k, v in label.items()} for label in labels]
         for vec, ind_vec in zip(values_list, index_list):
             interp_list.append(utils.interp(ind_vec, vec, index_vals))
+        if np.ndim(interp_list) == 3:
+            interp_list, labels = self._unfold_3D(interp_list, labels,
+                          values + ':', components)
+        ind = pd.MultiIndex.from_frame(pd.DataFrame(labels))
         if orient=='rows':
             df = pd.DataFrame(np.array(interp_list).T, index=index_vals, columns=ind)
             df = df.rename_axis(index, axis=0)

@@ -50,6 +50,13 @@ def get_lst4():
            {'index': 7, 'independent': {'a': 2, 'b': 2}, 'dependent': {'c': [1, 2], 'd': [19, 37]}}]
     return lst
 
+def get_lst5():
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1},
+                'dependent': {'c': [1, 2], 'd': [[1, 2], [3, 4], [5, 6]]}},
+           {'index': 1, 'independent': {'a': 1, 'b': 2},
+                'dependent': {'c': [1, 2], 'd': [[7, 8], [9, 10], [11, 12]]}}]
+    return lst
+
     
 class Test_Tabulator(unittest.TestCase):
     def test_tabulate(self):
@@ -180,3 +187,19 @@ a b
   2  19.0  37.0'''
         self.assertEqual(expected, str(df))
         
+    def test_vector_table_arr(self):
+        t = Tabulator()
+        box = Box(get_lst5())
+        values = 'd'
+        index = 'c'
+        index_vals = [1, 2]
+        components = ['x', 'y', 'z']
+        df = t.vector_table(box, values, index, index_vals,
+                            components=components)
+        expected = '''a     1                           
+b     1              2            
+d:    x    y    z    x     y     z
+c                                 
+1   1.0  3.0  5.0  7.0   9.0  11.0
+2   2.0  4.0  6.0  8.0  10.0  12.0'''
+        self.assertEqual(expected, str(df))
