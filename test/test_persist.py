@@ -8,6 +8,7 @@ Created on Tue Sep  3 21:44:10 2019
 import unittest
 import tempfile
 import os
+import numpy as np
 
 from resultbox import Box, load, save
 
@@ -20,6 +21,17 @@ def get_lst():
            {'index': 5, 'independent': {'a': 2, 'b': 1, 'c': 2}, 'dependent': {'d': 16}},
            {'index': 6, 'independent': {'a': 2, 'b': 2, 'c': 1}, 'dependent': {'d': 17}},
            {'index': 7, 'independent': {'a': 2, 'b': 2, 'c': 2}, 'dependent': {'d': 18}}]
+    return lst
+
+def get_lst_2():
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1, 'c': 1}, 'dependent': {'d': np.array([0, 10])}},
+           {'index': 1, 'independent': {'a': 1, 'b': 2, 'c': 2}, 'dependent': {'d': np.array([1, 11])}},
+           {'index': 2, 'independent': {'a': 1, 'b': 2, 'c': 1}, 'dependent': {'d': np.array([2, 12])}},
+           {'index': 3, 'independent': {'a': 1, 'b': 1, 'c': 2}, 'dependent': {'d': np.array([3, 13])}},
+           {'index': 4, 'independent': {'a': 2, 'b': 1, 'c': 1}, 'dependent': {'d': np.array([4, 14])}},
+           {'index': 5, 'independent': {'a': 2, 'b': 1, 'c': 2}, 'dependent': {'d': np.array([5, 15])}},
+           {'index': 6, 'independent': {'a': 2, 'b': 2, 'c': 1}, 'dependent': {'d': np.array([6, 16])}},
+           {'index': 7, 'independent': {'a': 2, 'b': 2, 'c': 2}, 'dependent': {'d': np.array([7, 17])}}]
     return lst
 
 class Test_JSON(unittest.TestCase):
@@ -39,4 +51,19 @@ class Test_JSON(unittest.TestCase):
             box_check = load(fname)
         self.assertListEqual(box, box_check)
 
+    def test_uncompresed_save_load_np_array(self):
+        box = Box(get_lst_2())
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            fname = os.path.join(tmpdirname, 'test.box')
+            save(box, fname)
+            box_check = load(fname)
+        self.assertEqual(str(list(box)), str(list(box_check)))
+
+    def test_compressed_save_load_np_array(self):
+        box = Box(get_lst_2())
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            fname = os.path.join(tmpdirname, 'test.cbox')
+            save(box, fname, compression=True)
+            box_check = load(fname)
+        self.assertEqual(str(list(box)), str(list(box_check)))
         

@@ -1,1 +1,2 @@
-json-tricks>=3.13.2
+numpy
+pandas
