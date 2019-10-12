@@ -3,6 +3,9 @@
 Created on Fri Oct  4 08:24:09 2019
 
 @author: Reuben
+
+A module of handy utility functions used elsewhere within resultbox.
+
 """
 
 import numpy as np
@@ -10,13 +13,24 @@ from scipy.interpolate import interp1d
 
 
 def listify(obj):
+    ''' Put an object into a list if it isn't already a list '''
     if not isinstance(obj, list):
         return [obj]
     else:
         return obj
 
 def cosort(xs, ys, min_diff=0):
-    ''' Sort into monotonic x 
+    ''' Sort x and y vectors into monotonic increasing order of x
+    
+    Args:
+        xs (vector-like): The x values
+        ys (vector-like): The y values
+        min_diff (float, int): The minimum step by which x must always increase
+    
+    Note:
+        Some values may be omitted in cases where x is not monotonically
+        increasing. The point is to return vectors that can be used for 
+        interpolation without any problems.
     
     See: https://stackoverflow.com/questions/11851770/spline-interpolation-with-python
     '''
@@ -39,6 +53,11 @@ def cosort(xs, ys, min_diff=0):
 
 def deduplicate_xs(tups, min_diff=0):
     ''' Remove duplicate xs
+    
+    Args:
+        tups (list[tuple]): A sorted list of x, y pairs from :func:`utils.cosort`
+        min_diff (float, int): The minimum step by which x must always increase.
+        Defaults to 0.
     
     Args:
         tups: Sorted list of tuples of values
@@ -79,6 +98,16 @@ def orient(arr, n, axis='rows'):
         return a.T
 
 def unpack(arr, labels):
+    ''' Unpack a 2D array correctly regardless of its orientation 
+    
+    Args:
+        arr (array-like): The array
+        labels (list, int): The labels for each vector, or an integer for
+        the number of labels.
+        
+    Returns:
+        list: A list of vectors.
+    '''
     return [v for v in orient(arr, labels, axis='rows')]
 
 def _interp_1D(xs, ys, new_xs, min_diff=1e-4, bounds_error=False, 
@@ -93,6 +122,22 @@ def _interp_1D(xs, ys, new_xs, min_diff=1e-4, bounds_error=False,
 
 def interp(xs, ys, new_xs, min_diff=1e-4, bounds_error=False, 
            fill_value=None, **kwargs):
+    ''' Interpolate an array based on a matching vector and target vector 
+    
+    Args:
+        xs (vector-like): A 1D array or list of x values
+        ys (array-like): A 1D or 2D array of y values, which matches xs in
+        one dimension. 
+        new_xs (vector_like): The desired output x values.
+        min_diff (float): The minimum positive difference between adjacent
+        x values to use during interpolation.
+        bounds_error: As per scipy interp1d.
+        fill_value: As per scipy interp1d.
+        kwargs: Other keyword arguments to pass to scipy interp1d.
+        
+    Note:
+        This function uses scipy's interp1d to perform the interpolation.
+    '''
     n = np.ndim(ys)
     xs = xs.flatten() if isinstance(xs, np.ndarray) else xs
     if n == 1:
@@ -106,16 +151,36 @@ def interp(xs, ys, new_xs, min_diff=1e-4, bounds_error=False,
         return out
     raise ValueError('ys must have 1 or 2 dimensions')
             
-
-def list_to_str(lst, length=18, brackets=True):
+def list_to_str(lst, length=18, sep=' ', brackets=True):
+    ''' Convert a list of values to a nice-to-look-at string 
+    
+    Args:
+        lst (list): A list of values
+        length (int): The maximum length of the output string. The string
+        is truncated at this length.
+        sep (str): The separator to use between values
+        brakets (bool): True to add square brackets around the list.
+    
+    Returns:
+        str: The string.
+    '''
     l = [val_to_str(num) for num in lst]
-    s = ' '.join(l)[:length]
+    s = sep.join(l)[:length]
     if brackets:
         return '[' + s + ']'
     else:
         return s
 
 def val_to_str(num, precision=2):
+    ''' Format a single number as a nice-to-look-at string 
+    
+    Args:
+        num: The number
+        precision (int): The precision of the output string
+        
+    Returns:
+        str: The formatted number
+    '''
     format_str = '{:0.' + str(precision) + 'g}'
     if isinstance(num, str):
         return num
@@ -132,6 +197,16 @@ def val_to_str(num, precision=2):
             return list_to_str(num.flatten().tolist())
         
 def dict_to_str(dct, val_sep=' ', key_sep=' '):
+    ''' Convert a dict to a nice-to-look-at string 
+    
+    Args:
+        dct (dict): The dictionary
+        val_sep (str): The separator between a key and it's value.
+        key_sep (str): The separator between different key-value pairs.
+    
+    Returns:
+        str: The formatted string
+    '''
     lst = []
     for key, val in dct.items():
         s = str(key) + val_sep + val_to_str(val)
@@ -139,7 +214,18 @@ def dict_to_str(dct, val_sep=' ', key_sep=' '):
     return key_sep.join(lst)
 
 def strip_unit(s):
-    ''' Removes units within square brakets from file names '''
+    ''' Removes units within square brakets from file names 
+    
+    Args:
+        s (str): A string
+        
+    Returns:
+        str: The string without anything enclosed in square brackets.
+    
+    Note:
+        Useful for removing units in a key. It only removes one pair
+        of brackets.
+    '''
     start = s.find('[')
     end = s.find(']')
     if start > 0 and end > 0:
@@ -147,10 +233,31 @@ def strip_unit(s):
     return s
 
 def safe_fname(fname):
+    ''' Change a string if needed to make it a valid file name 
+    
+    Args:
+        fname (str): The candidate file name
+        
+    Returns:
+        str: The safe file name.
+    
+    TODO:
+        This needs work.
+    '''
     fname = strip_unit(fname)
     return fname
 
 def ensure_ext(fname, ext):
+    ''' Edit a string if needed to ensure it has a particular extension 
+    
+    Args:
+        fname (str): The file name
+        ext (str): The extension
+        
+    Returns:
+        str: The file name with the desired extension (without duplication of
+        the extension).
+    '''
     ext = ext if ext.startswith('.') else '.' + ext
     if fname.endswith(ext):
         return fname
