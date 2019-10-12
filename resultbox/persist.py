@@ -74,8 +74,8 @@ class JSON():
             return True
         
     def save(self, box, fname, **kwargs):
+        jsn = json.dumps(list(box), cls=JSONEncoder)
         with open(fname, mode='w') as f:
-            jsn = json.dumps(list(box), cls=JSONEncoder)
             f.write(jsn)
     
     def load(self, fname, **kwargs):
@@ -95,15 +95,15 @@ class CJSON():
             return True
         
     def save(self, box, fname, **kwargs):
+        jsn = json.dumps(list(box), cls=JSONEncoder)
+        compressed = zlib.compress(jsn.encode(), level=9)
         with open(fname, mode='wb') as f:
-            jsn = json.dumps(list(box), cls=JSONEncoder)
-            compressed = zlib.compress(jsn.encode(), level=9)
             f.write(compressed)
     
     def load(self, fname, **kwargs):
         with open(fname, mode='rb') as f:
             compressed = f.read()
-            jsn = zlib.decompress(compressed).decode()
+        jsn = zlib.decompress(compressed).decode()
         lst = json.loads(jsn, object_hook=np_decode)
         for row in lst:
             row['dependent'] = dict(row['dependent'])
