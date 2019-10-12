@@ -146,10 +146,6 @@ class JSON(Handler):
         with open(fname, mode='r') as f:
             jsn = f.read()
         lst = json.loads(jsn, object_hook=np_decode)
-        for row in lst:
-            row['dependent'] = dict(row['dependent'])
-            row['independent'] = dict(row['independent'])
-        lst = [dict(row) for row in lst]
         return lst
 
 
@@ -169,10 +165,6 @@ class CJSON(Handler):
             compressed = f.read()
         jsn = zlib.decompress(compressed).decode()
         lst = json.loads(jsn, object_hook=np_decode)
-        for row in lst:
-            row['dependent'] = dict(row['dependent'])
-            row['independent'] = dict(row['independent'])
-        lst = [dict(row) for row in lst]
         return lst
             
             
