@@ -3,11 +3,31 @@
 Created on Sun Sep  1 14:27:27 2019
 
 @author: Reuben
+
+Variables help resultbox know how to interpret and display data. Sometimes,
+variables have different components, like x, y, and z coordinates. They
+often have units, such as meters. 
+
+The idea is that we define a variable just once. Whenever we add in some
+data for that variable to a Box, we also pass in that variable. Then, we
+can let resultbox take care of the rest. 
+
 """
 
 from difflib import SequenceMatcher
 
-def _expand_single(key, val, store, expanded=None):
+def _expand_single(key, val, store):
+    ''' Expand a value into its components 
+    
+    Args:
+        key (Variable): The variable key
+        val: The data for that variable
+        store (Store): The variable store
+        
+    Returns:
+        dict: A dictionary of keys and values. If the variables has components,
+        the dictionary contains the component keys and component values.
+    '''
     if isinstance(val, dict):
         r = expand(val, store)
         return {key: r}
@@ -23,6 +43,16 @@ def _expand_single(key, val, store, expanded=None):
         return {key: val}
 
 def expand(source, store):
+    ''' Expand variable components within a list or dictionary recursively 
+    
+    Args:
+        source (list or dict): The source list (of dictionaries) or dictionary.
+        The keys must exist in the store.
+        store (Store): The corresponding Store instance.
+        
+    Returns:
+        list or dict: The expanded list or dictionary.
+    '''
     if isinstance(source, list):
         out = []
         for val in source:
@@ -36,8 +66,28 @@ def expand(source, store):
 
 
 class Store(dict):
+    ''' A store is a container for Variables  '''
     def new(self, name, doc=None, unit=None, components=None, sep=' - ',
             category=None, tags=None):
+        ''' Create a new variable 
+        
+        Args:
+            name (str): The variable name
+            doc (str): A documentation string. Defaults to None.
+            unit (str): The units of the variable (usually abbreviated).
+            Defaults to None.
+            components (list[str]): A list of names for each
+            component. Defaults to None.
+            sep (str): The separator between the name and any component names.
+            category (str): An optional category
+            tags (list[str]): Optional tags
+            
+        Returns:
+            Variable: The new variable
+            
+        Note:
+            The 'add' method is a copy of this method.
+        '''
         if name in self:
             raise KeyError('Key "' + str(name) + '" already exists. Names '
                           + 'must be unique.')
@@ -47,6 +97,14 @@ class Store(dict):
         return new
     
     def nearest(self, key):
+        ''' Return the variable that best best-matches the input string
+        
+        Args:
+            key (str): The input string
+            
+        Returns:
+            Variable: The variable with the key that best matches the input
+        '''
         keys = list(self.keys())
         ratios = [SequenceMatcher(None, key, k).ratio() for k in keys]
         return self[keys[ratios.index(max(ratios))]]
@@ -54,6 +112,24 @@ class Store(dict):
     add = new
 
 class Variable(str):
+    ''' Metadata for specific data 
+    
+    Args:
+        name (str): The name of the variable
+        doc (str): A documentation string. Defaults to None.
+        unit (str): The units of the variable (usually abbreviated).
+        Defaults to None.
+        components (list[str]): A list of names for each
+        component. Defaults to None.
+        sep (str): The separator between the name and any component names.
+        category (str): An optional category
+        tags (list[str]): Optional tags
+        
+    Note:
+        Variables subclass `str`, so they can be used like strings. Care is
+        needed when serialising and deserialising them, as otherwise their
+        special attributes will be lost.
+    '''
     def __new__(cls,
                name,
                doc=None,
@@ -86,18 +162,20 @@ class Variable(str):
 
     @classmethod
     def _append_unit(cls, string, unit):
+        ''' Add the unit to the string '''
         if unit is not None:
             return string + ' [' + unit + ']'
         else:
             return string
     
     def _component_name(self, component):
+        ''' Get the full key for a component '''
         component_name = self.name + self.sep + component
         return self._append_unit(component_name, self.unit)
     
     @property
     def subkeys(self):
-        ''' Return a list of keys for the variable, including components '''
+        ''' Return a list of keys for the variable components '''
         if self.components is None:
             return None
         component_names = []
@@ -107,6 +185,7 @@ class Variable(str):
     
     @property
     def label(self):
+        ''' The variable name formatted with a trailing colon '''
         return self.name + ':'
     
     def __getitem__(self, component):
@@ -119,6 +198,13 @@ class Variable(str):
     
         
 class Aliases(dict):
+    ''' Variables allow other keys to be used as aliases for variables 
+    
+    This class is a subclass of `dict`. It is designed so that each key
+    is an alias, and its value is the corresponding variable. The Aliases
+    instance provides methods to 'translate' (swap) aliases within standard
+    data structures to be their corresponding variables.
+    '''
     def __init__(self, data):
         self.update(data)
         
@@ -126,6 +212,7 @@ class Aliases(dict):
         return key
 
     def translate(self, obj):
+        ''' Recusively translate an object, swapping any dictionary keys '''
         if obj is None:
             return None
         if isinstance(obj, str):
@@ -136,14 +223,18 @@ class Aliases(dict):
             return self.translate_dict(obj)
 
     def translate_str(self, s):
-        return str(self[s])
+        ''' Translate a string '''
+        return self[s]
 
     def translate_dict_vals(self, dct):
-        return {k: str(self[v]) for k, v in dct.items()}
+        ''' Translate the values in a dictionary '''
+        return {k: self[v] for k, v in dct.items()}
         
     def translate_dict(self, dct):
-        return {str(self[k]): v for k, v in dct.items()}
+        ''' Translate the keys in a dictionary '''
+        return {self[k]: v for k, v in dct.items()}
 
     def translate_list(self, lst):
+        ''' Translate the objects in a list '''
         return [self.translate(k) for k in lst]
 
