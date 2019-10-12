@@ -26,15 +26,15 @@ class Manager():
         self.specified = key
         
     def _load(self, source, handler=None, **kwargs):
-        if handler is not None:
-            return self.handlers[handler].load(source, **kwargs)
-        if self.specified is not None:
-            return self.handlers[self.specified].load(source, **kwargs)
+        h = handler if handler is not None else None
+        h = self.specified if self.specified is not None else h
         for k, handler in self.handlers.items():
             if handler.suitable(source, **kwargs):
-                return handler.load(source, **kwargs)
-        f = source + '.cbox'
-        return self.handlers[self.default_handler].load(f, **kwargs)
+                h = handler
+        if h is None:
+            h = self.default_handler
+            source += '.cbox'
+        return h.load(source, **kwargs)
 
     def load(self, source, handler=None, as_box=True, **kwargs):
         ret = self._load(source, handler, **kwargs)
@@ -44,15 +44,15 @@ class Manager():
             return ret
 
     def save(self, box, target, handler=None, **kwargs):
-        if handler is not None:
-            return self.handlers[handler].save(box, target, **kwargs)
-        if self.specified is not None:
-            return self.handlers[self.specified].save(box, target, **kwargs)
+        h = handler if handler is not None else None
+        h = self.specified if self.specified is not None else h
         for k, handler in self.handlers.items():
             if handler.suitable(target, **kwargs):
-                return handler.save(box, target, **kwargs)
-        f = target + '.cbox'
-        return self.handlers[self.default_handler].save(box, f, **kwargs)
+                h = handler
+        if h is None:
+            h = self.default_handler
+            target += '.cbox'
+        return h.save(box, target, **kwargs)
 
 
 class JSONEncoder(json.JSONEncoder):
