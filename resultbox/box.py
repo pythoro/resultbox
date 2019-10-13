@@ -14,6 +14,7 @@ and plots can be generated simply from the data within the Box.
 import hashlib
 import numpy as np
 from .utils import listify, dict_to_str, orient
+from .constants import IND, DEP, INDEP
 
 def hashable(obj):
     ''' Make an hashable representation of an object for hashlib '''
@@ -102,9 +103,9 @@ class Box(list):
             dep (dict): A dictionary of Variable-value pairs for dependent
             data.
         '''
-        dfull = {'index': len(self),
-                 'independent': indep.copy(),
-                 'dependent': dep}
+        dfull = {IND: len(self),
+                 INDEP: indep.copy(),
+                 DEP: dep}
         self.append(dfull)
         self._combine(dfull)
         
@@ -133,14 +134,14 @@ class Box(list):
         '''
         if lst is None:
             lst = self
-        if 'dependent' in lst[0] and 'independent' in lst[0]:
+        if DEP in lst[0] and INDEP in lst[0]:
             filt_dep = True
         else:
             filt_dep = False
             
         def filt_func(d):
             if filt_dep:
-                return all([k in d['independent'] or k in d['dependent']
+                return all([k in d[INDEP] or k in d[DEP]
                             for k in listify(keys)])
             else:
                 return all([k in d for k in listify(keys)])
@@ -174,14 +175,14 @@ class Box(list):
         m.update(kwargs)
         if lst is None:
             lst = self
-        if 'dependent' in lst[0] and 'independent' in lst[0]:
+        if DEP in lst[0] and INDEP in lst[0]:
             filt_dep = True
         else:
             filt_dep = False
             
         def filt_func(d):
             if filt_dep:
-                return all([v == d['independent'].get(k, d['dependent'].get(k, None))
+                return all([v == d[INDEP].get(k, d[DEP].get(k, None))
                             for k, v in m.items()])
             else:
                 return all([v == d.get(k, None) for k, v in m.items()])
@@ -210,18 +211,18 @@ class Box(list):
         combined = self._combined
         out = []
         for k, d in combined.items():
-            dct = d['independent'].copy()
-            dct.update(d['dependent'])
+            dct = d[INDEP].copy()
+            dct.update(d[DEP])
             out.append(dct)
         return out
     
     def _combine(self, dct):
         d = self._combined
-        independent = dct['independent']
+        independent = dct[INDEP]
         h = hash_dict(independent)
         if h not in d:
-            d[h] = {'independent': independent.copy(), 'dependent': {}}
-        d[h]['dependent'].update(dct['dependent'])
+            d[h] = {INDEP: independent.copy(), DEP: {}}
+        d[h][DEP].update(dct[DEP])
     
     def combined(self):
         ''' List Box data, merging rows with common independent values 
@@ -238,7 +239,7 @@ class Box(list):
             box_list = [box_list]
         for box in box_list:
             for row in box:
-                row['index'] = len(self)
+                row[IND] = len(self)
                 self.append(row)
                 self._combine(row)
     
@@ -282,13 +283,13 @@ class Box(list):
         label_list = []
         for dct in filtered:
             if labels=='str':
-                label = dict_to_str(dct['independent'],
+                label = dict_to_str(dct[INDEP],
                                              val_sep='=',
                                              key_sep=', ')
             else:
-                label = dct['independent']
+                label = dct[INDEP]
             label_list.append(label)
-            dep = dct['dependent']
+            dep = dct[DEP]
             for k in keys:
                 out[k].append(dep[k])
         return [out[k] for k in keys], label_list
@@ -306,19 +307,19 @@ class Box(list):
         lst = self if lst is None else lst
         out = {}
         for row in lst:
-            if key in row['dependent']:
-                out[row['index']] = row['dependent'][key]
-            elif key in row['independent']:
-                out[row['index']] = row['independent'][key]
+            if key in row[DEP]:
+                out[row[IND]] = row[DEP][key]
+            elif key in row[INDEP]:
+                out[row[IND]] = row[INDEP][key]
         return out
     
     def item(self, index, key):
         ''' Return the value for a key at a given index '''
         row = self[index]
-        if key in row['dependent']:
-            return row['dependent'][key]
-        elif key in row['independent']:
-            return row['independent'][key]
+        if key in row[DEP]:
+            return row[DEP][key]
+        elif key in row[INDEP]:
+            return row[INDEP][key]
         else:
             raise KeyError
     
@@ -358,13 +359,13 @@ class Box(list):
                     buffered.append(l[i].ljust(n))
             return buffered
         
-        out = ['index'.ljust(7) +
-               'independent'.ljust(50) +
-                'dependent'.ljust(50)]
+        out = [IND.ljust(7) +
+               INDEP.ljust(50) +
+               DEP.ljust(50)]
         for row in self:
-            ind = [str(row['index'])]
-            dep = [k + ': ' + f(v) for k, v in row['dependent'].items()]
-            indep = [k + ': ' + f(v) for k, v in row['independent'].items()]
+            ind = [str(row[IND])]
+            dep = [k + ': ' + f(v) for k, v in row[DEP].items()]
+            indep = [k + ': ' + f(v) for k, v in row[INDEP].items()]
             m = max(len(dep), len(indep), 1)
             ind = buffer(ind, m, 7)
             dep = buffer(dep, m, 50)
@@ -390,9 +391,9 @@ class Box(list):
         out = set()
         for row in self:
             if independent:
-                out.update(row['independent'].keys())
+                out.update(row[INDEP].keys())
             if dependent:
-                out.update(row['dependent'].keys())
+                out.update(row[DEP].keys())
         return out
         
     
