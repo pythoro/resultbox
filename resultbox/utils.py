@@ -93,9 +93,13 @@ def orient(arr, n, axis='rows'):
     if ax is None:
         raise ValueError('Neither dimension in arr has ' + str(n) + ' elements.')
     if (axis == 'rows' and ax == 0) or (axis != 'rows' and ax == 1):
-        return a
+        ret = a
     else:
-        return a.T
+        ret = a.T
+    if isinstance(arr, list):
+        return ret.tolist()
+    else:
+        return ret
 
 def unpack(arr, labels):
     ''' Unpack a 2D array correctly regardless of its orientation 
