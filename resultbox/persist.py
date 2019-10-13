@@ -7,6 +7,9 @@ Created on Tue Sep  3 21:22:35 2019
 The persist module helps the user save and load Box instances. It is
 able to be extended for use with any handler.
 
+The module instantiates a Manager class and copies its load and save methods 
+to the module level, for easier usage by client code.
+
 """
 
 import json
@@ -45,7 +48,11 @@ class Manager():
         '''
         
     def specify(self, key):
-        ''' Specify the handler to use '''
+        ''' Specify the handler to use 
+        
+        Args:
+            key (str): The unique name of the handler.
+        '''
         self.specified = key
         
     def _load(self, source, handler=None, **kwargs):
@@ -120,6 +127,7 @@ class Handler():
         
 
 class JSONEncoder(json.JSONEncoder):
+    ''' A custom encoder to encode numpy arrays '''
     def default(self, obj):
         if isinstance(obj, np.ndarray):
             return {'__ndarray__': obj.tolist(), 'dtype': str(obj.dtype)}
@@ -127,22 +135,38 @@ class JSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 def np_decode(dct):
+    ''' A custom decoder to handle numpy arrays '''
     if '__ndarray__' in dct:
         return np.array(dct['__ndarray__'], dtype=dct['dtype'])
     return dct
     
 
 class JSON(Handler):
+    ''' Load and save in JSON format '''
     def suitable(self, fname, **kwargs):
         if fname.endswith('.box'):
             return True
         
     def save(self, box, fname, **kwargs):
+        ''' Save a Box to a file 
+        
+        Args:
+            box (Box): The Box instance.
+            fname (str): A string specifying the full filename
+        '''
         jsn = json.dumps(list(box), cls=JSONEncoder)
         with open(fname, mode='w') as f:
             f.write(jsn)
     
     def load(self, fname, **kwargs):
+        ''' Return box data by reading the source 
+        
+        Args:
+            fname (str): The file to load from
+            
+        Returns:
+            list: A list of box data
+        '''
         with open(fname, mode='r') as f:
             jsn = f.read()
         lst = json.loads(jsn, object_hook=np_decode)
@@ -150,17 +174,32 @@ class JSON(Handler):
 
 
 class CJSON(Handler):
+    ''' Load and save in compressed JSON format '''
     def suitable(self, fname, **kwargs):
         if fname.endswith('.cbox'):
             return True
         
     def save(self, box, fname, **kwargs):
+        ''' Save a Box to a file 
+        
+        Args:
+            box (Box): The Box instance.
+            fname (str): A string specifying the full filename
+        '''
         jsn = json.dumps(list(box), cls=JSONEncoder)
         compressed = zlib.compress(jsn.encode(), level=9)
         with open(fname, mode='wb') as f:
             f.write(compressed)
     
     def load(self, fname, **kwargs):
+        ''' Return box data by reading the source 
+        
+        Args:
+            fname (str): The file to load from
+            
+        Returns:
+            list: A list of box data
+        '''
         with open(fname, mode='rb') as f:
             compressed = f.read()
         jsn = zlib.decompress(compressed).decode()
