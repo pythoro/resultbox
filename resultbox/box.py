@@ -68,8 +68,8 @@ class Box(list):
             keys (list): A list of keys
             values (arraylike): The values. Rows must correspond with the keys.
         '''
-        if len(keys) != len(values):
-            raise KeyError('Keys do not match with rows of values.')
+        if np.ndim(values) > 1:
+            values = orient(values, keys)
         dep = {k: v for k, v in zip(keys, values)}
         self.add_dict(indep, dep)
         
