@@ -3,16 +3,24 @@
 Created on Sat Aug 31 08:47:07 2019
 
 @author: Reuben
+
+The Box class at the heart of resultbox. The idea of a Box is to be able to
+pile in results during an analysis and not worry about the structure. The
+results can be of different types. After the analysis has completed, tables
+and plots can be generated simply from the data within the Box.
+
 """
 
 import hashlib
 import numpy as np
-from .utils import listify, dict_to_str
+from .utils import listify, dict_to_str, orient
 
 def hashable(obj):
+    ''' Make an hashable representation of an object for hashlib '''
     return bytes(str(obj), 'utf-8')
 
 def hash_dict(dct):
+    ''' Generate a hash from a dictionary '''
     h = hashlib.md5()
     def update(d):
         for k, v in d.items():
@@ -26,6 +34,16 @@ def hash_dict(dct):
 
 
 class Box(list):
+    ''' A versatile container to manage and work with result data 
+    
+    The box class inherits from list. It's structured as a list of 
+    dictionaries, each with three sub-dictionaries: an index, 
+    a dictionary of independent variable values, and a dictionary of dependent
+    variable values.
+    
+    Args:
+        lst (list): Optional data to initially populate the Box instance.
+    '''
     def __init__(self, lst=None):
         self._combined = {}
         if lst is not None:
@@ -35,7 +53,21 @@ class Box(list):
         
     def add(self, indep, key=None, value=None, dep=None,
             keys=None, values=None, **kwargs):
-        ''' Add a new entry '''
+        ''' Add a new entry 
+        
+        Args:
+            indep (dict): A dictionary of independent values. The keys may
+            be strings, but it is recommended to use Variable instances.
+            key (Variable): A Variable instance (or string). Optional.
+            value: The data belonging to that variable. Optional.
+            dep (dict): A dictionary of Variable-value pairs for dependent
+            data.
+            keys (list[Variable]): A list of Variables
+            values (array-like): A corresponding array of values, in which
+            the number of elements in one dimension matches the number of keys.
+            kwargs: Optional Variable-value pairs specified as keyword
+            arguments.            
+        '''
         if key is not None and value is not None:
             if isinstance(key, str):
                 self.add_value(indep, key, value)
@@ -51,9 +83,25 @@ class Box(list):
             self.add_dict(indep, kwargs)
         
     def add_value(self, indep, key, value):
+        ''' Add a single value or vector 
+        
+        Args:
+            indep (dict): A dictionary of independent values. The keys may
+            be strings, but it is recommended to use Variable instances.
+            key (Variable): A Variable instance (or string). Optional.
+            value: The data belonging to that variable. Optional.
+        '''
         self.add_dict(indep, {key: value})
         
     def add_dict(self, indep, dep):
+        ''' Add a dictionary of dependent data
+        
+        Args:
+            indep (dict): A dictionary of independent values. The keys may
+            be strings, but it is recommended to use Variable instances.
+            dep (dict): A dictionary of Variable-value pairs for dependent
+            data.
+        '''
         dfull = {'index': len(self),
                  'independent': indep.copy(),
                  'dependent': dep}
@@ -66,7 +114,7 @@ class Box(list):
         Args:
             indep (dict): A dictionary of independent key-value pairs
             keys (list): A list of keys
-            values (arraylike): The values. Rows must correspond with the keys.
+            values (array-like): The values. Rows must correspond with the keys.
         '''
         if np.ndim(values) > 1:
             values = orient(values, keys)
@@ -74,6 +122,15 @@ class Box(list):
         self.add_dict(indep, dep)
         
     def filter(self, keys, lst=None):
+        ''' Return a generator for entries that all include the keys
+        
+        Args:
+            keys (list[Variable]): The keys that all entries must include
+            lst (list): An optional list to filter instead of the Box.
+            
+        Returns:
+            list: A generator for the filtered entries
+        '''
         if lst is None:
             lst = self
         if 'dependent' in lst[0] and 'independent' in lst[0]:
@@ -91,9 +148,27 @@ class Box(list):
         return filter(filt_func, lst)
     
     def filtered(self, keys, lst=None):
+        ''' Return a list of entries that all include the keys
+        
+        Args:
+            keys (list[Variable]): The keys that all entries must include
+            lst (list): An optional list to filter instead of the Box.
+            
+        Returns:
+            list: The filtered entries
+        '''
         return [row for row in self.filter(keys, lst)]
     
     def iwhere(self, dct=None, lst=None, **kwargs):
+        ''' Return a generator for entries that all contain key-value pairs
+        
+        Args:
+            dct (dict): The key-value pairs that each entry must contain
+            lst (list): An optional list to filter instead of the Box.
+            
+        Returns:
+            list: A generator for the filtered entries
+        '''
         dct = {} if dct is None else dct
         m = dct.copy()
         m.update(kwargs)
@@ -114,9 +189,24 @@ class Box(list):
         return filter(filt_func, lst)
     
     def where(self, dct=None, lst=None, **kwargs):
+        ''' Return a list of entries that all contain key-value pairs
+        
+        Args:
+            dct (dict): The key-value pairs that each entry must contain
+            lst (list): An optional list to filter instead of the Box.
+            
+        Returns:
+            list: A generator for the filtered entries
+        '''
         return [row for row in self.iwhere(dct, lst, **kwargs)]
     
     def minimal(self):
+        ''' A minimal list of data in the Box 
+        
+        Returns:
+            list: A list of dictionaries. Each dictionary combines
+            independent and dependent entries.
+        '''
         combined = self._combined
         out = []
         for k, d in combined.items():
@@ -134,10 +224,16 @@ class Box(list):
         d[h]['dependent'].update(dct['dependent'])
     
     def combined(self):
+        ''' List Box data, merging rows with common independent values 
+        
+        Returns:
+            list: A list of the merged data in the Box.
+        '''
         d = self._combined
         return [c for key, c in d.items()]
     
     def _merge(self, box_list):
+        ''' Perform a merge operation '''
         if isinstance(box_list, self.__class__):
             box_list = [box_list]
         for box in box_list:
@@ -147,7 +243,7 @@ class Box(list):
                 self._combine(row)
     
     def merge(self, box, in_place=True):
-        ''' Merge with one or more other boxes 
+        ''' Merge this Box with one or more other Box instances 
         
         Args:
             box (Box): A Box instance of list of Box instances.
@@ -161,6 +257,22 @@ class Box(list):
             return base
     
     def vectors(self, keys, dct=None, labels='str'):
+        ''' List the data for each key where all keys are present
+        
+        Args:
+            keys (list[Variable]): The list of keys to return values for.
+            dct (dict): A dictionary of key-value pairs that must be 
+            present in all rows.
+            labels (str): 'str' to return labels as strings, or 'dict' to
+            return labels as dictionaries of key-value pairs.
+            
+        Returns:
+            tuple[list]: A list for each key, plus a list of labels.
+        
+        Note:
+            This method operates on the combined data. All keys must be present
+            in a given index for the data from that index to be counted.
+        '''
         keys = listify(keys)
         combined = self.combined()
         filtered = self.filtered(keys, lst=combined)
@@ -182,6 +294,15 @@ class Box(list):
         return [out[k] for k in keys], label_list
     
     def find(self, key, lst=None):
+        ''' Return a dictionary of values for the key, by index 
+        
+        Args:
+            key (Variable): The key to find values for
+            lst (list): The list to search, if not this Box.
+            
+        Returns:
+            dict: A dictionary of values, where keys are the indexes.
+        '''
         lst = self if lst is None else lst
         out = {}
         for row in lst:
@@ -192,6 +313,7 @@ class Box(list):
         return out
     
     def item(self, index, key):
+        ''' Return the value for a key at a given index '''
         row = self[index]
         if key in row['dependent']:
             return row['dependent'][key]
@@ -201,6 +323,7 @@ class Box(list):
             raise KeyError
     
     def __getitem__(self, keys):
+        ''' Allow easier access to data '''
         if isinstance(keys, int):
             return super().__getitem__(keys)
         elif isinstance(keys, list):
@@ -214,6 +337,7 @@ class Box(list):
         return Box(self)
         
     def __str__(self):
+        ''' Format box contents in a concise way '''
         def f(v):
             if np.size(v) == 1:
                 return str(v)
@@ -254,6 +378,15 @@ class Box(list):
         return self.__str__()
     
     def keys(self, dependent=True, independent=False):
+        ''' Return a set of the keys in the Box 
+        
+        Args:
+            dependent (bool): Include the dependent keys
+            independent (bool): Include the independent keys
+            
+        Returns:
+            set: The keys present in the box
+        '''
         out = set()
         for row in self:
             if independent:
