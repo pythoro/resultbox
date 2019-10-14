@@ -60,13 +60,13 @@ class Manager():
         if h is None and self.specified is not None:
             h = self.specified
         if h is None:
-            for k, handler in self.handlers.items():
+            for name, handler in self.handlers.items():
                 if handler.suitable(source, **kwargs):
-                    h = handler
+                    h = name
         if h is None:
             h = self.default_handler
             source += '.cbox'
-        return h.load(source, **kwargs)
+        return self.handlers[h].load(source, **kwargs)
 
     def load(self, source, handler=None, as_box=True, **kwargs):
         ''' Return a new Box by reading the source 
@@ -97,13 +97,13 @@ class Manager():
         if h is None and self.specified is not None:
             h = self.specified
         if h is None:
-            for k, handler in self.handlers.items():
+            for name, handler in self.handlers.items():
                 if handler.suitable(target, **kwargs):
-                    h = handler
+                    h = name
         if h is None:
             h = self.default_handler
             target += '.cbox'
-        return h.save(box, target, **kwargs)
+        return self.handlers[h].save(box, target, **kwargs)
 
 
 class Handler():
