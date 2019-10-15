@@ -160,8 +160,7 @@ class Tabulator():
         Note:
             Headings are automatically created.
         '''
-        vectors, labels = box.vectors([values, index], labels='dict')
-        values_list, index_list = vectors
+        values_list, index_list, labels = box.vectors([values, index], labels='dict')
         interp_list = []
         labels = [{k: str(v) for k, v in label.items()} for label in labels]
         for vec, ind_vec in zip(values_list, index_list):

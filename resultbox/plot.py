@@ -10,16 +10,31 @@ import matplotlib.pyplot as plt
 from . import utils
 import warnings
 
-def plot():
+def plot(box, x_var, y_var, fig_num=None, legend=False, xlim=None, 
+                ylim=None, y_ind=None, **kwargs):
     pass
 
 def vector_plot(box, x_var, y_var, fig_num=None, legend=False, xlim=None, 
                 ylim=None, y_ind=None, **kwargs):
+    ''' Plot results for two vectors 
+    
+    Args:
+        box (Box): A Box instance
+        x_var (Variable): The x variable
+        y_var (Variable): The y variable
+        fig_num (int): Optional figure number. 
+        legend (bool): Display the legend
+        xlim ((float, float)): Optional tuple of x limits
+        ylim ((float, float)): Optional tuple of y limits
+        y_ind (int): If the y-variable data is a 2D array, provide the index
+        for the desired component.
+        kwargs: Optional keyword arguments passed to pyplot.plot.
+        
+    '''
     keys = [x_var, y_var]
-    vectors, labels = box.vectors(keys)
+    x_list, y_list, labels = box.vectors(keys)
     if len(labels) == 0:
         warnings.warn('No data for plot of: ' + str(keys))
-    x_list, y_list = vectors
     fig = plt.figure(fig_num)
     for x, y, label in zip(x_list, y_list, labels):
         if np.ndim(y) == 3:

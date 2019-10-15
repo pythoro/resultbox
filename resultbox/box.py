@@ -265,10 +265,12 @@ class Box(list):
             dct (dict): A dictionary of key-value pairs that must be 
             present in all rows.
             labels (str): 'str' to return labels as strings, or 'dict' to
-            return labels as dictionaries of key-value pairs.
+            return labels as dictionaries of key-value pairs. Use None or 
+            False to not return labels.
             
         Returns:
-            tuple[list]: A list for each key, plus a list of labels.
+            tuple[list]: A list for each key, plus a list of labels if 
+            labels is not False or None.
         
         Note:
             This method operates on the combined data. All keys must be present
@@ -292,7 +294,10 @@ class Box(list):
             dep = dct[DEP]
             for k in keys:
                 out[k].append(dep[k])
-        return [out[k] for k in keys], label_list
+        lst_out = [out[k] for k in keys]
+        if labels is not None and labels is not False:
+            lst_out.append(label_list)
+        return tuple(lst_out)
     
     def find(self, key, lst=None):
         ''' Return a dictionary of values for the key, by index 
