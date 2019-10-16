@@ -221,17 +221,11 @@ class Test_CSV(unittest.TestCase):
             with open(fname, 'r') as f:
                 s = f.read()
         expected = '''c,,1,2
-
 a,b,,,
-
 1,1,11,14
-
 1,2,13,12
-
 2,1,15,16
-
 2,2,17,18
-
 '''
         self.assertEqual(s, expected)
 
@@ -252,17 +246,11 @@ a,b,,,
 A doc string
 
 c,,1,2
-
 a,b,,,
-
 1,1,11,14
-
 1,2,13,12
-
 2,1,15,16
-
 2,2,17,18
-
 '''
         self.assertEqual(s, expected)
         
@@ -280,14 +268,9 @@ a,b,,,
                 s = f.read()
 
         expected = '''a,1,1,2,2
-
 b,1,2,1,2
-
 c,,,,
-
 1,12.0,13.0,16.0,19.0
-
 2,30.0,31.0,34.0,37.0
-
 '''
         self.assertEqual(s, expected)

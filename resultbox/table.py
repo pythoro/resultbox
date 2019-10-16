@@ -29,7 +29,7 @@ def listify(obj):
         return [obj]
     return obj
 
-def _custom_headed_table(df, sep=',', **kwargs):
+def _custom_headed_table(df, fname, sep=',', **kwargs):
     ''' CSV table with label for columns index '''
     def pad(s, n):
         out = [str(a) for a in s] if isinstance(s, list) else [str(s)]
@@ -45,24 +45,25 @@ def _custom_headed_table(df, sep=',', **kwargs):
         n = 1
         header_2 = pad(df.index.name, n + len(cols))
     header_1 = pad(df.columns.name, n) + cols
-    s = sep.join(header_1) + os.linesep + sep.join(header_2) + os.linesep
-    s += df.to_csv(path_or_buf=None, sep=sep, header=None, **kwargs)
-    return s
+    s = sep.join(header_1) + '\n' + sep.join(header_2) + '\n'
+    with open(fname, mode='a') as f:
+        f.write(s)
+    df.to_csv(path_or_buf=fname, sep=sep, header=None, mode='a', **kwargs)
 
 def to_csv(df, fname, variable=None, mode='w', sep=',', **kwargs):
     fname = utils.safe_fname(fname)
     fname = utils.ensure_ext(fname, '.csv')
-    s = os.linesep + os.linesep if mode=='a' else ''
+    s = '\n\n' if mode=='a' else ''
     if variable is not None:
-        s += variable + '\n' + variable.doc + os.linesep
-    if isinstance(df.columns, pd.MultiIndex):
-        # Default behaviour is OK
-        s += df.to_csv(path_or_buf=None, sep=sep, **kwargs)
-    else:
-        # Need some extra to print columns label
-        s += _custom_headed_table(df, sep=sep, **kwargs)
+        s += variable + '\n' + variable.doc + '\n\n'
     with open(fname, mode=mode) as f:
         f.write(s)
+    if isinstance(df.columns, pd.MultiIndex):
+        # Default behaviour is OK
+        df.to_csv(fname, sep=sep, mode='a', **kwargs)
+    else:
+        # Need some extra to print columns label
+        _custom_headed_table(df, fname, sep=sep, **kwargs)
     return True
 
 class Table():
