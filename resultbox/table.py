@@ -5,6 +5,7 @@ Created on Sun Sep  1 21:12:24 2019
 @author: Reuben
 """
 
+import os
 import hashlib
 import pandas as pd
 from collections import defaultdict
@@ -28,6 +29,41 @@ def listify(obj):
         return [obj]
     return obj
 
+def _custom_headed_table(df, sep=',', **kwargs):
+    ''' CSV table with label for columns index '''
+    def pad(s, n):
+        out = [str(a) for a in s] if isinstance(s, list) else [str(s)]
+        for i in range(n-1):
+            out.append('')
+        return out
+    
+    cols = [str(c) for c in df.columns]    
+    if isinstance(df.index, pd.MultiIndex):
+        n = len(df.index.levels)
+        header_2 = pad(df.index.names, n + len(cols))
+    else:
+        n = 1
+        header_2 = pad(df.index.name, n + len(cols))
+    header_1 = pad(df.columns.name, n) + cols
+    s = sep.join(header_1) + os.linesep + sep.join(header_2) + os.linesep
+    s += df.to_csv(path_or_buf=None, sep=sep, header=None, **kwargs)
+    return s
+
+def to_csv(df, fname, variable=None, mode='w', sep=',', **kwargs):
+    fname = utils.safe_fname(fname)
+    fname = utils.ensure_ext(fname, '.csv')
+    s = os.linesep + os.linesep if mode=='a' else ''
+    if variable is not None:
+        s += variable + '\n' + variable.doc + os.linesep
+    if isinstance(df.columns, pd.MultiIndex):
+        # Default behaviour is OK
+        s += df.to_csv(path_or_buf=None, sep=sep, **kwargs)
+    else:
+        # Need some extra to print columns label
+        s += _custom_headed_table(df, sep=sep, **kwargs)
+    with open(fname, mode=mode) as f:
+        f.write(s)
+    return True
 
 class Table():
     pass
@@ -180,12 +216,7 @@ class Tabulator():
         return df
     
     
-    
 tabulator = Tabulator()
 vector_table = tabulator.vector_table
 tabulate = tabulator.tabulate
 
-def to_csv(df, fname, *args, **kwargs):
-    fname = utils.safe_fname(fname)
-    fname = utils.ensure_ext(fname, '.csv')
-    return df.to_csv(fname, *args, **kwargs)

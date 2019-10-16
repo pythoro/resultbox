@@ -5,9 +5,11 @@ Created on Sun Sep  1 21:45:56 2019
 @author: Reuben
 """
 
+import os
 import unittest
+import tempfile
 
-from resultbox import Box, Tabulator, Table, Store, Variable, Aliases
+from resultbox import Box, Tabulator, Table, Store, Variable, Aliases, to_csv
 
 def get_lst():
     lst = [{'index': 0, 'independent': {'a': 1, 'b': 1, 'c': 1}, 'dependent': {'d': 11}},
@@ -203,3 +205,89 @@ c
 1   1.0  3.0  5.0  7.0   9.0  11.0
 2   2.0  4.0  6.0  8.0  10.0  12.0'''
         self.assertEqual(expected, str(df))
+        
+        
+class Test_CSV(unittest.TestCase):
+    def test_to_csv_simple(self):
+        t = Tabulator()
+        box = Box(get_lst())
+        index = ['a', 'b']
+        columns = ['c']
+        values = 'd'
+        pt = t.tabulate(box=box, values=values, columns=columns, index=index)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            fname = os.path.join(tmpdirname, 'test.csv')
+            to_csv(pt, fname)
+            with open(fname, 'r') as f:
+                s = f.read()
+        expected = '''c,,1,2
+
+a,b,,,
+
+1,1,11,14
+
+1,2,13,12
+
+2,1,15,16
+
+2,2,17,18
+
+'''
+        self.assertEqual(s, expected)
+
+    def test_to_csv_variable(self):
+        t = Tabulator()
+        box = Box(get_lst())
+        v = Variable('d', 'A doc string')
+        index = ['a', 'b']
+        columns = ['c']
+        values = v
+        pt = t.tabulate(box=box, values=values, columns=columns, index=index)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            fname = os.path.join(tmpdirname, 'test.csv')
+            to_csv(pt, fname, variable=v)
+            with open(fname, 'r') as f:
+                s = f.read()
+        expected = '''d
+A doc string
+
+c,,1,2
+
+a,b,,,
+
+1,1,11,14
+
+1,2,13,12
+
+2,1,15,16
+
+2,2,17,18
+
+'''
+        self.assertEqual(s, expected)
+        
+    def test_to_csv_multiindex_cols(self):
+        t = Tabulator()
+        box = Box(get_lst4())
+        values = 'd'
+        index = 'c'
+        index_vals = [1, 2]
+        df = t.vector_table(box, values, index, index_vals)
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            fname = os.path.join(tmpdirname, 'test.csv')
+            to_csv(df, fname)
+            with open(fname, 'r') as f:
+                s = f.read()
+
+        expected = '''a,1,1,2,2
+
+b,1,2,1,2
+
+c,,,,
+
+1,12.0,13.0,16.0,19.0
+
+2,30.0,31.0,34.0,37.0
+
+'''
+        self.assertEqual(s, expected)
