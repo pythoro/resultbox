@@ -15,6 +15,7 @@ can let resultbox take care of the rest.
 """
 
 from difflib import SequenceMatcher
+from . import utils
 
 def _expand_single(key, val, store):
     ''' Expand a value into its components 
@@ -154,8 +155,17 @@ class Variable(str):
         self.components = components
         self.sep = sep
         self.category = category
-        self.tags = [] if tags is None else tags
+        self.tags = [] if tags is None else utils.listify(tags)
         self.key = self._append_unit(self.name, self.unit)
+        
+    def to_dict(self):
+        return {'name': self.name,
+                'doc': self.doc,
+                'unit': self.unit,
+                'components': self.components,
+                'sep': self.sep,
+                'category': self.category,
+                'tags': self.tags}
         
     def __str__(self):
         return self.key

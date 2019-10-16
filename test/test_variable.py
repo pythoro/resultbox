@@ -106,6 +106,18 @@ class Test_Variable(unittest.TestCase):
         keys = ['a - x [mm]', 'a - y [mm]', 'a - z [mm]']
         self.assertListEqual(v.subkeys, keys)
         
+    def test_to_dict(self):
+        dct = {'name': 'a',
+               'doc': 'b',
+               'unit': 'mm',
+               'components': ['x', 'y', 'z'],
+               'sep': ' - ',
+               'category': 'category_1',
+               'tags': ['tag_1', 'tag_2']}
+        v = Variable(**dct)
+        d = v.to_dict()
+        self.assertDictEqual(d, dct)
+        
         
 class Test_Aliases(unittest.TestCase):
     def test_init(self):
