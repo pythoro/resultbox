@@ -231,6 +231,8 @@ class Aliases(dict):
             return self.translate_list(obj)
         elif isinstance(obj, dict):
             return self.translate_dict(obj)
+        else:
+            return obj
 
     def translate_str(self, s):
         ''' Translate a string '''
@@ -238,11 +240,11 @@ class Aliases(dict):
 
     def translate_dict_vals(self, dct):
         ''' Translate the values in a dictionary '''
-        return {k: self[v] for k, v in dct.items()}
+        return {k: self.translate(v) for k, v in dct.items()}
         
     def translate_dict(self, dct):
         ''' Translate the keys in a dictionary '''
-        return {self[k]: v for k, v in dct.items()}
+        return {self[k]: self.translate(v) for k, v in dct.items()}
 
     def translate_list(self, lst):
         ''' Translate the objects in a list '''

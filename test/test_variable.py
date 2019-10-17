@@ -174,3 +174,21 @@ class Test_Aliases(unittest.TestCase):
         expected = [{'one [mm]': 3, 'two [s]': 5},
                      {'one [mm]': 7, 'two [s]': 8}]
         self.assertListEqual(ret, expected)
+        
+    def test_translate_boxlike(self):
+        dct = {'a': 'something', 'b': 'other'}
+        a = Aliases(dct)
+        lst = [{'index': 0,
+                'independent': {'c': 55},
+                'dependent': {'a': 3, 'b': 5}},
+               {'index': 1,
+                'independent': {'c': 66},
+                'dependent': {'a': 7, 'b': 8}}]
+        ret = a.translate(lst)
+        expected = [{'index': 0,
+                'independent': {'c': 55},
+                'dependent': {'something': 3, 'other': 5}},
+               {'index': 1,
+                'independent': {'c': 66},
+                'dependent': {'something': 7, 'other': 8}}]
+        self.assertListEqual(ret, expected)
