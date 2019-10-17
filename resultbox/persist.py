@@ -27,11 +27,12 @@ class Manager():
     
     default_handler = 'cbox'
     
-    def __init__(self):
+    def __init__(self, default_enabled=True):
         self.handlers = {'box': JSON(),
                          'cbox': CJSON(),
                          'npz': NPZ()}
         self.specified = None
+        self.default_enabled = True
         
     def add_handler(self, key, handler):
         ''' Add a handler 
@@ -65,9 +66,12 @@ class Manager():
             for name, handler in self.handlers.items():
                 if handler.suitable(source, **kwargs):
                     h = name
-        if h is None:
+        if h is None and self.default_enabled:
             h = self.default_handler
             source += '.cbox'
+        if h is None:
+            raise ValueError('No valid handler found for source: ' +
+                             str(source))
         return self.handlers[h].load(source, **kwargs)
 
     def load(self, source, handler=None, as_box=True, **kwargs):
@@ -102,9 +106,12 @@ class Manager():
             for name, handler in self.handlers.items():
                 if handler.suitable(target, **kwargs):
                     h = name
-        if h is None:
+        if h is None and self.default_enabled:
             h = self.default_handler
             target += '.cbox'
+        if h is None:
+            raise ValueError('No valid handler found for source: ' +
+                             str(source))
         return self.handlers[h].save(box, target, **kwargs)
 
 

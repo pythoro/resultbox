@@ -34,36 +34,45 @@ def get_lst_2():
            {'index': 7, 'independent': {'a': 2, 'b': 2, 'c': 2}, 'dependent': {'d': np.array([7, 17])}}]
     return lst
 
+def get_box_check(box, fname):
+    with tempfile.TemporaryDirectory() as tmpdirname:
+        fname = os.path.join(tmpdirname, fname)
+        save(box, fname)
+        box_check = load(fname)
+    return box_check
+            
+
 class Test_JSON(unittest.TestCase):
     def test_uncompresed_save_load(self):
         box = Box(get_lst())
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            fname = os.path.join(tmpdirname, 'test.box')
-            save(box, fname)
-            box_check = load(fname)
-        self.assertListEqual(box, box_check)
-
-    def test_compressed_save_load(self):
-        box = Box(get_lst())
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            fname = os.path.join(tmpdirname, 'test.cbox')
-            save(box, fname, compression=True)
-            box_check = load(fname)
+        box_check = get_box_check(box, 'test.box')
         self.assertListEqual(box, box_check)
 
     def test_uncompresed_save_load_np_array(self):
         box = Box(get_lst_2())
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            fname = os.path.join(tmpdirname, 'test.box')
-            save(box, fname)
-            box_check = load(fname)
+        box_check = get_box_check(box, 'test.box')
         self.assertEqual(str(list(box)), str(list(box_check)))
+
+
+class Test_CJSON(unittest.TestCase):
+    def test_compressed_save_load(self):
+        box = Box(get_lst())
+        box_check = get_box_check(box, 'test.cbox')
+        self.assertListEqual(box, box_check)
 
     def test_compressed_save_load_np_array(self):
         box = Box(get_lst_2())
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            fname = os.path.join(tmpdirname, 'test.cbox')
-            save(box, fname, compression=True)
-            box_check = load(fname)
+        box_check = get_box_check(box, 'test.cbox')
         self.assertEqual(str(list(box)), str(list(box_check)))
         
+
+class Test_NPZ(unittest.TestCase):
+    def test_compressed_save_load(self):
+        box = Box(get_lst())
+        box_check = get_box_check(box, 'test.npz')
+        self.assertListEqual(box, box_check)
+
+    def test_compressed_save_load_np_array(self):
+        box = Box(get_lst_2())
+        box_check = get_box_check(box, 'test.npz')
+        self.assertEqual(str(list(box)), str(list(box_check)))        
