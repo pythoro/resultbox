@@ -17,6 +17,7 @@ import zlib
 import numpy as np
 
 from .box import Box
+from . import adapters
 
 class Manager():
     ''' The manager looks after different classes that can process Box data.
@@ -28,7 +29,8 @@ class Manager():
     
     def __init__(self):
         self.handlers = {'box': JSON(),
-                         'cbox': CJSON()}
+                         'cbox': CJSON(),
+                         'npz': NPZ()}
         self.specified = None
         
     def add_handler(self, key, handler):
@@ -205,6 +207,45 @@ class CJSON(Handler):
         jsn = zlib.decompress(compressed).decode()
         lst = json.loads(jsn, object_hook=np_decode)
         return lst
+
+
+class NPZ(Handler):
+    ''' Load and save in compressed JSON format '''
+    def suitable(self, fname, **kwargs):
+        if fname.endswith('.npz'):
+            return True
+        
+    def save(self, box, fname, **kwargs):
+        ''' Save a Box to a file 
+        
+        Args:
+            box (Box): The Box instance.
+            fname (str): A string specifying the full filename
+        '''
+        flat = adapters.flat_dict(box)
+        np.savez_compressed(fname, **flat)
+    
+    def load(self, fname, **kwargs):
+        ''' Return box data by reading the source 
+        
+        Args:
+            fname (str): The file to load from
+            
+        Returns:
+            list: A list of box data
+        '''
+        def itemise_scalars(obj):
+            if obj.ndim==0:
+                return obj.item()
+            return obj
+        
+        flat = {}
+        with np.load(fname) as data:
+            for key in list(data.keys()):
+                flat[key] = itemise_scalars(data[key])
+        
+        composed = adapters.compose(flat)
+        return composed
             
             
 manager = Manager()
