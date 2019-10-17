@@ -186,6 +186,8 @@ def val_to_str(num, precision=2):
         str: The formatted number
     '''
     format_str = '{:0.' + str(precision) + 'g}'
+    if num is None:
+        return 'None'
     if isinstance(num, str):
         return num
     elif isinstance(num, int):
@@ -216,6 +218,14 @@ def dict_to_str(dct, val_sep=' ', key_sep=' '):
         s = str(key) + val_sep + val_to_str(val)
         lst.append(s)
     return key_sep.join(lst)
+
+def str_to_dict(string, val_sep='=', key_sep=';'):
+    def check_none(val):
+        if val=='None':
+            return None
+        return val
+    pairs = [s.split(val_sep) for s in string.split(key_sep)]
+    return {p[0]: check_none(p[1]) for p in pairs}
 
 def strip_unit(s):
     ''' Removes units within square brakets from file names 

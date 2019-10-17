@@ -10,7 +10,8 @@ import tempfile
 import os
 import numpy as np
 
-from resultbox import Box, load, save
+from resultbox import Box, load, save, Store, Variable
+from resultbox import persist
 
 def get_lst():
     lst = [{'index': 0, 'independent': {'a': 1, 'b': 1, 'c': 1}, 'dependent': {'d': 11}},
@@ -40,6 +41,71 @@ def get_box_check(box, fname):
         save(box, fname)
         box_check = load(fname)
     return box_check
+            
+
+class Test_Packing(unittest.TestCase):
+    def test_serialise_vars(self):
+        store = Store()
+        v1 = store.add('a', 'docstring_1', 'mm')
+        v2 = store.add('b', 'docstring_2', 'm/s')
+        lst = [{'index': 0,
+                'independent': {v1: 1, v2: 2},
+                'dependent': {v1: 5, v2: 7}}]
+        b = Box(lst)
+        res = persist.serialise_vars(b)
+        expected = ['name=a;doc=docstring_1;unit=mm;components=None;sep= - ;category=None;tags=None',
+                    'name=b;doc=docstring_2;unit=m/s;components=None;sep= - ;category=None;tags=None']
+        self.assertListEqual(res, expected)
+
+    def test_deserialise_vars(self):
+        lst = ['name=a;doc=docstring_1;unit=mm;components=None;sep= - ;category=None;tags=None',
+               'name=b;doc=docstring_2;unit=m/s;components=None;sep= - ;category=None;tags=None']
+        res = persist.deserialise_vars(lst)
+        store = Store()
+        v1 = store.add('a', 'docstring_1', 'mm')
+        v2 = store.add('b', 'docstring_2', 'm/s')
+        self.assertDictEqual(res, store)
+
+    def test_pack(self):
+        store = Store()
+        v1 = store.add('a', 'docstring_1', 'mm')
+        v2 = store.add('b', 'docstring_2', 'm/s')
+        lst = [{'index': 0,
+                'independent': {v1: 1, v2: 2},
+                'dependent': {v1: 5, v2: 7}}]
+        box = Box(lst)
+        dct = persist.pack(box)
+        expected = {'data':
+                        [{'index': 0,
+                          'independent': {'a [mm]': 1, 'b [m/s]': 2},
+                          'dependent': {'a [mm]': 5, 'b [m/s]': 7}}],
+                    'vars': 
+                        ['name=a;doc=docstring_1;unit=mm;components=None;sep= - ;category=None;tags=None',
+                         'name=b;doc=docstring_2;unit=m/s;components=None;sep= - ;category=None;tags=None']}
+        self.assertDictEqual(dct, expected)
+
+    def test_unpack(self):
+        pack = {'data':
+                    [{'index': 0,
+                      'independent': {'a [mm]': 1, 'b [m/s]': 2},
+                      'dependent': {'a [mm]': 5, 'b [m/s]': 7}}],
+                'vars': 
+                    ['name=a;doc=docstring_1;unit=mm;components=None;sep= - ;category=None;tags=None',
+                     'name=b;doc=docstring_2;unit=m/s;components=None;sep= - ;category=None;tags=None']}
+        store = Store()
+        v1 = store.add('a', 'docstring_1', 'mm')
+        v2 = store.add('b', 'docstring_2', 'm/s')
+        lst = [{'index': 0,
+                'independent': {v1: 1, v2: 2},
+                'dependent': {v1: 5, v2: 7}}]
+        box = Box(lst)
+        box_unpacked = persist.unpack(pack)
+        self.assertListEqual(box, box_unpacked)
+        keys = list(box_unpacked[0]['dependent'].keys())
+        for k in keys:
+            self.assertTrue(isinstance(k, Variable))
+            self.assertTrue(k in store)
+            self.assertEqual(store[k].to_str(), k.to_str())
             
 
 class Test_JSON(unittest.TestCase):

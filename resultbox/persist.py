@@ -17,7 +17,28 @@ import zlib
 import numpy as np
 
 from .box import Box
-from . import adapters
+from . import adapters, variable
+
+
+def serialise_vars(box):
+    keys = box.keys(dependent=True, independent=True)
+    lst = [k.to_str() for k in keys if isinstance(k, variable.Variable)]
+    lst.sort()
+    return lst
+
+def deserialise_vars(lst):
+    variables = [variable.Variable.from_str(s) for s in lst]
+    return {v.key: v for v in variables}
+
+def pack(box):
+    return {'data': list(box),
+            'vars': serialise_vars(box)}
+
+def unpack(pack):
+    box_data = pack['data']
+    var_dict = deserialise_vars(pack['vars'])
+    aliases = variable.Aliases(var_dict)
+    return aliases.translate(box_data)
 
 class Manager():
     ''' The manager looks after different classes that can process Box data.
@@ -110,8 +131,8 @@ class Manager():
             h = self.default_handler
             target += '.cbox'
         if h is None:
-            raise ValueError('No valid handler found for source: ' +
-                             str(source))
+            raise ValueError('No valid handler found for target: ' +
+                             str(target))
         return self.handlers[h].save(box, target, **kwargs)
 
 

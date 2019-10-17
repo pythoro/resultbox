@@ -155,18 +155,32 @@ class Variable(str):
         self.components = components
         self.sep = sep
         self.category = category
-        self.tags = [] if tags is None else utils.listify(tags)
+        self.tags = None if tags is None else utils.listify(tags)
         self.key = self._append_unit(self.name, self.unit)
         
     def to_dict(self):
-        return {'name': self.name,
+        d = {'name': self.name,
                 'doc': self.doc,
                 'unit': self.unit,
                 'components': self.components,
                 'sep': self.sep,
                 'category': self.category,
                 'tags': self.tags}
-        
+        return d
+    
+    @classmethod
+    def from_dict(cls, dct):
+        return cls(**dct)
+    
+    def to_str(self):
+        dct = self.to_dict()
+        return utils.dict_to_str(dct, val_sep='=', key_sep=';')
+    
+    @classmethod
+    def from_str(cls, s):
+        d = utils.str_to_dict(s, val_sep='=', key_sep=';')
+        return cls.from_dict(d)
+    
     def __str__(self):
         return self.key
 
