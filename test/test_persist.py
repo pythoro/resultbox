@@ -66,7 +66,7 @@ class Test_Packing(unittest.TestCase):
         v2 = store.add('b', 'docstring_2', 'm/s')
         self.assertDictEqual(res, store)
 
-    def test_pack(self):
+    def test_make_pack(self):
         store = Store()
         v1 = store.add('a', 'docstring_1', 'mm')
         v2 = store.add('b', 'docstring_2', 'm/s')
@@ -74,7 +74,7 @@ class Test_Packing(unittest.TestCase):
                 'independent': {v1: 1, v2: 2},
                 'dependent': {v1: 5, v2: 7}}]
         box = Box(lst)
-        dct = persist.pack(box)
+        dct = persist.make_pack(box)
         expected = {'data':
                         [{'index': 0,
                           'independent': {'a [mm]': 1, 'b [m/s]': 2},

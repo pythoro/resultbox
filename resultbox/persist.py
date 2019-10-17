@@ -30,15 +30,18 @@ def deserialise_vars(lst):
     variables = [variable.Variable.from_str(s) for s in lst]
     return {v.key: v for v in variables}
 
-def pack(box):
+def make_pack(box):
     return {'data': list(box),
             'vars': serialise_vars(box)}
 
 def unpack(pack):
     box_data = pack['data']
+    if 'vars' not in pack: 
+        pack['vars'] = []
     var_dict = deserialise_vars(pack['vars'])
     aliases = variable.Aliases(var_dict)
     return aliases.translate(box_data)
+
 
 class Manager():
     ''' The manager looks after different classes that can process Box data.
@@ -105,7 +108,8 @@ class Manager():
             return just the raw data.
             kwargs: Other keyword arguments passed to the handler.
         '''
-        ret = self._load(source, handler, **kwargs)
+        pack = self._load(source, handler, **kwargs)
+        ret = unpack(pack)
         if as_box:
             return Box(ret)
         else:
@@ -120,6 +124,7 @@ class Manager():
             handler (str): Optional key specifying which handler to use
             kwargs: Other keyword arguments passed to the handler.
         '''
+        pack = make_pack(box)
         h = handler if handler is not None else None
         if h is None and self.specified is not None:
             h = self.specified
@@ -133,7 +138,7 @@ class Manager():
         if h is None:
             raise ValueError('No valid handler found for target: ' +
                              str(target))
-        return self.handlers[h].save(box, target, **kwargs)
+        return self.handlers[h].save(pack, target, **kwargs)
 
 
 class Handler():
@@ -184,7 +189,7 @@ class JSON(Handler):
             box (Box): The Box instance.
             fname (str): A string specifying the full filename
         '''
-        jsn = json.dumps(list(box), cls=JSONEncoder)
+        jsn = json.dumps(box, cls=JSONEncoder)
         with open(fname, mode='w') as f:
             f.write(jsn)
     
@@ -216,7 +221,7 @@ class CJSON(Handler):
             box (Box): The Box instance.
             fname (str): A string specifying the full filename
         '''
-        jsn = json.dumps(list(box), cls=JSONEncoder)
+        jsn = json.dumps(box, cls=JSONEncoder)
         compressed = zlib.compress(jsn.encode(), level=9)
         with open(fname, mode='wb') as f:
             f.write(compressed)
