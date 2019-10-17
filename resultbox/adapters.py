@@ -9,6 +9,19 @@ Adapters in this module transform data structures between different formats.
 """
 
 SEP = '/'
+IND = '_item_'
+KEY = '_key_'
+
+from .variable import Variable
+from .utils import safe_fname
+
+def rep_slash(k):
+    return k.replace('/', '.per.')
+
+def rev_slash(k):
+    if isinstance(k, str):
+        return k.replace('.per.', '/')
+    return k
 
 def flat_dict(obj, out=None, root=None, sep=SEP):
     out = {} if out is None else out
@@ -24,14 +37,14 @@ def _flat_dict(dct, out=None, root=None, sep=SEP):
     base = '' if root is None else str(root) + sep
     out = {} if out is None else out
     for k, v in dct.items():
-        new_root = base + '__key__' + str(k)
+        new_root = base + KEY + rep_slash(k)
         flat_dict(v, out=out, root=new_root, sep=sep)
 
 def _flat_list(lst, out=None, root=None, sep=SEP):
     base = '' if root is None else str(root) + sep
     out = {} if out is None else out
     for i, v in enumerate(lst):
-        new_root = base + '__ind__' + str(i)
+        new_root = base + IND + str(i)
         flat_dict(v, out=out, root=new_root, sep=sep)
     
 
@@ -59,13 +72,13 @@ def _assign(current, reverse_keys, val):
     _assign(new_current, reverse_keys, val)
 
 def _interpret(key):
-    if key.startswith('__key__'):
+    if key.startswith(KEY):
         is_dict = True
-        new = key.lstrip('__key__')
-    elif key.startswith('__ind__'):
+        new = key.lstrip(KEY)
+    elif key.startswith(IND):
         is_dict = False
-        new = int(key.lstrip('__ind__'))
-    return new, is_dict
+        new = int(key.lstrip(IND))
+    return rev_slash(new), is_dict
     
 def _safe_assign(obj, key, new_obj):
     if isinstance(obj, dict):
@@ -78,3 +91,4 @@ def _safe_assign(obj, key, new_obj):
         if obj[key] is None:
             obj[key] = new_obj
     return obj[key]
+
