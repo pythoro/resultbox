@@ -21,6 +21,13 @@ def get_lst3():
            {'index': 7, 'independent': {'a': 1, 'b': 2}, 'dependent': {'e': [1, 2]}}]
     return lst
 
+def get_lst4():
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1}, 'dependent': {'c': 4}},
+           {'index': 1, 'independent': {'a': 1, 'b': 2}, 'dependent': {'c': 5}},
+           {'index': 2, 'independent': {'a': 2, 'b': 1}, 'dependent': {'c': 6}},
+           {'index': 3, 'independent': {'a': 2, 'b': 2}, 'dependent': {'c': 7}}]
+    return lst
+
 
 class Test_Box(unittest.TestCase):
     def test_init(self):
@@ -185,3 +192,17 @@ class Test_Box(unittest.TestCase):
         self.assertListEqual(expected_vec0, vec0)
         self.assertListEqual(expected_vec1, vec1)
         self.assertListEqual(expected_labels, labels)
+        
+    def test_grouped_as_dicts(self):
+        b = Box(get_lst4())
+        keys = ['a', 'c']
+        res = b.grouped(keys, as_dicts=True)
+        expected = [{'labels': {'b': 1}, 'values': {'a': [1, 2], 'c': [4, 6]}}, {'labels': {'b': 2}, 'values': {'a': [1, 2], 'c': [5, 7]}}]
+        self.assertListEqual(res, expected)
+
+    def test_grouped_as_lists(self):
+        b = Box(get_lst4())
+        keys = ['a', 'c']
+        res = b.grouped(keys, as_dicts=False)
+        expected = [[[1, 2], [4, 6], {'b': 1}], [[1, 2], [5, 7], {'b': 2}]]
+        self.assertListEqual(res, expected)

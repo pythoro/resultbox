@@ -299,6 +299,38 @@ class Box(list):
             lst_out.append(label_list)
         return tuple(lst_out)
     
+    def grouped(self, keys, labels='dict', as_dicts=False):
+        ''' Return lists of values grouped by other independent variables '''
+        combined = self.combined()
+        filtered = self.filtered(keys, lst=combined)
+        out = {}
+        for dct in filtered:
+            d_labels = dct[INDEP].copy()
+            d = {}
+            keys_copy = keys.copy()
+            for k in keys:
+                if k in d_labels:
+                    d[k] = d_labels.pop(k)
+                elif k in dct[DEP]:
+                    d[k] = dct[DEP][k]
+            hsh = hash_dict(d_labels)
+            if hsh not in out:
+                f_labels = dict_to_str(d_labels) if labels=='str' else d_labels
+                out[hsh] = {'labels': f_labels,
+                            'values': {k: [] for k in keys_copy}}
+            d_values = out[hsh]['values']
+            for k in keys_copy:
+                d_values[k].append(d[k])
+        if as_dicts:
+            return list(out.values())
+        else:
+            lst = []
+            for group in out.values():
+                row = [v for v in group['values'].values()]
+                row.append(group['labels'])
+                lst.append(row)
+            return lst
+    
     def find(self, key, lst=None):
         ''' Return a dictionary of values for the key, by index 
         
