@@ -21,20 +21,24 @@ from . import adapters, variable
 
 
 def serialise_vars(box):
+    ''' Turn all the variables in a Box into a list of strings '''
     keys = box.keys(dependent=True, independent=True)
     lst = [k.to_str() for k in keys if isinstance(k, variable.Variable)]
     lst.sort()
     return lst
 
 def deserialise_vars(lst):
+    ''' Turn a list of Variable strings into a dictionary of Variables '''
     variables = [variable.Variable.from_str(s) for s in lst]
     return {v.key: v for v in variables}
 
 def make_pack(box):
+    ''' Prepare a box for persistance by including Variable data '''
     return {'data': list(box),
             'vars': serialise_vars(box)}
 
 def unpack(pack):
+    ''' Recreate a box from persistance, including Variables as keys '''
     box_data = pack['data']
     if 'vars' not in pack: 
         pack['vars'] = []
