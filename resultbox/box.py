@@ -16,6 +16,7 @@ import numpy as np
 from . import variable
 from .utils import listify, dict_to_str, orient
 from .constants import IND, DEP, INDEP
+from . import settings
 
 def hashable(obj):
     ''' Make an hashable representation of an object for hashlib '''
@@ -121,6 +122,8 @@ class Box(list):
                  INDEP: indep.copy(),
                  DEP: dep}
         validate_row(dfull)
+        if settings.PRINT_UPDATES:
+            self.show([dfull])
         self.append(dfull)
         self._combine(dfull)
         
@@ -389,7 +392,7 @@ class Box(list):
     def copy(self):
         return Box(self)
         
-    def __str__(self):
+    def show(self, lst=None):
         ''' Format box contents in a concise way '''
         def f(v):
             if np.size(v) == 1:
@@ -411,10 +414,11 @@ class Box(list):
                     buffered.append(l[i].ljust(n))
             return buffered
         
+        lst = self if lst is None else lst
         out = [IND.ljust(7) +
                INDEP.ljust(50) +
                DEP.ljust(50)]
-        for row in self:
+        for row in lst:
             ind = [str(row[IND])]
             dep = [k + ': ' + f(v) for k, v in row[DEP].items()]
             indep = [k + ': ' + f(v) for k, v in row[INDEP].items()]
@@ -427,8 +431,11 @@ class Box(list):
             out.append('')
         return '\n'.join(out)
     
+    def __str__(self):
+        return self.show()
+    
     def __repr__(self):
-        return self.__str__()
+        return self.show()
     
     def keys(self, dependent=True, independent=False):
         ''' Return a set of the keys in the Box 
