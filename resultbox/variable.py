@@ -159,6 +159,7 @@ class Variable(str):
         self.key = self._append_unit(self.name, self.unit)
         
     def to_dict(self):
+        ''' Create a dictionary containing the Variable attributes '''
         d = {'name': self.name,
                 'doc': self.doc,
                 'unit': self.unit,
@@ -170,14 +171,17 @@ class Variable(str):
     
     @classmethod
     def from_dict(cls, dct):
+        ''' Create a new Variable instance from a dictionary of attributes '''
         return cls(**dct)
     
     def to_str(self):
+        ''' Create a string containing the Variable attributes '''
         dct = self.to_dict()
         return utils.dict_to_str(dct, val_sep='=', key_sep=';')
     
     @classmethod
     def from_str(cls, s):
+        ''' Create a new Variable instance from a string of attributes '''
         d = utils.str_to_dict(s, val_sep='=', key_sep=';')
         return cls.from_dict(d)
     
