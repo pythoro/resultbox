@@ -13,6 +13,7 @@ and plots can be generated simply from the data within the Box.
 
 import hashlib
 import numpy as np
+from . import variable
 from .utils import listify, dict_to_str, orient
 from .constants import IND, DEP, INDEP
 
@@ -32,6 +33,19 @@ def hash_dict(dct):
                 h.update(hashable(v))
     update(dct)
     return h.digest()
+
+def validate_row(row):
+    ''' Ensure row data is valid 
+    
+    This currently just checks that 2D arrays match the variable components.
+    '''
+    subkeys = [INDEP, DEP]
+    for subkey in subkeys:
+        for k, v in row[subkey].items():
+            if np.ndim(v) > 1:
+                assert np.ndim(v) == 2
+                assert isinstance(k, variable.Variable)
+                assert len(k.components) in np.shape(v)
 
 
 class Box(list):
@@ -106,6 +120,7 @@ class Box(list):
         dfull = {IND: len(self),
                  INDEP: indep.copy(),
                  DEP: dep}
+        validate_row(dfull)
         self.append(dfull)
         self._combine(dfull)
         
