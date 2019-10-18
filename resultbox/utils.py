@@ -175,7 +175,7 @@ def list_to_str(lst, length=18, sep=' ', brackets=True):
     else:
         return s
 
-def val_to_str(num, precision=2):
+def val_to_str(num, precision=2, list_sep=' '):
     ''' Format a single number as a nice-to-look-at string 
     
     Args:
@@ -195,37 +195,63 @@ def val_to_str(num, precision=2):
     elif isinstance(num, float):
         return format_str.format(num)
     elif isinstance(num, list):
-        return list_to_str(num)
+        return list_to_str(num, sep=list_sep)
+    elif isinstance(num, dict):
+        return dict_to_str(num)
     elif isinstance(num, np.ndarray):
         if num.size == 1:
             return format_str.format(num.item())
         else:
             return list_to_str(num.flatten().tolist())
         
-def dict_to_str(dct, val_sep=' ', key_sep=' '):
+def dict_to_str(dct, val_sep=' ', key_sep=' ', list_sep=','):
     ''' Convert a dict to a nice-to-look-at string 
     
     Args:
         dct (dict): The dictionary
         val_sep (str): The separator between a key and it's value.
         key_sep (str): The separator between different key-value pairs.
+        list_sep (str): The separator between list entries
     
     Returns:
         str: The formatted string
     '''
     lst = []
     for key, val in dct.items():
-        s = str(key) + val_sep + val_to_str(val)
+        s = str(key) + val_sep + val_to_str(val, list_sep=list_sep)
         lst.append(s)
     return key_sep.join(lst)
 
-def str_to_dict(string, val_sep='=', key_sep=';'):
-    def check_none(val):
+def str_to_dict(string, val_sep='=', key_sep=';', list_sep=','):
+    ''' Convert a string of key value pairs to a dictionary 
+    
+    Args:
+        string (str): The string
+        val_sep (str): The separator between a key and its value
+        key_sep (str): The separator between key-value pairs.
+        list_sep (str): The separator between list entries
+    
+    Returns:
+        dict: A new dictionary
+    '''
+    def make_list(s):
+        s = s.strip('[]')
+        lst = s.split(list_sep)
+        return [interpret(item) for item in lst]
+    
+    def interpret(val):
         if val=='None':
             return None
+        elif val.startswith('['):
+            return make_list(val)
+        elif val.isdigit():
+            return int(val)
+        elif val.isnumeric():
+            return float(val)
         return val
+    
     pairs = [s.split(val_sep) for s in string.split(key_sep)]
-    return {p[0]: check_none(p[1]) for p in pairs}
+    return {p[0]: interpret(p[1]) for p in pairs}
 
 def strip_unit(s):
     ''' Removes units within square brakets from file names 
