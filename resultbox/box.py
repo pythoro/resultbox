@@ -123,7 +123,7 @@ class Box(list):
                  DEP: dep}
         validate_row(dfull)
         if settings.PRINT_UPDATES:
-            self.show([dfull])
+            print(self.show([dfull]))
         self.append(dfull)
         self._combine(dfull)
         
@@ -416,16 +416,16 @@ class Box(list):
         
         lst = self if lst is None else lst
         out = [IND.ljust(7) +
-               INDEP.ljust(50) +
-               DEP.ljust(50)]
+               INDEP.ljust(60) +
+               DEP.ljust(60)]
         for row in lst:
             ind = [str(row[IND])]
             dep = [k + ': ' + f(v) for k, v in row[DEP].items()]
             indep = [k + ': ' + f(v) for k, v in row[INDEP].items()]
             m = max(len(dep), len(indep), 1)
             ind = buffer(ind, m, 7)
-            dep = buffer(dep, m, 50)
-            indep = buffer(indep, m, 50)
+            dep = buffer(dep, m, 60)
+            indep = buffer(indep, m, 60)
             for a, b, c in zip(ind, indep, dep):
                 out.append(a + b + c)
             out.append('')
