@@ -118,6 +118,43 @@ class Test_Variable(unittest.TestCase):
         d = v.to_dict()
         self.assertDictEqual(d, dct)
         
+    def test_from_dict(self):
+        dct = {'name': 'a',
+               'doc': 'b',
+               'unit': 'mm',
+               'components': ['x', 'y', 'z'],
+               'sep': ' - ',
+               'category': 'category_1',
+               'tags': ['tag_1', 'tag_2']}
+        v = Variable.from_dict(dct)
+        d = v.to_dict()
+        self.assertDictEqual(d, dct)
+        
+    def test_to_str(self):
+        dct = {'name': 'a',
+               'doc': 'b',
+               'unit': 'mm',
+               'components': ['x', 'y', 'z'],
+               'sep': ' - ',
+               'category': 'category_1',
+               'tags': ['tag_1', 'tag_2']}
+        v = Variable(**dct)
+        s = v.to_str()
+        expected = 'name=a;doc=b;unit=mm;components=[x,y,z];sep= - ;category=category_1;tags=[tag_1,tag_2]'
+        self.assertEqual(s, expected)
+        
+    def test_from_str(self):
+        s = 'name=a;doc=b;unit=mm;components=[x,y,z];sep= - ;category=category_1;tags=[tag_1,tag_2]'
+        dct = {'name': 'a',
+               'doc': 'b',
+               'unit': 'mm',
+               'components': ['x', 'y', 'z'],
+               'sep': ' - ',
+               'category': 'category_1',
+               'tags': ['tag_1', 'tag_2']}
+        v = Variable.from_str(s)
+        v_check = Variable(**dct)
+        self.assertEqual(v.to_str(), v_check.to_str())
         
 class Test_Aliases(unittest.TestCase):
     def test_init(self):
