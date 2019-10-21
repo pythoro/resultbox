@@ -176,6 +176,9 @@ class Box(list):
         Returns:
             list: The filtered entries
         '''
+        lst = self if lst is None else lst
+        if len(lst) == 0:
+            raise ValueError('No rows in list')
         return [row for row in self.filter(keys, lst)]
     
     def iwhere(self, dct=None, lst=None, **kwargs):
