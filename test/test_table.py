@@ -244,6 +244,21 @@ a b
   2  19.0  37.0'''
         self.assertEqual(expected, str(df))
         
+    def test_vector_table_cols_default_index(self):
+        t = Tabulator()
+        box = Box(get_lst4())
+        values = 'd'
+        index = 'c'
+        index_vals = None
+        df = t.vector_table(box, values, index, index_vals, orient='cols')
+        expected = '''c     1   2
+a b        
+1 1  12  30
+  2  13  31
+2 1  16  34
+  2  19  37'''
+        self.assertEqual(expected, str(df))
+        
     def test_vector_table_arr(self):
         t = Tabulator()
         box = Box(get_lst5())

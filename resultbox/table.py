@@ -201,7 +201,7 @@ class Tabulator():
         labels2 = [add(d, variable, c) for d in labels for c in components]
         return arr2, labels2
 
-    def vector_table(self, box, values, index, index_vals, orient='rows',
+    def vector_table(self, box, values, index, index_vals=None, orient='rows',
                      components=None):
         ''' A table of vectors with an interpolated index
         
@@ -222,11 +222,23 @@ class Tabulator():
         '''
         values_list, index_list, labels = box.vectors([values, index], labels='dict')
         interp_list = []
+        index_vals_candidate = None
         labels = [{k: str(v) for k, v in label.items()} for label in labels]
         for vec, ind_vec in zip(values_list, index_list):
-            interp_list.append(utils.interp(ind_vec,
+            if index_vals is None:
+                if index_vals_candidate is None:
+                    index_vals_candidate = ind_vec
+                else:
+                    if not np.array_equal(ind_vec, index_vals_candidate):
+                        raise ValueError('Vector indices must be consistent if'
+                                         + ' not specified.')
+                interp_list.append(vec)
+            else:
+                interp_list.append(utils.interp(ind_vec,
                                             np.squeeze(vec),
                                             np.squeeze(index_vals)))
+        if index_vals_candidate is not None:
+            index_vals = index_vals_candidate
         if np.ndim(interp_list) == 3:
             interp_list, labels = self._unfold_3D(interp_list, labels,
                           values + ':', components)
