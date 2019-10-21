@@ -13,6 +13,7 @@ from . import utils
 from . import variable
 import numpy as np
 from . import constants
+import warnings
 
 def encoded(obj):
     if isinstance(obj, str):
@@ -102,6 +103,16 @@ class Tabulator():
             out.extend([a for a in l if not a.endswith(':')])
         return out
     
+    def keys_with_components(self, *args):
+        out = []
+        for arg in args:
+            l = listify(arg)
+            for k in l:
+                if isinstance(k, variable.Variable):
+                    if k.components is not None:
+                        out.append(k)
+        return out
+    
     def _prepare_data(self, box, values, columns, index=None,
                  store=None):
         keys = self.all_keys(values, columns, index)
@@ -133,6 +144,13 @@ class Tabulator():
                 elif isinstance(v, list):
                     row[k] = str(v)
     
+    def _regenerate_key_in_columns(self, var, df):
+        cols = list(df.columns)
+        for i, c in enumerate(cols):
+            if c == var.name:
+                cols[i] = var.key
+        df.columns = cols
+   
     def tabulate(self, box, values, columns=None, index=None, aggfunc='mean',
                  aliases=None, store=None):
         ''' General purpose tabulation
@@ -155,29 +173,28 @@ class Tabulator():
             columns = aliases.translate(columns)
         # Use dataframes for 'rows' to handle vectors
         if store is not None:
-            keys = self.all_keys(values, columns, index)
             self._vec_to_str(filtered)
             df = pd.DataFrame(filtered)
             df["id"] = df.index
-            for e in keys:
-                if not isinstance(e, variable.Variable):
-                    continue
-                if e.subkeys is not None:
-                    df = pd.wide_to_long(df, stubnames=e, i='id', j=e.label,
-                                          sep=e.sep, suffix='\\w+')
-                    keys.remove(e)
-                    keys.append(e.label)
+            pd.set_option('display.max_columns', 30)
+            for e in self.keys_with_components(values, columns, index):
+                df = pd.wide_to_long(df, stubnames=e.name, i='id', j=e.label,
+                                      sep=e.sep, suffix='.*')
+                self._regenerate_key_in_columns(e, df)
         else:
             rows = [pd.DataFrame(row, index=indices(row)) for row in filtered]
             df = rows[0].copy()
             for row in rows[1:]:
                 df = df.append(row)
             df = df.reset_index(drop=True)
-        if len(df) == 1:
-            return df
-        pt = pd.pivot_table(df, values=values, index=index, columns=columns,
-                            aggfunc=aggfunc)
-        return pt
+        # pd.set_option('display.max_columns', 5)
+        # print(df)
+        try:
+            df = pd.pivot_table(df, values=values, index=index, columns=columns,
+                                aggfunc=aggfunc)
+        except Exception:
+            warnings.warn('Could not pivot table')
+        return df
 
     def _unfold_3D(self, arr, labels, variable, components):
         ''' Unfold a 3D array into a 2D array 

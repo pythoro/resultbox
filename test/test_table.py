@@ -108,6 +108,7 @@ a b
   2  19  37'''
         self.assertEqual(str(pt), expected)
 
+
     def test_tabulate_store2(self):
         # TODO: FIX
         t = Tabulator()
@@ -124,6 +125,26 @@ d:
 x   12  13  16  19
 y   30  31  34  37'''
         self.assertEqual(str(pt), expected)
+
+    def test_tabulate_store_units(self):
+        t = Tabulator()
+        store = Store()
+        d = store.new('d', unit='mm', components=['x', 'y'])
+        aliases = Aliases({'d': d})
+        translated = aliases.translate(get_lst2_b())
+        box = Box(translated)
+        index = ['a', 'b']
+        columns = d.label
+        values = d
+        pt = t.tabulate(box=box, values=values, columns=columns, index=index, store=store)
+        expected = '''d:   x [mm]  y [mm]
+a b                
+1 1      12      30
+  2      13      31
+2 1      16      34
+  2      19      37'''
+        self.assertEqual(str(pt), expected)
+
 
     def test_tabulate_translated(self):
         dct = {'a': Variable('one', 'blah', 'mm'),
