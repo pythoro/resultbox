@@ -135,10 +135,8 @@ class Tabulator():
             for k, v in row.copy().items():
                 if k in protected:
                     continue
-                if isinstance(v, np.ndarray):
-                    row[k] = str(v.tolist())
-                elif isinstance(v, list):
-                    row[k] = str(v)
+                if isinstance(v, (np.ndarray, list)):
+                    row[k] = utils.vec_to_str(v)
     
     def _regenerate_key_in_columns(self, var, df):
         cols = list(df.columns)

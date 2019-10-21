@@ -175,6 +175,17 @@ def list_to_str(lst, length=18, sep=' ', brackets=True):
     else:
         return s
 
+def vec_to_str(num, precision=2, list_sep=' '):
+    format_str = '{:0.' + str(precision) + 'g}'
+    if isinstance(num, list):
+        return list_to_str(num, sep=list_sep)
+    elif isinstance(num, np.ndarray):
+        if num.size == 1:
+            return format_str.format(num.item())
+        else:
+            return list_to_str(num.flatten().tolist())
+
+
 def val_to_str(num, precision=2, list_sep=' '):
     ''' Format a single number as a nice-to-look-at string 
     
@@ -199,10 +210,7 @@ def val_to_str(num, precision=2, list_sep=' '):
     elif isinstance(num, dict):
         return dict_to_str(num)
     elif isinstance(num, np.ndarray):
-        if num.size == 1:
-            return format_str.format(num.item())
-        else:
-            return list_to_str(num.flatten().tolist())
+        return vec_to_str(num, precision=precision, list_sep=list_sep)
         
 def dict_to_str(dct, val_sep=' ', key_sep=' ', list_sep=','):
     ''' Convert a dict to a nice-to-look-at string 
