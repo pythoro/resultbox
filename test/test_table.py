@@ -37,6 +37,16 @@ def get_lst2_b():
            {'index': 7, 'independent': {'a': 2, 'b': 2}, 'dependent': {'d': [19, 37]}}]
     return lst
 
+def get_lst2_c():
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1, 'c': 1}, 'dependent': {'d': [11, 21]}},
+           {'index': 1, 'independent': {'a': 1, 'b': 2, 'c': 2}, 'dependent': {'d': [12, 22]}},
+           {'index': 2, 'independent': {'a': 1, 'b': 2, 'c': 1}, 'dependent': {'d': [13, 23]}},
+           {'index': 3, 'independent': {'a': 1, 'b': 1, 'c': 2}, 'dependent': {'d': [14, 24]}},
+           {'index': 4, 'independent': {'a': 2, 'b': 1, 'c': 1}, 'dependent': {'d': [15, 25]}},
+           {'index': 5, 'independent': {'a': 2, 'b': 1, 'c': 2}, 'dependent': {'d': [16, 26]}},
+           {'index': 6, 'independent': {'a': 2, 'b': 2, 'c': 1}, 'dependent': {'d': [17, 27]}},
+           {'index': 7, 'independent': {'a': 2, 'b': 2, 'c': 2}, 'dependent': {'d': [18, 28]}}]
+    return lst
 
 def get_lst3():
     lst = [{'index': 0, 'independent': {'a': 1, 'b': 1}, 'dependent': {'d': [12, 30]}},
@@ -145,6 +155,25 @@ a b
   2      19      37'''
         self.assertEqual(str(pt), expected)
 
+
+    def test_tabulate_store_nested_cols(self):
+        t = Tabulator()
+        box = Box(get_lst2_c())
+        store = Store()
+        d = store.new('d', components=['x', 'y'])
+        index = ['a', 'b']
+        columns = ['c', d.label]
+        values = d
+        pt = t.tabulate(box=box, values=values, columns=columns, index=index, store=store)
+        expected = '''c     1       2    
+d:    x   y   x   y
+a b                
+1 1  11  21  14  24
+  2  13  23  12  22
+2 1  15  25  16  26
+  2  17  27  18  28'''
+        self.assertEqual(str(pt), expected)
+        
 
     def test_tabulate_translated(self):
         dct = {'a': Variable('one', 'blah', 'mm'),

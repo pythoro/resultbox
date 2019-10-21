@@ -17,7 +17,7 @@ can let resultbox take care of the rest.
 from difflib import SequenceMatcher
 from . import utils
 
-def _expand_single(key, val, store):
+def _expand_single(key, val, store, specified=None):
     ''' Expand a value into its components 
     
     Args:
@@ -34,6 +34,8 @@ def _expand_single(key, val, store):
         return {key: r}
     else:
         if key in store:
+            if specified is not None and key not in specified:
+                return {key, val}
             if store[key].subkeys is not None:
                 subkeys = store[key].subkeys
                 if len(val) == len(subkeys):
@@ -43,7 +45,7 @@ def _expand_single(key, val, store):
                     return out
         return {key: val}
 
-def expand(source, store):
+def expand(source, store, specified=None):
     ''' Expand variable components within a list or dictionary recursively 
     
     Args:
@@ -62,7 +64,7 @@ def expand(source, store):
     elif isinstance(source, dict):
         out = {}
         for key, val in source.items():
-            out.update( _expand_single(key, val, store))
+            out.update( _expand_single(key, val, store, specified))
     return out
 
 

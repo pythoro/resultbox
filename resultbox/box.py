@@ -391,6 +391,8 @@ class Box(list):
             return self.find(keys)
         elif isinstance(keys, tuple):
             return self.item(keys[0], keys[1])
+        elif isinstance(keys, slice):
+            return super().__getitem__(keys)
     
     def copy(self):
         return Box(self)

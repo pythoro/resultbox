@@ -103,35 +103,32 @@ class Tabulator():
             out.extend([a for a in l if not a.endswith(':')])
         return out
     
-    def keys_with_components(self, *args):
-        out = []
-        for arg in args:
-            l = listify(arg)
-            for k in l:
-                if isinstance(k, variable.Variable):
-                    if k.components is not None:
-                        out.append(k)
-        return out
+    def merge_keys(self, *args):
+        return [k for ks in args for k in listify(ks)]
     
-    def _prepare_data(self, box, values, columns, index=None,
-                 store=None):
-        keys = self.all_keys(values, columns, index)
+    def _prepare_data(self, box, base_keys, store=None):
+        keys = self.all_keys(base_keys)
         minimal = box.minimal()
         if store is not None:
-            minimal = variable.expand(minimal, store)
-            new_keys = []
-            for k in keys:
-                if k in store:
-                    if store[k].subkeys is not None:
-                        new_keys.extend(store[k].subkeys)
-                        continue
-                new_keys.append(k)
-        else:
-            new_keys = keys
-        filtered = box.filtered(new_keys, minimal)
+            keys_to_expand = self.get_keys_to_expand(base_keys, store)
+            minimal = variable.expand(minimal, store, specified=keys_to_expand)
+            for k in keys_to_expand:
+                keys.remove(k)
+                keys.extend(store[k].subkeys)
+        filtered = box.filtered(keys, minimal)
         if len(filtered) == 0:
             raise ValueError('No records left in filtered results.')
         return filtered
+    
+    def get_keys_to_expand(self, keys, store):
+        labels = []
+        for k in keys:
+            if k.endswith(':'):
+                name = k.rstrip(':')
+                for var in store.values():
+                    if var.name == name:
+                        labels.append(var)
+        return labels
     
     def _vec_to_str(self, filtered):
         for row in filtered:
@@ -163,9 +160,10 @@ class Tabulator():
                 if isinstance(val, list):
                     m = max(m, len(val))
             return range(m)
+        base_keys = self.merge_keys(values, columns, index)
         index = self.guess_index(box, values, columns) if index is None else index
         columns = [] if columns is None else columns
-        filtered = self._prepare_data(box, values, columns, index, store)
+        filtered = self._prepare_data(box, base_keys, store)
         if aliases is not None:
             filtered = aliases.translate(filtered)
             values = aliases.translate(values)
@@ -177,7 +175,7 @@ class Tabulator():
             df = pd.DataFrame(filtered)
             df["id"] = df.index
             pd.set_option('display.max_columns', 30)
-            for e in self.keys_with_components(values, columns, index):
+            for e in self.get_keys_to_expand(base_keys, store):
                 df = pd.wide_to_long(df, stubnames=e.name, i='id', j=e.label,
                                       sep=e.sep, suffix='.*')
                 self._regenerate_key_in_columns(e, df)
@@ -189,11 +187,14 @@ class Tabulator():
             df = df.reset_index(drop=True)
         # pd.set_option('display.max_columns', 5)
         # print(df)
+        if len(df) == 1:
+            return df
         try:
             df = pd.pivot_table(df, values=values, index=index, columns=columns,
                                 aggfunc=aggfunc)
-        except Exception:
-            warnings.warn('Could not pivot table')
+        except Exception as e:
+            print(df)
+            raise e
         return df
 
     def _unfold_3D(self, arr, labels, variable, components):
