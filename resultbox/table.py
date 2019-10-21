@@ -130,12 +130,11 @@ class Tabulator():
                         labels.append(var)
         return labels
     
-    def _vec_to_str(self, filtered):
+    def _vec_to_str(self, filtered, protected):
         for row in filtered:
             for k, v in row.copy().items():
-                if isinstance(k, variable.Variable):
-                    if k.components is not None:
-                        continue
+                if k in protected:
+                    continue
                 if isinstance(v, np.ndarray):
                     row[k] = str(v.tolist())
                 elif isinstance(v, list):
@@ -171,11 +170,12 @@ class Tabulator():
             columns = aliases.translate(columns)
         # Use dataframes for 'rows' to handle vectors
         if store is not None:
-            self._vec_to_str(filtered)
+            keys_to_expand = self.get_keys_to_expand(base_keys, store)
+            self._vec_to_str(filtered, protected=keys_to_expand)
             df = pd.DataFrame(filtered)
             df["id"] = df.index
             pd.set_option('display.max_columns', 30)
-            for e in self.get_keys_to_expand(base_keys, store):
+            for e in keys_to_expand:
                 df = pd.wide_to_long(df, stubnames=e.name, i='id', j=e.label,
                                       sep=e.sep, suffix='.*')
                 self._regenerate_key_in_columns(e, df)
