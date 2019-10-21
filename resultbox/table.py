@@ -106,6 +106,7 @@ class Tabulator():
                  store=None):
         keys = self.all_keys(values, columns, index)
         minimal = box.minimal()
+        minimal = box.filtered(keys, minimal)
         if store is not None:
             minimal = variable.expand(minimal, store)
             new_keys = []
@@ -122,8 +123,15 @@ class Tabulator():
             raise ValueError('No records left in filtered results.')
         return filtered
     
+    def _vec_to_str(self, filtered):
+        for row in filtered:
+            for k, v in row.copy().items():
+                if isinstance(v, np.ndarray):
+                    row[k] = str(v.tolist())
+                elif isinstance(v, list):
+                    row[k] = str(v)
     
-    def tabulate(self, box, values, columns, index=None, aggfunc='mean',
+    def tabulate(self, box, values, columns=None, index=None, aggfunc='mean',
                  aliases=None, store=None):
         ''' General purpose tabulation
         
@@ -136,6 +144,7 @@ class Tabulator():
                     m = max(m, len(val))
             return range(m)
         index = self.guess_index(box, values, columns) if index is None else index
+        columns = [] if columns is None else columns
         filtered = self._prepare_data(box, values, columns, index, store)
         if aliases is not None:
             filtered = aliases.translate(filtered)
@@ -145,6 +154,7 @@ class Tabulator():
         # Use dataframes for 'rows' to handle vectors
         if store is not None:
             keys = self.all_keys(values, columns, index)
+            self._vec_to_str(filtered)
             df = pd.DataFrame(filtered)
             df["id"] = df.index
             for e in keys:
@@ -161,6 +171,8 @@ class Tabulator():
             for row in rows[1:]:
                 df = df.append(row)
             df = df.reset_index(drop=True)
+        if len(df) == 1:
+            return df
         pt = pd.pivot_table(df, values=values, index=index, columns=columns,
                             aggfunc=aggfunc)
         return pt
