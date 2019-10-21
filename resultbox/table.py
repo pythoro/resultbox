@@ -106,7 +106,6 @@ class Tabulator():
                  store=None):
         keys = self.all_keys(values, columns, index)
         minimal = box.minimal()
-        minimal = box.filtered(keys, minimal)
         if store is not None:
             minimal = variable.expand(minimal, store)
             new_keys = []
@@ -126,6 +125,9 @@ class Tabulator():
     def _vec_to_str(self, filtered):
         for row in filtered:
             for k, v in row.copy().items():
+                if isinstance(k, variable.Variable):
+                    if k.components is not None:
+                        continue
                 if isinstance(v, np.ndarray):
                     row[k] = str(v.tolist())
                 elif isinstance(v, list):
