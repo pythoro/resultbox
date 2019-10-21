@@ -12,6 +12,7 @@ from collections import defaultdict
 from . import utils
 from . import variable
 import numpy as np
+from . import constants
 
 def encoded(obj):
     if isinstance(obj, str):
@@ -25,6 +26,8 @@ def safe_hash(lst):
     return h.digest()
     
 def listify(obj):
+    if obj is None:
+        return []
     if not isinstance(obj, list):
         return [obj]
     return obj
@@ -74,25 +77,22 @@ class Table():
 class Tabulator():
     def guess_index(self, box, values, columns=None):
         def remove_others(keys):
-            for v in values:
-                keys.remove(v)
-            for v in columns:
-                keys.remove(v)
+            for k in all_keys:
+                if k in keys:
+                    keys.remove(k)
         
-        values = listify(values)
-        columns = [] if columns is None else listify(columns)
-        minimal = box.minimal()
-        filtered = box.filtered(values + columns, minimal)
+        all_keys = listify(values) + listify(columns)
+        filtered = box.filtered(all_keys, box.combined())
         index = set()
         for row in filtered:
-            keys = set(row.keys())
+            keys = set(row[constants.INDEP].keys())
             remove_others(keys)
             index = index.union(keys)
         for row in filtered:
-            keys = set(row.keys())
+            keys = set(row[constants.INDEP].keys())
             remove_others(keys)
             if len(keys) == len(index):
-                return [k for k in row.keys() if k in index]
+                return [k for k in row[constants.INDEP].keys() if k in index]
         return list(index)
     
     def all_keys(self, *args):
