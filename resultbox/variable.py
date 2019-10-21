@@ -206,11 +206,11 @@ class Variable(str):
         ''' Return a list of keys for the variable components '''
         if self.components is None:
             return None
-        component_names = []
+        keys = []
         for component in self.components:
-            component_names.append(self._component_name(component))
-        return component_names
-    
+            keys.append(self._component_name(component))
+        return keys
+
     @property
     def label(self):
         ''' The variable name formatted with a trailing colon '''
