@@ -77,24 +77,18 @@ class Table():
 
 class Tabulator():
     def guess_index(self, box, values, columns=None):
-        def remove_others(keys):
-            for k in all_keys:
-                if k in keys:
-                    keys.remove(k)
-        
-        all_keys = listify(values) + listify(columns)
+        all_keys = self.all_keys(values, columns)
         filtered = box.filtered(all_keys, box.combined())
-        index = set()
+        index = {}
         for row in filtered:
-            keys = set(row[constants.INDEP].keys())
-            remove_others(keys)
-            index = index.union(keys)
-        for row in filtered:
-            keys = set(row[constants.INDEP].keys())
-            remove_others(keys)
-            if len(keys) == len(index):
-                return [k for k in row[constants.INDEP].keys() if k in index]
-        return list(index)
+            keys = row[constants.INDEP].keys()
+            for k in keys:
+                if k not in index.values():
+                    index[len(index)] = k
+        for k, v in index.copy().items():
+            if v in all_keys:
+                del index[k]
+        return list(index.values())
     
     def all_keys(self, *args):
         out = []
@@ -191,7 +185,6 @@ class Tabulator():
             df = pd.pivot_table(df, values=values, index=index, columns=columns,
                                 aggfunc=aggfunc)
         except Exception as e:
-            print(df)
             raise e
         return df
 

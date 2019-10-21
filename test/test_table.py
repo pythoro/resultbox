@@ -197,7 +197,12 @@ a b
         columns = ['c']
         values = 'd'
         pt = t.tabulate(box=box, values=values, columns=columns)
-        expected = 'c     1   2\na b        \n1 1  11  14\n  2  13  12\n2 1  15  16\n  2  17  18'
+        expected = '''c     1   2
+a b        
+1 1  11  14
+  2  13  12
+2 1  15  16
+  2  17  18'''
         self.assertEqual(str(pt), expected)
 
     def test_tabulate3(self):

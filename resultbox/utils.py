@@ -185,7 +185,6 @@ def vec_to_str(num, precision=2, list_sep=' '):
         else:
             return list_to_str(num.flatten().tolist())
 
-
 def val_to_str(num, precision=2, list_sep=' '):
     ''' Format a single number as a nice-to-look-at string 
     
