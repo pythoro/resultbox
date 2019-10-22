@@ -48,6 +48,11 @@ def validate_row(row):
                 assert isinstance(k, variable.Variable)
                 assert len(k.components) in np.shape(v)
 
+def scalarise(dct):
+    ''' Convert any size-1 arrays to scalars '''
+    for k, v in dct.copy().items():
+        if isinstance(v, np.ndarray) and np.size(v) == 1:
+            dct[k] = v.item()
 
 class Box(list):
     ''' A versatile container to manage and work with result data 
@@ -122,6 +127,7 @@ class Box(list):
                  INDEP: indep.copy(),
                  DEP: dep}
         validate_row(dfull)
+        scalarise(dfull)
         if settings.PRINT_UPDATES:
             print(self.show([dfull]))
         self.append(dfull)
