@@ -55,6 +55,8 @@ def _custom_headed_table(df, fname, sep=',', **kwargs):
     df.to_csv(path_or_buf=fname, sep=sep, header=None, mode='a', **kwargs)
 
 def to_csv(df, fname, variable=None, mode='w', sep=',', **kwargs):
+    if df is None:
+        return
     fname = utils.safe_fname(fname)
     fname = utils.ensure_ext(fname, '.csv')
     s = '\n\n' if mode=='a' else ''
@@ -184,9 +186,32 @@ class Tabulator():
         try:
             df = pd.pivot_table(df, values=values, index=index, columns=columns,
                                 aggfunc=aggfunc)
+            self._order_indices(df, 0, listify(index))
+            self._order_indices(df, 1, listify(columns))
         except Exception as e:
             raise e
         return df
+
+    def _order_indices(self, df, axis, index_vars):
+        if axis == 0:
+            index = df.index
+        elif axis == 1:
+            index = df.columns
+        if not isinstance(index, pd.MultiIndex):
+            return
+        try:
+            new_index = index.reorder_levels(index_vars)
+        except:
+            return
+        if axis == 0:
+            df.index = new_index
+        elif axis == 1:
+            df.columns = new_index    
+
+    def _remove_unused_levels(self, df):
+        for index in [df.index, df.columns]:
+            if isinstance(index, pd.MultiIndex):
+                index.remove_unused_levels()
 
     def _unfold_3D(self, arr, labels, variable, components):
         ''' Unfold a 3D array into a 2D array 
@@ -243,12 +268,15 @@ class Tabulator():
             interp_list, labels = self._unfold_3D(interp_list, labels,
                           values + ':', components)
         ind = pd.MultiIndex.from_frame(pd.DataFrame(labels))
+        ind_vars = list(labels[0].keys())
         if orient=='rows':
             df = pd.DataFrame(np.array(interp_list).T, index=index_vals, columns=ind)
             df = df.rename_axis(index, axis=0)
+            self._order_indices(df, 1, ind_vars)
         else:
             df = pd.DataFrame(interp_list, index=ind, columns=index_vals)
             df = df.rename_axis(index, axis=1)
+            self._order_indices(df, 0, ind_vars)
         return df
     
     
