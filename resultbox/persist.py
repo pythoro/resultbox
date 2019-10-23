@@ -17,7 +17,7 @@ import zlib
 import numpy as np
 
 from .box import Box
-from . import adapters, variable
+from . import adapters, variable, constants
 
 
 def serialise_vars(box):
@@ -260,7 +260,7 @@ class NPZ(Handler):
             fname (str): A string specifying the full filename
         '''
         flat = adapters.flat_dict(box)
-        np.savez_compressed(fname, **flat)
+        np.savez_compressed(fname, **flat, **kwargs)
     
     def load(self, fname, **kwargs):
         ''' Return box data by reading the source 
@@ -277,11 +277,15 @@ class NPZ(Handler):
             return obj
         
         flat = {}
-        with np.load(fname) as data:
+        with np.load(fname, **kwargs) as data:
             for key in list(data.keys()):
                 flat[key] = itemise_scalars(data[key])
         
         composed = adapters.compose(flat)
+        for row in composed['data']:
+            for k in [constants.DEP, constants.INDEP]:
+                if k not in row:
+                    row[k] = {}
         return composed
             
             
