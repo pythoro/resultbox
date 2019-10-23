@@ -43,10 +43,14 @@ def validate_row(row):
     subkeys = [INDEP, DEP]
     for subkey in subkeys:
         for k, v in row[subkey].items():
+            if v is None:
+                continue
             if np.ndim(v) > 1:
                 assert np.ndim(v) == 2
-                assert isinstance(k, variable.Variable)
-                assert len(k.components) in np.shape(v)
+                if 1 not in np.shape(v):
+                    assert isinstance(k, variable.Variable)
+                    assert k.components is not None
+                    assert len(k.components) in np.shape(v)
 
 def scalarise(dct):
     ''' Convert any size-1 arrays to scalars '''
