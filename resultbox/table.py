@@ -165,7 +165,9 @@ class Tabulator():
         # Use dataframes for 'rows' to handle vectors
         if store is not None:
             keys_to_expand = self.get_keys_to_expand(base_keys, store)
-            self._vec_to_str(filtered, protected=keys_to_expand)
+            protected = keys_to_expand + listify(values)
+            self._vec_to_str(filtered, protected=protected)
+        if store is not None and len(keys_to_expand) > 0:
             df = pd.DataFrame(filtered)
             df["id"] = df.index
             pd.set_option('display.max_columns', 30)
@@ -177,12 +179,10 @@ class Tabulator():
             rows = [pd.DataFrame(row, index=indices(row)) for row in filtered]
             df = rows[0].copy()
             for row in rows[1:]:
-                df = df.append(row)
+                df = df.append(row, sort=True)
             df = df.reset_index(drop=True)
         # pd.set_option('display.max_columns', 5)
         # print(df)
-        if len(df) == 1:
-            return df
         try:
             df = pd.pivot_table(df, values=values, index=index, columns=columns,
                                 aggfunc=aggfunc)
