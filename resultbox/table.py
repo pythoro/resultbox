@@ -189,7 +189,11 @@ class Tabulator():
             self._order_indices(df, 0, listify(index))
             self._order_indices(df, 1, listify(columns))
         except Exception as e:
-            raise e
+            msg = 'Could not tabulate data. '
+            dct = {'values': values, 'index': index, 'columns': columns}
+            msg2 = utils.dict_to_str(dct, val_sep=' = ', key_sep='\n       ',
+                                     list_sep=', ', length=250)
+            raise ValueError(msg + '(' + e.args[0] + ').\n       ' + msg2)
         return df
 
     def _order_indices(self, df, axis, index_vars):
