@@ -273,7 +273,9 @@ class Tabulator():
         if np.ndim(interp_list) == 3:
             interp_list, labels = self._unfold_3D(interp_list, labels,
                           values + ':', components)
-        ind = pd.MultiIndex.from_frame(pd.DataFrame(labels))
+        ind_df = pd.DataFrame(labels)
+        self._tweak_component_names(ind_df, values)
+        ind = pd.MultiIndex.from_frame(ind_df)
         ind_vars = list(labels[0].keys())
         if orient=='rows':
             df = pd.DataFrame(np.array(interp_list).T, index=index_vals, columns=ind)
@@ -283,7 +285,24 @@ class Tabulator():
             df = pd.DataFrame(interp_list, index=ind, columns=index_vals)
             df = df.rename_axis(index, axis=1)
             self._order_indices(df, 0, ind_vars)
+        
         return df
+    
+    def _tweak_component_names(self, df, values):
+        if not isinstance(values, variable.Variable):
+            return
+        cols = df.columns
+        vals = None
+        for col in cols:
+            if col == values.key + ':' or col == values.label:
+                vals = df[col]
+                break
+        if vals is None:
+            return
+        d = {s: values._append_unit(c, values.unit)
+                        for s, c in zip(values.subkeys, values.components)}
+        new_vals = [d[s] for s in vals]
+        df[col] = new_vals
     
     
 tabulator = Tabulator()
