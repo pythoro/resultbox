@@ -47,8 +47,10 @@ def _custom_headed_table(df, fname, sep=',', **kwargs):
         header_2 = pad(df.index.names, n + len(cols))
     else:
         n = 1
-        header_2 = pad(df.index.name, n + len(cols))
-    header_1 = pad(df.columns.name, n) + cols
+        ind_name_str = '' if df.index.name is None else df.index.name
+        header_2 = pad(ind_name_str, n + len(cols))
+    col_name_str = '' if df.columns.name is None else df.columns.name
+    header_1 = pad(col_name_str, n) + cols
     s = sep.join(header_1) + '\n' + sep.join(header_2) + '\n'
     with open(fname, mode='a') as f:
         f.write(s)
