@@ -219,7 +219,7 @@ class Tabulator():
             if isinstance(index, pd.MultiIndex):
                 index.remove_unused_levels()
 
-    def _unfold_3D(self, arr, labels, variable, components):
+    def _unfold_3D(self, arr, labels, label, components):
         ''' Unfold a 3D array into a 2D array 
         
         Used for vector tables in which each value is a 2D array
@@ -229,7 +229,7 @@ class Tabulator():
             d2.update({k: v})
             return d2
         arr2 = [np.squeeze(v) for row in arr for v in row]
-        labels2 = [add(d, variable, c) for d in labels for c in components]
+        labels2 = [add(d, label, c) for d in labels for c in components]
         return arr2, labels2
 
     def vector_table(self, box, values, index, index_vals=None, orient='rows',
@@ -245,8 +245,8 @@ class Tabulator():
             orient (str): The direction of the vectors. Defaults to 'rows'
             and can be set to 'cols'.
             components (list[str]): A list of component names. Only required
-            if the values are 2D. If the 'values' is a Variable, this cam
-            be gained through variable.components.
+            if the values are 2D. If the 'values' is a Variable, this can
+            be omitted.
             
         Note:
             Headings are automatically created.
@@ -271,10 +271,15 @@ class Tabulator():
         if index_vals_candidate is not None:
             index_vals = index_vals_candidate
         if np.ndim(interp_list) == 3:
+            if isinstance(values, variable.Variable):
+                lab = values.label 
+                components = [values._append_unit(c, values.unit) 
+                                for c in values.components]
+            else:
+                lab = values + ':'
             interp_list, labels = self._unfold_3D(interp_list, labels,
-                          values + ':', components)
+                          lab, components)
         ind_df = pd.DataFrame(labels)
-        self._tweak_component_names(ind_df, values)
         ind = pd.MultiIndex.from_frame(ind_df)
         ind_vars = list(labels[0].keys())
         if orient=='rows':
@@ -287,22 +292,6 @@ class Tabulator():
             self._order_indices(df, 0, ind_vars)
         
         return df
-    
-    def _tweak_component_names(self, df, values):
-        if not isinstance(values, variable.Variable):
-            return
-        cols = df.columns
-        vals = None
-        for col in cols:
-            if col == values.key + ':' or col == values.label:
-                vals = df[col]
-                break
-        if vals is None:
-            return
-        d = {s: values._append_unit(c, values.unit)
-                        for s, c in zip(values.subkeys, values.components)}
-        new_vals = [d[s] for s in vals]
-        df[col] = new_vals
     
     
 tabulator = Tabulator()
