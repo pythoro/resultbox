@@ -54,9 +54,12 @@ def validate_row(row):
 
 def scalarise(dct):
     ''' Convert any size-1 arrays to scalars '''
-    for k, v in dct.copy().items():
-        if isinstance(v, np.ndarray) and np.size(v) == 1:
-            dct[k] = v.item()
+    d = dct.copy()
+    for subkey in [DEP, INDEP]:
+        for k, v in d[subkey].items():
+            if isinstance(v, np.ndarray) and np.size(v) == 1:
+                dct[subkey][k] = v.item()
+
 
 class Box(list):
     ''' A versatile container to manage and work with result data 
