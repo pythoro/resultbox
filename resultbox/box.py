@@ -134,7 +134,8 @@ class Box(list):
                  INDEP: indep.copy(),
                  DEP: dep}
         validate_row(dfull)
-        scalarise(dfull)
+        if settings.CONVERT_SCALAR_ARRAYS:
+            scalarise(dfull)
         if settings.PRINT_UPDATES:
             print(self.show([dfull]))
         self.append(dfull)

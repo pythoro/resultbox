@@ -6,3 +6,4 @@ Created on Fri Oct 18 15:47:40 2019
 """
 
 PRINT_UPDATES = False
+CONVERT_SCALAR_ARRAYS = True
