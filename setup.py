@@ -12,14 +12,14 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="resultbox",
-    version="0.0.1",
+    version="0.0.2",
     author="Reuben Rusk",
     author_email="pythoro@mindquip.com",
     description="Easily manage, tabulate, plot, and store analysis results.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/pythoro/resultbox.git",
-    download_url="https://github.com/pythoro/resultbox/archive/v0.0.1.zip",
+    download_url="https://github.com/pythoro/resultbox/archive/v0.0.2.zip",
     packages=['resultbox'],
     keywords=['RESULTS'],
     classifiers=[
