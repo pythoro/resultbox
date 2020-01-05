@@ -188,8 +188,8 @@ class Tabulator():
         try:
             df = pd.pivot_table(df, values=values, index=index, columns=columns,
                                 aggfunc=aggfunc)
-            self._order_indices(df, 0, listify(index))
-            self._order_indices(df, 1, listify(columns))
+            self._order_index(df, listify(index))
+            self._order_columns(df, listify(columns))
         except Exception as e:
             msg = 'Could not tabulate data. '
             dct = {'values': values, 'index': index, 'columns': columns}
@@ -198,21 +198,19 @@ class Tabulator():
             raise ValueError(msg + '(' + e.args[0] + ').\n       ' + msg2)
         return df
 
-    def _order_indices(self, df, axis, index_vars):
-        if axis == 0:
-            index = df.index
-        elif axis == 1:
-            index = df.columns
-        if not isinstance(index, pd.MultiIndex):
-            return
-        try:
-            new_index = index.reorder_levels(index_vars)
-        except:
-            return
-        if axis == 0:
-            df.index = new_index
-        elif axis == 1:
-            df.columns = new_index    
+    def _order_index(self, df, index):
+        if isinstance(df.index, pd.MultiIndex):
+            try:
+                df.index = df.index.reorder_levels(index)
+            except:
+                pass
+            
+    def _order_columns(self, df, columns):
+        if isinstance(df.columns, pd.MultiIndex):
+            try:
+                df.columns = df.columns.reorder_levels(columns)
+            except:
+                pass
 
     def _remove_unused_levels(self, df):
         for index in [df.index, df.columns]:
@@ -285,11 +283,11 @@ class Tabulator():
         if orient=='rows':
             df = pd.DataFrame(np.array(interp_list).T, index=index_vals, columns=ind)
             df = df.rename_axis(index, axis=0)
-            self._order_indices(df, 1, ind_vars)
+            self._order_columns(df, ind_vars)
         else:
             df = pd.DataFrame(interp_list, index=ind, columns=index_vals)
             df = df.rename_axis(index, axis=1)
-            self._order_indices(df, 0, ind_vars)
+            self._order_index(df, ind_vars)
         
         return df
     
