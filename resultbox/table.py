@@ -231,7 +231,7 @@ class Tabulator():
         return arr2, labels2
 
     def vector_table(self, box, values, index, index_vals=None, orient='rows',
-                     components=None):
+                     components=None, combine=True):
         ''' A table of vectors with an interpolated index
         
         Args:
@@ -245,11 +245,15 @@ class Tabulator():
             components (list[str]): A list of component names. Only required
             if the values are 2D. If the 'values' is a Variable, this can
             be omitted.
+            combine (bool): Combine entries with the same values of independent
+            variables (defaults to True).
             
         Note:
             Headings are automatically created.
         '''
-        values_list, index_list, labels = box.vectors([values, index], labels='dict')
+        values_list, index_list, labels = box.vectors([values, index],
+                                                      labels='dict',
+                                                      combine=combine)
         interp_list = []
         index_vals_candidate = None
         labels = [{k: str(v) for k, v in label.items()} for label in labels]

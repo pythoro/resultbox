@@ -292,8 +292,8 @@ class Box(list):
             base._merge(box)
             return base
     
-    def vectors(self, keys, dct=None, labels='str'):
-        ''' List the data for each key where all keys are present
+    def vectors(self, keys, dct=None, labels='str', combine=True):
+        ''' List the dependent data for each key where all keys are present
         
         Args:
             keys (list[Variable]): The list of keys to return values for.
@@ -302,6 +302,8 @@ class Box(list):
             labels (str): 'str' to return labels as strings, or 'dict' to
             return labels as dictionaries of key-value pairs. Use None or 
             False to not return labels.
+            combine (bool): True (default) to combine box rows that have
+            the same set of independent variables
             
         Returns:
             tuple[list]: A list for each key, plus a list of labels if 
@@ -312,19 +314,18 @@ class Box(list):
             in a given index for the data from that index to be counted.
         '''
         keys = listify(keys)
-        combined = self.combined()
+        combined = self.combined() if combine else self
         filtered = self.filtered(keys, lst=combined)
         if dct is not None:
             filtered = self.where(dct, filtered)
         out = {k: [] for k in keys}
         label_list = []
         for dct in filtered:
+            indep = dct[INDEP]
             if labels=='str':
-                label = dict_to_str(dct[INDEP],
-                                             val_sep='=',
-                                             key_sep=', ')
+                label = dict_to_str(indep, val_sep='=', key_sep=', ')
             else:
-                label = dct[INDEP]
+                label = indep
             label_list.append(label)
             dep = dct[DEP]
             for k in keys:

@@ -28,6 +28,13 @@ def get_lst4():
            {'index': 3, 'independent': {'a': 2, 'b': 2}, 'dependent': {'c': 7}}]
     return lst
 
+def get_lst5():
+    lst = [{'index': 0, 'independent': {'a': 1}, 'dependent': {'b': [1, 2], 'e': [12, 30]}},
+           {'index': 1, 'independent': {'a': 1}, 'dependent': {'b': [1, 2],'e': [13, 31]}},
+           {'index': 4, 'independent': {'a': 1}, 'dependent': {'d': [7, 8], 'e': [1, 2]}},
+           {'index': 7, 'independent': {'a': 1}, 'dependent': {'d': [7, 8], 'e': [1, 2]}}]
+    return lst
+
 
 class Test_Box(unittest.TestCase):
     def test_init(self):
@@ -178,6 +185,17 @@ class Test_Box(unittest.TestCase):
         expected_vec0 = [[12, 30], [13, 31]]
         expected_vec1 = [[1, 2], [1, 2]]
         expected_labels = ['a=1, b=1', 'a=1, b=2']
+        self.assertListEqual(expected_vec0, vec0)
+        self.assertListEqual(expected_vec1, vec1)
+        self.assertListEqual(expected_labels, labels)
+
+    def test_vectors_uncombined(self):
+        b = Box(get_lst5())
+        keys = ['b', 'e']
+        vec0, vec1, labels = b.vectors(keys, combine=False)
+        expected_vec0 = [[1, 2], [1, 2]]
+        expected_vec1 = [[12, 30], [13, 31]]
+        expected_labels = ['a=1', 'a=1']
         self.assertListEqual(expected_vec0, vec0)
         self.assertListEqual(expected_vec1, vec1)
         self.assertListEqual(expected_labels, labels)
