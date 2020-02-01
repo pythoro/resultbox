@@ -112,6 +112,25 @@ class Store(dict):
         ratios = [SequenceMatcher(None, key, k).ratio() for k in keys]
         return self[keys[ratios.index(max(ratios))]]
     
+    def suffixed(self, variable, suffix):
+        ''' Create or return a suffixed variable using an existing one 
+        
+        Args:
+            variable (Variable): A variable
+            suffix (str): The suffix to append to the name
+            
+        Returns:
+            Variable: Creates a new one if needed, or returns existing.
+        '''
+        new_name = variable.name + suffix
+        key = Variable._append_unit(new_name, variable.unit)
+        if key in self:
+            return self[key]
+        else:
+            kwargs = variable.to_dict()
+            kwargs['name'] = new_name
+            return self.new(**kwargs)
+    
     add = new
 
 class Variable(str):

@@ -51,6 +51,7 @@ class Test_Store(unittest.TestCase):
     def test_add(self):
         s = Store()
         v = s.add('test')
+        self.assertEqual(len(s), 1)
 
     def test_nearest(self):
         s = Store()
@@ -59,6 +60,14 @@ class Test_Store(unittest.TestCase):
         s.new('irrelevant')
         v = s.nearest('one we wnt')
         self.assertEqual(v.name, 'the one we want')
+        
+    def test_suffixed(self):
+        s = Store()
+        v1 = s.add('test')
+        v2 = s.suffixed(v1, ' suffix')
+        self.assertEqual(len(s), 2)
+        test2 = s['test suffix']
+        self.assertTrue(v2 is test2)
             
 
 class Test_Variable(unittest.TestCase):
