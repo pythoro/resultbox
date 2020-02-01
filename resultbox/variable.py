@@ -91,11 +91,11 @@ class Store(dict):
         Note:
             The 'add' method is a copy of this method.
         '''
-        if name in self:
-            raise KeyError('Key "' + str(name) + '" already exists. Names '
-                          + 'must be unique.')
         new = Variable(name, doc, unit, components=components, sep=sep,
                        category=category, tags=tags)
+        if new.key in self:
+            raise KeyError('Key "' + str(name) + '" already exists. Names '
+                          + 'must be unique.')
         self[new.key] = new
         return new
     
