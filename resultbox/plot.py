@@ -14,7 +14,7 @@ def plot(box, x_var, y_var, fig_num=None, legend=False, xlim=None,
                 ylim=None, y_ind=None, **kwargs):
     pass
 
-def vector_plot(box, x_var, y_var, fig_num=None, legend=False, xlim=None, 
+def vector_plot(box, x_var, y_var, dct=None, fig_num=None, legend=False, xlim=None, 
                 ylim=None, y_ind=None, **kwargs):
     ''' Plot results for two vectors 
     
@@ -32,7 +32,7 @@ def vector_plot(box, x_var, y_var, fig_num=None, legend=False, xlim=None,
         
     '''
     keys = [x_var, y_var]
-    x_list, y_list, labels = box.vectors(keys)
+    x_list, y_list, labels = box.vectors(keys, dct=dct)
     if len(labels) == 0:
         warnings.warn('No data for plot of: ' + str(keys))
     fig = plt.figure(fig_num)
