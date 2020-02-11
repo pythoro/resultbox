@@ -292,7 +292,8 @@ class Box(list):
             base._merge(box)
             return base
     
-    def vectors(self, keys, dct=None, labels='str', combine=True):
+    def vectors(self, keys, dct=None, labels='str', combine=True,
+                indep_keys=None):
         ''' List the dependent data for each key where all keys are present
         
         Args:
@@ -304,6 +305,9 @@ class Box(list):
             False to not return labels.
             combine (bool): True (default) to combine box rows that have
             the same set of independent variables
+            indep_keys (list): Optional. If given, labels are not returned. 
+            Instead, corresponding vectors for each independent key are
+            returned within the return tuple (after those for keys).
             
         Returns:
             tuple[list]: A list for each key, plus a list of labels if 
@@ -316,6 +320,7 @@ class Box(list):
         keys = listify(keys)
         combined = self.combined() if combine else self
         filtered = self.filtered(keys, lst=combined)
+        labels = 'dict' if indep_keys is not None else labels
         if dct is not None:
             filtered = self.where(dct, filtered)
         out = {k: [] for k in keys}
@@ -332,7 +337,11 @@ class Box(list):
                 out[k].append(dep[k])
         lst_out = [out[k] for k in keys]
         if labels is not None and labels is not False:
-            lst_out.append(label_list)
+            if indep_keys is None:
+                lst_out.append(label_list)
+            else:
+                for k in indep_keys:
+                    lst_out.append([d[k] for d in label_list])
         return tuple(lst_out)
     
     def grouped(self, keys, labels='dict', as_dicts=False):
