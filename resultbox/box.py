@@ -346,6 +346,9 @@ class Box(list):
     
     def grouped(self, keys, labels='dict', as_dicts=False):
         ''' Return lists of values grouped by other independent variables '''
+        
+        # TODO: This seems method unnecessarily complex
+        
         combined = self.combined()
         filtered = self.filtered(keys, lst=combined)
         out = {}
@@ -394,6 +397,38 @@ class Box(list):
             elif key in row[INDEP]:
                 out[row[IND]] = row[INDEP][key]
         return out
+    
+    def unique(self, key, lst=None):
+        ''' Return unique key values 
+        
+        Args:
+            key (Variable): The key
+            lst (list): An optional list to use instead of self
+            
+        Returns:
+            list: A list of unique values
+        '''
+        d = self.find(key, lst)
+        vals = set(d.values())
+        return list(vals)
+    
+    def combinations(self, key_list, lst=None):
+        ''' Return unique combinations of keys in the box 
+        
+        Args:
+            key_list (list[Variable]): A list of variables
+            
+        Returns:
+            list: A list of dictionaries, where each dictionary is a unique
+            combination of the keys
+        '''
+        lst = self.filtered(key_list, lst)
+        tups = [tuple([d[INDEP].get(k, d[DEP].get(k)) for k in key_list])
+                    for d in lst]
+        s = set(tups)
+        l = list(s)
+        l.sort()
+        return [{k: v for k, v in zip(key_list, vals)} for vals in l]
     
     def item(self, index, key):
         ''' Return the value for a key at a given index '''

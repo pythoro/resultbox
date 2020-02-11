@@ -35,6 +35,14 @@ def get_lst5():
            {'index': 7, 'independent': {'a': 1}, 'dependent': {'d': [7, 8], 'e': [1, 2]}}]
     return lst
 
+def get_lst6():
+    lst = [{'index': 0, 'independent': {'a': 1}, 'dependent': {'b': 1}},
+           {'index': 1, 'independent': {'a': 1}, 'dependent': {'b': 2}},
+           {'index': 1, 'independent': {'a': 1}, 'dependent': {'b': 3}},
+           {'index': 2, 'independent': {'a': 2}, 'dependent': {'b': 1}},
+           {'index': 3, 'independent': {'a': 2}, 'dependent': {'b': 2}}]
+    return lst
+
 
 class Test_Box(unittest.TestCase):
     def test_init(self):
@@ -245,3 +253,19 @@ class Test_Box(unittest.TestCase):
         res = b.grouped(keys, as_dicts=False)
         expected = [[[1, 2], [4, 6], {'b': 1}], [[1, 2], [5, 7], {'b': 2}]]
         self.assertListEqual(res, expected)
+
+    def test_unique(self):
+        b = Box(get_lst6())
+        self.assertListEqual(b.unique('a'), [1, 2])
+        self.assertListEqual(b.unique('b'), [1, 2, 3])
+
+    def test_combinations(self):
+        b = Box(get_lst6())
+        combinations = b.combinations(['a', 'b'])
+        expected = [{'a': 1, 'b': 1},
+                    {'a': 1, 'b': 2},
+                    {'a': 1, 'b': 3},
+                    {'a': 2, 'b': 1},
+                    {'a': 2, 'b': 2}]
+        self.assertListEqual(combinations, expected)
+        
