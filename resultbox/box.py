@@ -410,7 +410,7 @@ class Box(list):
         '''
         d = self.find(key, lst)
         vals = set(d.values())
-        return list(vals)
+        return sorted(list(vals))
     
     def combinations(self, key_list, lst=None):
         ''' Return unique combinations of keys in the box 
