@@ -75,3 +75,24 @@ class Test_Dict_To_Str(unittest.TestCase):
         d = {'apple': 5.7, 'banana': 7.8}
         expected = 'apple 5.7 banana 7.8'
         self.assertEqual(expected, utils.dict_to_str(d))
+
+class Test_Strip_Unit(unittest.TestCase):
+    def test_no_pairs(self):
+        s = 'abasdflkj slkjwer dkjf'
+        expected = s
+        self.assertEqual(expected, utils.strip_unit(s))
+
+    def test_end_pair(self):
+        s = 'abasdflkj [mm]'
+        expected = 'abasdflkj'
+        self.assertEqual(expected, utils.strip_unit(s))
+
+    def test_mid_pair(self):
+        s = 'abasdflkj slkjwer [df] dkjf'
+        expected = 'abasdflkj slkjwer dkjf'
+        self.assertEqual(expected, utils.strip_unit(s))
+
+    def test_two_mid_pairs(self):
+        s = 'abasdf[sdf]lkj slkjwer [df] dkjf'
+        expected = 'abasdflkj slkjwer dkjf'
+        self.assertEqual(expected, utils.strip_unit(s))

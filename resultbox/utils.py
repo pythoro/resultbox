@@ -271,13 +271,15 @@ def strip_unit(s):
         str: The string without anything enclosed in square brackets.
     
     Note:
-        Useful for removing units in a key. It only removes one pair
-        of brackets.
+        Useful for removing units in a key. It will recurse pairs of brackets.
+        Trailing spaces will be striped.
     '''
     start = s.find('[')
     end = s.find(']')
     if start > 0 and end > 0:
-        return s[:start-1] + s[end+1:]
+        s = s[:start].rstrip() + s[end+1:].rstrip()
+    if '[' in s:
+        s = strip_unit(s)
     return s
 
 def safe_fname(fname):
