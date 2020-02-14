@@ -251,6 +251,11 @@ class Box(list):
             out.append(dct)
         return out
     
+    def exclusively(self, keys, lst=None):
+        ''' Return a list of dictionaries that only contain values for keys '''
+        minimal = self.minimal() if lst is None else lst
+        return [{k: d[k] for k in keys} for d in minimal]
+    
     def _combine(self, dct):
         d = self._combined
         independent = dct[INDEP]

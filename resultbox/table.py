@@ -114,6 +114,7 @@ class Tabulator():
                 keys.remove(k)
                 keys.extend(store[k].subkeys)
         filtered = box.filtered(keys, minimal)
+        filtered = box.exclusively(keys, filtered)
         if len(filtered) == 0:
             raise ValueError('No records left in filtered results.')
         return filtered
@@ -155,9 +156,9 @@ class Tabulator():
                 if isinstance(val, list):
                     m = max(m, len(val))
             return range(m)
-        base_keys = self.merge_keys(values, columns, index)
         index = self.guess_index(box, values, columns) if index is None else index
         columns = [] if columns is None else columns
+        base_keys = self.merge_keys(values, columns, index)
         filtered = self._prepare_data(box, base_keys, store)
         if aliases is not None:
             filtered = aliases.translate(filtered)
