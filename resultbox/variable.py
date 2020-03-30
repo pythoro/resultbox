@@ -288,4 +288,12 @@ class Aliases(dict):
     def translate_list(self, lst):
         ''' Translate the objects in a list '''
         return [self.translate(k) for k in lst]
+    
+    def inverse(self):
+        ''' Return an inverse dictionary of self 
+        
+        Note:
+            Values must be unique.
+        '''
+        return {v: k for k, v in self.items()}
 
