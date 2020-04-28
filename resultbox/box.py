@@ -17,6 +17,7 @@ from . import variable
 from .utils import listify, dict_to_str, orient
 from .constants import IND, DEP, INDEP
 from . import settings
+from copy import deepcopy
 
 def hashable(obj):
     ''' Make an hashable representation of an object for hashlib '''
@@ -459,6 +460,9 @@ class Box(list):
             return super().__getitem__(keys)
     
     def copy(self):
+        return Box(deepcopy(self))
+    
+    def copy_shallow(self):
         return Box(self)
         
     def show(self, lst=None):
