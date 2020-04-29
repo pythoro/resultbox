@@ -71,6 +71,10 @@ def expand(source, store, specified=None):
 
 class Store(dict):
     ''' A store is a container for Variables  '''
+    
+    def __init__(self, name=None):
+        self.name = name
+    
     def new(self, name, doc=None, unit=None, components=None, sep=' - ',
             category=None, tags=None, safe=True):
         ''' Create a new variable 
