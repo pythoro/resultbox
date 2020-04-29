@@ -71,7 +71,7 @@ def expand(source, store, specified=None):
 class Store(dict):
     ''' A store is a container for Variables  '''
     def new(self, name, doc=None, unit=None, components=None, sep=' - ',
-            category=None, tags=None):
+            category=None, tags=None, safe=True):
         ''' Create a new variable 
         
         Args:
@@ -93,9 +93,11 @@ class Store(dict):
         '''
         new = Variable(name, doc, unit, components=components, sep=sep,
                        category=category, tags=tags)
-        if new.key in self:
+        if new.key in self and safe:
             raise KeyError('Key "' + str(name) + '" already exists. Names '
                           + 'must be unique.')
+        elif new.key in self and not safe:
+            return self[new.key]
         self[new.key] = new
         return new
     
