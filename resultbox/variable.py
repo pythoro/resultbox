@@ -74,9 +74,10 @@ class Store(dict):
     
     def __init__(self, name=None):
         self.name = name
+        self._id_dct = {}
     
     def new(self, name, doc=None, unit=None, components=None, sep=' - ',
-            category=None, tags=None, safe=True):
+            category=None, tags=None, safe=True, identifier=None):
         ''' Create a new variable 
         
         Args:
@@ -104,6 +105,8 @@ class Store(dict):
         elif new.key in self and not safe:
             return self[new.key]
         self[new.key] = new
+        if identifier is not None:
+            self._id_dct[identifier] = new.key
         return new
     
     def nearest(self, key):
@@ -147,8 +150,20 @@ class Store(dict):
             if not pd.isna(dct['tags']):
                 dct['tags'] = dct['tags'].split(' ')
             self.add(**dct, safe=False)
+    
+    def __getattr__(self, key):
+        if key in self._id_dct:
+            return self[self._id_dct[key]]
+        raise AttributeError('Indentifier "' + str(key) + '" not in store.')
+
+    def __missing__(self, key):
+        if key in self._id_dct:
+            return self[self._id_dct[key]]
+        else:
+            return super().__missing__(key)
             
     add = new
+
 
 class Variable(str):
     ''' Metadata for specific data 
@@ -271,8 +286,10 @@ class Aliases(dict):
     instance provides methods to 'translate' (swap) aliases within standard
     data structures to be their corresponding variables.
     '''
-    def __init__(self, data):
+    def __init__(self, data=None, name=None):
+        data = {} if data is None else data
         self.update(data)
+        self.name = name
         
     def __missing__(self, key):
         return key

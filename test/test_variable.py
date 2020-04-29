@@ -69,6 +69,16 @@ class Test_Store(unittest.TestCase):
         test2 = s['test suffix']
         self.assertTrue(v2 is test2)
             
+    def test_identifier_getitem(self):
+        s = Store()
+        v = s.add('test', identifier='TEST')
+        self.assertEqual(s['TEST'], v)
+        
+    def test_identifier_getattr(self):
+        s = Store()
+        v = s.add('test', identifier='TEST')
+        self.assertEqual(s.TEST, v)
+        
 
 class Test_Variable(unittest.TestCase):
     def test_init(self):
