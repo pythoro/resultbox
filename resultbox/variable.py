@@ -14,6 +14,7 @@ can let resultbox take care of the rest.
 
 """
 
+import pandas as pd
 from difflib import SequenceMatcher
 from . import utils
 
@@ -133,6 +134,16 @@ class Store(dict):
             kwargs['name'] = new_name
             return self.new(**kwargs)
     
+    def add_csv(self, fname):
+        df = pd.read_csv(fname)
+        records = df.to_dict(orient='rows')
+        for dct in records:
+            if not pd.isna(dct['components']):
+                dct['components'] = dct['components'].split(' ')
+            if not pd.isna(dct['tags']):
+                dct['tags'] = dct['tags'].split(' ')
+            self.add(**dct, safe=False)
+            
     add = new
 
 class Variable(str):
