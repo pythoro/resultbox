@@ -68,7 +68,7 @@ class Test_Val_To_Str(unittest.TestCase):
         self.assertEqual('[1.5 2 3.4]', utils.val_to_str(np.array([1.5, 2.0, 3.4])))
 
     def test_ndarray_float_3(self):
-        self.assertEqual('[1.5e+02 12 -1.5e+02]', utils.val_to_str(np.array([151.2, 12, -150])))
+        self.assertEqual('[151 12 -150]', utils.val_to_str(np.array([151.2, 12, -150])))
 
 
 class Test_List_To_Str(unittest.TestCase):
@@ -79,10 +79,10 @@ class Test_List_To_Str(unittest.TestCase):
         self.assertEqual('[4 5.6 7.8]', utils.val_to_str([4, 5.6, 7.8]))
         
     def test_list_3(self):
-        self.assertEqual('[-1.1e+02 -1.7e+02 -47]', utils.val_to_str([-111.8,  -171.4,  -47.3]))
+        self.assertEqual('[-112 -171 -47.3]', utils.val_to_str([-111.8,  -171.4,  -47.3]))
 
     def test_list_4(self):
-        self.assertEqual('[12 1.4 5.6 5.5 1.2 ...]', utils.val_to_str([11.8, 1.4, 5.6, 5.5,
+        self.assertEqual('[11.8 1.4 5.6 5.5 1...]', utils.val_to_str([11.8, 1.4, 5.6, 5.5,
                             1.2, 2.3, 4.5, 2.6]))
 
         

@@ -171,13 +171,13 @@ def list_to_str(lst, length=18, sep=' ', brackets=True):
     l = [val_to_str(num) for num in lst]
     s = sep.join(l)
     if len(s) > length and len(lst) > 3:
-        s = s[:length] + ' ...'
+        s = s[:length] + '...'
     if brackets:
         return '[' + s + ']'
     else:
         return s
 
-def vec_to_str(num, precision=2, list_sep=' '):
+def vec_to_str(num, precision=3, list_sep=' '):
     format_str = '{:0.' + str(precision) + 'g}'
     if isinstance(num, list):
         return list_to_str(num, sep=list_sep)
@@ -187,7 +187,7 @@ def vec_to_str(num, precision=2, list_sep=' '):
         else:
             return list_to_str(num.flatten().tolist())
 
-def val_to_str(num, precision=2, list_sep=' ', length=18):
+def val_to_str(num, precision=3, list_sep=' ', length=18):
     ''' Format a single number as a nice-to-look-at string 
     
     Args:
