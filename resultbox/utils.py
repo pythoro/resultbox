@@ -161,7 +161,7 @@ def list_to_str(lst, length=18, sep=' ', brackets=True):
     Args:
         lst (list): A list of values
         length (int): The maximum length of the output string. The string
-        is truncated at this length.
+        is truncated at this length if the list length is above 3.
         sep (str): The separator to use between values
         brakets (bool): True to add square brackets around the list.
     
@@ -169,7 +169,9 @@ def list_to_str(lst, length=18, sep=' ', brackets=True):
         str: The string.
     '''
     l = [val_to_str(num) for num in lst]
-    s = sep.join(l)[:length]
+    s = sep.join(l)
+    if len(s) > length and len(lst) > 3:
+        s = s[:length] + ' ...'
     if brackets:
         return '[' + s + ']'
     else:
