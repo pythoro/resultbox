@@ -62,6 +62,13 @@ def get_lst4():
            {'index': 7, 'independent': {'a': 2, 'b': 2}, 'dependent': {'c': [1, 2], 'd': [19, 37]}}]
     return lst
 
+def get_lst4_uneven():
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1}, 'dependent': {'c': [1, 2], 'd': [12, 30]}},
+           {'index': 1, 'independent': {'a': 1, 'b': 2}, 'dependent': {'c': [1, 2, 3], 'd': [13, 31, 20]}},
+           {'index': 4, 'independent': {'a': 2, 'b': 1}, 'dependent': {'c': [1, 2], 'd': [16, 34]}},
+           {'index': 7, 'independent': {'a': 2, 'b': 2}, 'dependent': {'c': [1, 2], 'd': [19, 37]}}]
+    return lst
+
 def get_lst5():
     lst = [{'index': 0, 'independent': {'a': 1, 'b': 1},
                 'dependent': {'c': [1, 2], 'd': [[1, 2], [3, 4], [5, 6]]}},
@@ -251,12 +258,27 @@ a b
         index = 'c'
         index_vals = None
         df = t.vector_table(box, values, index, index_vals, orient='cols')
-        expected = '''c     1   2
-a b        
-1 1  12  30
-  2  13  31
-2 1  16  34
-  2  19  37'''
+        expected = '''c       1     2
+a b            
+1 1  12.0  30.0
+  2  13.0  31.0
+2 1  16.0  34.0
+  2  19.0  37.0'''
+        self.assertEqual(expected, str(df))
+
+    def test_vector_table_cols_default_index_uneven(self):
+        t = Tabulator()
+        box = Box(get_lst4_uneven())
+        values = 'd'
+        index = 'c'
+        index_vals = None
+        df = t.vector_table(box, values, index, index_vals, orient='cols')
+        expected = '''c       1     2     3
+a b                  
+1 1  12.0  30.0   NaN
+  2  13.0  31.0  20.0
+2 1  16.0  34.0   NaN
+  2  19.0  37.0   NaN'''
         self.assertEqual(expected, str(df))
         
     def test_vector_table_arr(self):

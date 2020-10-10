@@ -231,8 +231,25 @@ class Tabulator():
         labels2 = [add(d, label, c) for d in labels for c in components]
         return arr2, labels2
 
+    def _make_spanning_index(self, index_list, step=None):
+        test = index_list[0]
+        are_all_the_same = True
+        for index in index_list[1:]:
+            are_all_the_same = np.array_equal(test, index)
+            if not are_all_the_same:
+                break
+            test = index
+        if are_all_the_same:
+            return index_list[0]
+        minimum = np.min([np.min(index) for index in index_list])
+        maximum = np.max([np.max(index) for index in index_list])
+        step = index_list[0][1] - index_list[0][0] if step is None else step
+        ret = np.arange(minimum, maximum + step, step)
+        print(ret)
+        return ret
+
     def vector_table(self, box, values, index, index_vals=None, orient='rows',
-                     components=None, combine=True):
+                     components=None, combine=True, step=None):
         ''' A table of vectors with an interpolated index
         
         Args:
@@ -248,6 +265,7 @@ class Tabulator():
             be omitted.
             combine (bool): Combine entries with the same values of independent
             variables (defaults to True).
+            step (float): An optional step size for the index.
             
         Note:
             Headings are automatically created.
@@ -255,24 +273,18 @@ class Tabulator():
         values_list, index_list, labels = box.vectors([values, index],
                                                       labels='dict',
                                                       combine=combine)
-        interp_list = []
-        index_vals_candidate = None
+        
         labels = [{k: str(v) for k, v in label.items()} for label in labels]
+        interp_list = []
+        if index_vals is None:
+            index_vals = self._make_spanning_index(index_list, step=step)
+        else:
+            index_vals = np.squeeze(index_vals)
         for vec, ind_vec in zip(values_list, index_list):
-            if index_vals is None:
-                if index_vals_candidate is None:
-                    index_vals_candidate = ind_vec
-                else:
-                    if not np.array_equal(ind_vec, index_vals_candidate):
-                        raise ValueError('Vector indices must be consistent if'
-                                         + ' not specified.')
-                interp_list.append(vec)
-            else:
-                interp_list.append(utils.interp(ind_vec,
-                                            np.squeeze(vec),
-                                            np.squeeze(index_vals)))
-        if index_vals_candidate is not None:
-            index_vals = index_vals_candidate
+            v = np.squeeze(vec)
+            ind_v = np.squeeze(ind_vec)
+            interpolated = utils.interp(ind_v, v, index_vals)
+            interp_list.append(interpolated)
         if np.ndim(interp_list) == 3:
             if isinstance(values, variable.Variable):
                 lab = values.label 
@@ -293,7 +305,6 @@ class Tabulator():
             df = pd.DataFrame(interp_list, index=ind, columns=index_vals)
             df = df.rename_axis(index, axis=1)
             self._order_index(df, ind_vars)
-        
         return df
     
     

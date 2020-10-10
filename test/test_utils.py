@@ -37,7 +37,7 @@ class Test_Interp(unittest.TestCase):
         xs = np.array([0, 1, 2, 3])
         ys = np.array([5, 6, 7, 8])
         xs_new = np.array([-0.5, 0.5, 1.5, 2.5, 3.5])
-        ys_new = utils.interp(xs, ys, xs_new)
+        ys_new = utils.interp(xs, ys, xs_new, fill_value='bounds')
         expected = np.array([5.0, 5.5, 6.5, 7.5, 8.0])
         self.assertTrue(all(np.isclose(expected, ys_new)))
 
