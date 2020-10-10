@@ -118,7 +118,7 @@ def _interp_1D(xs, ys, new_xs, min_diff=1e-4, bounds_error=False,
            fill_value=None, **kwargs):
     ''' Return interpolated values for 1D array '''
     xs, ys = cosort(xs, ys, min_diff=min_diff)
-    if fill_value is None:
+    if fill_value == 'bounds':
         fill_value = (ys[0], ys[-1])
     f = interp1d(xs, ys, bounds_error=bounds_error, fill_value=fill_value,
                  **kwargs)
