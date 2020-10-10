@@ -61,6 +61,19 @@ def scalarise(dct):
             if isinstance(v, np.ndarray) and np.size(v) == 1:
                 dct[subkey][k] = v.item()
 
+def check_objects(row):
+    subkeys = [INDEP, DEP]
+    for subkey in subkeys:
+        for k, v in row[subkey].items():
+            if isinstance(v, np.ndarray):
+                if v.dtype == 'O': # Object
+                    if settings.NO_OBJECT_ARRAYS:  
+                        raise ValueError("Input for variable '" + k +
+                            "' is an object array." +
+                            " Check each row is the same shape.")
+                    elif settings.FORCE_OBJECTS_TO_FLOATS:
+                        row[subkey][k] = v.astype(np.float64)
+
 
 class Box(list):
     ''' A versatile container to manage and work with result data 
@@ -135,6 +148,7 @@ class Box(list):
                  INDEP: indep.copy(),
                  DEP: dep}
         validate_row(dfull)
+        check_objects(dfull)
         if settings.CONVERT_SCALAR_ARRAYS:
             scalarise(dfull)
         if settings.PRINT_UPDATES:
