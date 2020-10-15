@@ -232,6 +232,8 @@ class Tabulator():
         return arr2, labels2
 
     def _make_spanning_index(self, index_list, step=None):
+        if len(index_list) == 0:
+            return None
         test = index_list[0]
         are_all_the_same = True
         for index in index_list[1:]:
@@ -245,7 +247,6 @@ class Tabulator():
         maximum = np.max([np.max(index) for index in index_list])
         step = index_list[0][1] - index_list[0][0] if step is None else step
         ret = np.arange(minimum, maximum + step, step)
-        print(ret)
         return ret
 
     def vector_table(self, box, values, index, index_vals=None, orient='rows',
