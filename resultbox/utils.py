@@ -115,7 +115,7 @@ def unpack(arr, labels):
     return [v for v in orient(arr, labels, axis='rows')]
 
 def _interp_1D(xs, ys, new_xs, min_diff=1e-4, bounds_error=False, 
-           fill_value=None, **kwargs):
+           fill_value=np.nan, **kwargs):
     ''' Return interpolated values for 1D array '''
     xs, ys = cosort(xs, ys, min_diff=min_diff)
     if fill_value == 'bounds':
@@ -125,7 +125,7 @@ def _interp_1D(xs, ys, new_xs, min_diff=1e-4, bounds_error=False,
     return f(new_xs)    
 
 def interp(xs, ys, new_xs, min_diff=1e-4, bounds_error=False, 
-           fill_value=None, **kwargs):
+           fill_value=np.nan, **kwargs):
     ''' Interpolate an array based on a matching vector and target vector 
     
     Args:
