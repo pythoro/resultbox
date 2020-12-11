@@ -231,7 +231,7 @@ class Tabulator():
         labels2 = [add(d, label, c) for d in labels for c in components]
         return arr2, labels2
 
-    def _make_spanning_index(self, index_list, step=None):
+    def _make_spanning_index(self, index_list, step=None, n=None):
         if len(index_list) == 0:
             return None
         test = index_list[0]
@@ -245,12 +245,15 @@ class Tabulator():
             return index_list[0]
         minimum = np.min([np.min(index) for index in index_list])
         maximum = np.max([np.max(index) for index in index_list])
-        step = index_list[0][1] - index_list[0][0] if step is None else step
-        ret = np.arange(minimum, maximum + step, step)
+        if n is None:
+            step = index_list[0][1] - index_list[0][0] if step is None else step
+            ret = np.arange(minimum, maximum + step, step)
+        else:
+            ret = np.linspace(minimum, maximum, n)
         return ret
 
     def vector_table(self, box, values, index, index_vals=None, orient='rows',
-                     components=None, combine=True, step=None):
+                     components=None, combine=True, step=None, n=None):
         ''' A table of vectors with an interpolated index
         
         Args:
@@ -267,6 +270,7 @@ class Tabulator():
             combine (bool): Combine entries with the same values of independent
             variables (defaults to True).
             step (float): An optional step size for the index.
+            n (int): An optional number of values for the index.
             
         Note:
             Headings are automatically created.
@@ -278,7 +282,7 @@ class Tabulator():
         labels = [{k: str(v) for k, v in label.items()} for label in labels]
         interp_list = []
         if index_vals is None:
-            index_vals = self._make_spanning_index(index_list, step=step)
+            index_vals = self._make_spanning_index(index_list, step=step, n=n)
         else:
             index_vals = np.squeeze(index_vals)
         for vec, ind_vec in zip(values_list, index_list):
