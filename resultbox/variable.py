@@ -98,7 +98,7 @@ class Store(dict):
             The 'add' method is a copy of this method.
         '''
         new = Variable(name, doc, unit, components=components, sep=sep,
-                       category=category, tags=tags)
+                       category=category, tags=tags, identifier=identifier)
         if new.key in self and safe:
             raise KeyError('Key "' + str(name) + '" already exists. Names '
                           + 'must be unique.')
@@ -191,7 +191,8 @@ class Variable(str):
                components=None,
                sep=' - ',
                category=None,
-               tags=None):
+               tags=None,
+               identifier=None):
         return super().__new__(cls, cls._append_unit(name, unit))
     
     def __init__(self,
@@ -201,14 +202,16 @@ class Variable(str):
                  components=None,
                  sep=' - ',
                  category=None,
-                 tags=None):
+                 tags=None,
+                 identifier=None):
         self.name = name
-        self.doc = name if doc is None else doc
+        self.doc = doc if doc is None else doc
         self.unit = unit
         self.components = components
         self.sep = sep
         self.category = category
         self.tags = None if tags is None else utils.listify(tags)
+        self.identifier = identifier
         self.key = self._append_unit(self.name, self.unit)
         
     def to_dict(self):
@@ -219,7 +222,8 @@ class Variable(str):
                 'components': self.components,
                 'sep': self.sep,
                 'category': self.category,
-                'tags': self.tags}
+                'tags': self.tags,
+                'identifier': self.identifier}
         return d
     
     @classmethod

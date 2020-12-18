@@ -53,13 +53,13 @@ class Test_Packing(unittest.TestCase):
                 'dependent': {v1: 5, v2: 7}}]
         b = Box(lst)
         res = persist.serialise_vars(b)
-        expected = ['name=a;doc=docstring_1;unit=mm;components=None;sep= - ;category=None;tags=None',
-                    'name=b;doc=docstring_2;unit=m/s;components=None;sep= - ;category=None;tags=None']
+        expected = ['name=a;doc=docstring_1;unit=mm;components=None;sep= - ;category=None;tags=None;identifier=None',
+                    'name=b;doc=docstring_2;unit=m/s;components=None;sep= - ;category=None;tags=None;identifier=None']
         self.assertListEqual(res, expected)
 
     def test_deserialise_vars(self):
-        lst = ['name=a;doc=docstring_1;unit=mm;components=None;sep= - ;category=None;tags=None',
-               'name=b;doc=docstring_2;unit=m/s;components=None;sep= - ;category=None;tags=None']
+        lst = ['name=a;doc=docstring_1;unit=mm;components=None;sep= - ;category=None;tags=None;identifier=None',
+               'name=b;doc=docstring_2;unit=m/s;components=None;sep= - ;category=None;tags=None;identifier=None']
         res = persist.deserialise_vars(lst)
         store = Store()
         v1 = store.add('a', 'docstring_1', 'mm')
@@ -80,8 +80,8 @@ class Test_Packing(unittest.TestCase):
                           'independent': {'a [mm]': 1, 'b [m/s]': 2},
                           'dependent': {'a [mm]': 5, 'b [m/s]': 7}}],
                     'vars': 
-                        ['name=a;doc=docstring_1;unit=mm;components=None;sep= - ;category=None;tags=None',
-                         'name=b;doc=docstring_2;unit=m/s;components=None;sep= - ;category=None;tags=None']}
+                        ['name=a;doc=docstring_1;unit=mm;components=None;sep= - ;category=None;tags=None;identifier=None',
+                         'name=b;doc=docstring_2;unit=m/s;components=None;sep= - ;category=None;tags=None;identifier=None']}
         self.assertDictEqual(dct, expected)
 
     def test_unpack(self):
@@ -90,8 +90,8 @@ class Test_Packing(unittest.TestCase):
                       'independent': {'a [mm]': 1, 'b [m/s]': 2},
                       'dependent': {'a [mm]': 5, 'b [m/s]': 7}}],
                 'vars': 
-                    ['name=a;doc=docstring_1;unit=mm;components=None;sep= - ;category=None;tags=None',
-                     'name=b;doc=docstring_2;unit=m/s;components=None;sep= - ;category=None;tags=None']}
+                    ['name=a;doc=docstring_1;unit=mm;components=None;sep= - ;category=None;tags=None;identifier=None',
+                     'name=b;doc=docstring_2;unit=m/s;components=None;sep= - ;category=None;tags=None;identifier=None']}
         store = Store()
         v1 = store.add('a', 'docstring_1', 'mm')
         v2 = store.add('b', 'docstring_2', 'm/s')
