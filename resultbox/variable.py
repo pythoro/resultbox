@@ -141,16 +141,34 @@ class Store(dict):
             kwargs['name'] = new_name
             return self.new(**kwargs)
     
-    def add_csv(self, fname):
-        df = pd.read_csv(fname)
+    def add_csv(self, fname, **kwargs):
+        usecols = ['identifier', 'name', 'doc', 'unit', 'components',
+                   'sep', 'category', 'tags']
+        df = pd.read_csv(fname, usecols=usecols, **kwargs)
         records = df.to_dict(orient='rows')
         for dct in records:
-            if not pd.isna(dct['components']):
-                dct['components'] = dct['components'].split(' ')
-            if not pd.isna(dct['tags']):
-                dct['tags'] = dct['tags'].split(' ')
+            for k in dct.keys():
+                if pd.isna(dct[k]):
+                    dct[k] = None
+            if dct['components'] is not None:
+                components = dct['components'].replace(', ', ',').split(',')
+                dct['components'] = components
+            if dct['tags'] is not None:
+                dct['tags'] = dct['tags'].replace(', ', ',').split(',')
             self.add(**dct, safe=False)
     
+    def to_csv(self, fname, **kwargs):
+        records = []
+        for v in self.values():
+            dct = v.to_dict()
+            if dct['components'] is not None:
+                dct['components'] = ', '.join(dct['components'])
+            if dct['tags'] is not None:
+                dct['tags'] = ', '.join(dct['tags'])
+            records.append(dct)
+        df = pd.DataFrame.from_records(records)
+        df.to_csv(fname)
+            
     def __getattr__(self, key):
         if key in self._id_dct:
             return self[self._id_dct[key]]
@@ -294,6 +312,15 @@ class Aliases(dict):
         data = {} if data is None else data
         self.update(data)
         self.name = name
+        
+    def add_csv(self, fname, store, **kwargs):
+        df = pd.read_csv(fname, usecols=['identifier', 'alias'], **kwargs)
+        df = df.dropna()
+        keys = df['identifier']
+        vs = [store[k] for k in keys]
+        aliases = df['alias']
+        dct = {k: v for k, v in zip(aliases, vs)}
+        self.update(dct)
         
     def __missing__(self, key):
         return key

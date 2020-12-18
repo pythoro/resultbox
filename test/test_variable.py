@@ -5,6 +5,7 @@ Created on Sun Sep  1 20:04:58 2019
 @author: Reuben
 """
 
+import os
 import unittest
 
 from resultbox import Store, Variable, Aliases
@@ -78,6 +79,39 @@ class Test_Store(unittest.TestCase):
         s = Store()
         v = s.add('test', identifier='TEST')
         self.assertEqual(s.TEST, v)
+
+    def test_add_csv(self):
+        s = Store()
+        folder = os.path.dirname(os.path.abspath(__file__))
+        fname = os.path.join(folder, 'test_variable.csv')
+        v = s.add_csv(fname, encoding='utf-8')
+        d1 =  {'name': 'variable a',
+               'doc': None,
+               'unit': 'mm',
+               'components': None,
+               'sep': ' - ',
+               'category': 'test',
+               'tags': None,
+               'identifier': 'VAR_A'}
+        self.assertDictEqual(d1, s['VAR_A'].to_dict())
+        d2 =  {'name': 'variable b',
+               'doc': None,
+               'unit': 's',
+               'components': None,
+               'sep': ' - ',
+               'category': 'test',
+               'tags': ['new', 'tag'],
+               'identifier': 'VAR_B'}
+        self.assertDictEqual(d2, s['VAR_B'].to_dict())
+        d3 =  {'name': 'variable c',
+               'doc': 'some doc',
+               'unit': 'm',
+               'components': ['x', 'y', 'z'],
+               'sep': ' - ',
+               'category': 'test',
+               'tags': None,
+               'identifier': 'VAR_C'}
+        self.assertDictEqual(d3, s['VAR_C'].to_dict())
         
 
 class Test_Variable(unittest.TestCase):
