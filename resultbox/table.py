@@ -63,7 +63,11 @@ def to_csv(df, fname, variable=None, mode='w', sep=',', **kwargs):
     fname = utils.ensure_ext(fname, '.csv')
     s = '\n\n' if mode=='a' else ''
     if variable is not None:
-        s += variable + '\n' + variable.doc + '\n\n'
+        if isinstance(variable, (list, tuple)):
+            for v in variable:
+                s += v + '\n' + v.doc + '\n\n'
+        else:
+            s += variable + '\n' + variable.doc + '\n\n'
     with open(fname, mode=mode) as f:
         f.write(s)
     if isinstance(df.columns, pd.MultiIndex):

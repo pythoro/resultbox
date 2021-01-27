@@ -22,6 +22,8 @@ def vector_plot(box, x_var, y_var, dct=None, fig_num=None, legend=False, xlim=No
         box (Box): A Box instance
         x_var (Variable): The x variable
         y_var (Variable): The y variable
+        dct (dict): A dictionary of key-value pairs that must be 
+            present in all rows.
         fig_num (int): Optional figure number. 
         legend (bool): Display the legend
         xlim ((float, float)): Optional tuple of x limits
