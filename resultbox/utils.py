@@ -212,6 +212,8 @@ def val_to_str(num, precision=3, list_sep=' ', length=18):
         return dict_to_str(num, list_sep=list_sep, length=length)
     elif isinstance(num, np.ndarray):
         return vec_to_str(num, precision=precision, list_sep=list_sep)
+    else:
+        return str(num)
         
 def dict_to_str(dct, val_sep=' ', key_sep=' ', list_sep=',', length=18):
     ''' Convert a dict to a nice-to-look-at string 
