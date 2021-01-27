@@ -313,12 +313,17 @@ class Aliases(dict):
         self.update(data)
         self.name = name
         
-    def add_csv(self, fname, store, **kwargs):
-        df = pd.read_csv(fname, usecols=['identifier', 'alias'], **kwargs)
+    def add_csv(self,
+                fname,
+                store,
+                identifier_col='identifier',
+                alias_col='alias',
+                **kwargs):
+        df = pd.read_csv(fname, usecols=[identifier_col, alias_col], **kwargs)
         df = df.dropna()
-        keys = df['identifier']
+        keys = df[identifier_col]
         vs = [store[k] for k in keys]
-        aliases = df['alias']
+        aliases = df[alias_col]
         dct = {k: v for k, v in zip(aliases, vs)}
         self.update(dct)
         
