@@ -109,6 +109,19 @@ class Store(dict):
             self._id_dct[identifier] = new.key
         return new
     
+    def id_starts_with(self, s):
+        """ Returns a list of variables with identifies matching a suffix 
+        
+        Args:
+            s (str): The string at the start of the identifiers.
+        
+        Returns:
+            list: List of matching variables. If no variables match, the
+            list will be empty.
+        """
+        d = self._id_dct
+        return [v for k, v in d.items() if k.startswith(s)]
+    
     def nearest(self, key):
         ''' Return the variable that best best-matches the input string
         
