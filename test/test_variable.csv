@@ -1,4 +1,4 @@
 ﻿identifier,name,doc,unit,sep,components,category,tags
 VAR_A,variable a,,mm, - ,,test,
-VAR_B,variable b,,s, - ,,test,new tag
-VAR_C,variable c,some doc,m, - ,x y z,test,
+VAR_B,variable b,,s, - ,,test,"new, tag"
+VAR_C,variable c,some doc,m, - ,"x, y, z",test,
