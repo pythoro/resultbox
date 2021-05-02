@@ -247,8 +247,8 @@ class Tabulator():
             test = index
         if are_all_the_same:
             return index_list[0]
-        minimum = np.min([np.min(index) for index in index_list])
-        maximum = np.max([np.max(index) for index in index_list])
+        minimum = np.min([np.nanmin(index) for index in index_list])
+        maximum = np.max([np.nanmax(index) for index in index_list])
         if n is None:
             step = index_list[0][1] - index_list[0][0] if step is None else step
             ret = np.arange(minimum, maximum + step, step)
@@ -257,7 +257,8 @@ class Tabulator():
         return ret
 
     def vector_table(self, box, values, index, index_vals=None, orient='rows',
-                     components=None, combine=True, step=None, n=None):
+                     components=None, combine=True, step=None, n=None,
+                     min_diff=None):
         ''' A table of vectors with an interpolated index
         
         Args:
@@ -292,7 +293,8 @@ class Tabulator():
         for vec, ind_vec in zip(values_list, index_list):
             v = np.squeeze(vec)
             ind_v = np.squeeze(ind_vec)
-            interpolated = utils.interp(ind_v, v, index_vals)
+            interpolated = utils.interp(ind_v, v, index_vals,
+                                        min_diff=min_diff)
             interp_list.append(interpolated)
         if np.ndim(interp_list) == 3:
             if isinstance(values, variable.Variable):

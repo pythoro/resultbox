@@ -124,7 +124,7 @@ def _interp_1D(xs, ys, new_xs, min_diff=1e-4, bounds_error=False,
                  **kwargs)
     return f(new_xs)    
 
-def interp(xs, ys, new_xs, min_diff=1e-4, bounds_error=False, 
+def interp(xs, ys, new_xs, min_diff=None, bounds_error=False, 
            fill_value=np.nan, **kwargs):
     ''' Interpolate an array based on a matching vector and target vector 
     
@@ -144,6 +144,8 @@ def interp(xs, ys, new_xs, min_diff=1e-4, bounds_error=False,
     '''
     n = np.ndim(ys)
     xs = xs.flatten() if isinstance(xs, np.ndarray) else xs
+    if min_diff is None:
+        mid_diff = 1e-12 * (np.max(xs) - np.min(xs))
     if n == 1:
         return _interp_1D(xs, ys, new_xs, min_diff, bounds_error, fill_value,
                           **kwargs)
