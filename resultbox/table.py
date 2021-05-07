@@ -288,8 +288,7 @@ class Tabulator():
         interp_list = []
         if index_vals is None:
             index_vals = self._make_spanning_index(index_list, step=step, n=n)
-        else:
-            index_vals = np.squeeze(index_vals)
+        index_vals = np.squeeze(index_vals)
         for vec, ind_vec in zip(values_list, index_list):
             v = np.squeeze(vec)
             ind_v = np.squeeze(ind_vec)

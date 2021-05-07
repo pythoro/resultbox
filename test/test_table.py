@@ -76,7 +76,16 @@ def get_lst5():
                 'dependent': {'c': [1, 2], 'd': [[7, 8], [9, 10], [11, 12]]}}]
     return lst
 
+def get_lst6():
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1},
+                'dependent': {'c': [1, 2], 'd': [[1, 2], [3, 4], [5, 6]]}}]
+    return lst
     
+def get_lst7():
+    lst = [{'index': 0, 'independent': {'a': 1, 'b': 1},
+                'dependent': {'c': [[1], [2]], 'd': [[1, 2], [3, 4], [5, 6]]}}]
+    return lst
+
 class Test_Tabulator(unittest.TestCase):
     def test_tabulate(self):
         t = Tabulator()
@@ -297,7 +306,57 @@ c
 1   1.0  3.0  5.0  7.0   9.0  11.0
 2   2.0  4.0  6.0  8.0  10.0  12.0'''
         self.assertEqual(expected, str(df))
+
+    def test_vector_table_arr_single_entry(self):
+        t = Tabulator()
+        box = Box(get_lst6())
+        values = 'd'
+        index = 'c'
+        index_vals = [1, 2]
+        components = ['x', 'y', 'z']
+        df = t.vector_table(box, values, index, index_vals,
+                            components=components)
+        expected = '''a     1          
+b     1          
+d:    x    y    z
+c                
+1   1.0  3.0  5.0
+2   2.0  4.0  6.0'''
+        self.assertEqual(expected, str(df))
         
+    def test_vector_table_arr_single_entry_interpolated(self):
+        t = Tabulator()
+        box = Box(get_lst6())
+        values = 'd'
+        index = 'c'
+        index_vals = [1, 2]
+        components = ['x', 'y', 'z']
+        df = t.vector_table(box, values, index,
+                            components=components)
+        expected = '''a     1          
+b     1          
+d:    x    y    z
+c                
+1   1.0  3.0  5.0
+2   2.0  4.0  6.0'''
+        self.assertEqual(expected, str(df))
+        
+    def test_vector_table_arr_single_entry_interpolated_2D(self):
+        """ The index is n-by-1, and must be squeezed """
+        t = Tabulator()
+        box = Box(get_lst7())
+        values = 'd'
+        index = 'c'
+        components = ['x', 'y', 'z']
+        df = t.vector_table(box, values, index,
+                            components=components)
+        expected = '''a     1          
+b     1          
+d:    x    y    z
+c                
+1   1.0  3.0  5.0
+2   2.0  4.0  6.0'''
+        self.assertEqual(expected, str(df))
         
 class Test_CSV(unittest.TestCase):
     def test_to_csv_simple(self):
