@@ -120,7 +120,7 @@ class Store(dict):
             list will be empty.
         """
         d = self._id_dct
-        return [v for k, v in d.items() if k.startswith(s)]
+        return [self[v] for k, v in d.items() if k.startswith(s)]
     
     def nearest(self, key):
         ''' Return the variable that best best-matches the input string
