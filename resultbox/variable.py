@@ -72,9 +72,10 @@ def expand(source, store, specified=None):
 class Store(dict):
     ''' A store is a container for Variables  '''
     
-    def __init__(self, name=None):
+    def __init__(self, name=None, unique=True):
         self.name = name
         self._id_dct = {}
+        self._unique = unique
     
     def new(self, name, doc=None, unit=None, components=None, sep=' - ',
             category=None, tags=None, safe=True, identifier=None):
@@ -84,12 +85,15 @@ class Store(dict):
             name (str): The variable name
             doc (str): A documentation string. Defaults to None.
             unit (str): The units of the variable (usually abbreviated).
-            Defaults to None.
+                Defaults to None.
             components (list[str]): A list of names for each
             component. Defaults to None.
             sep (str): The separator between the name and any component names.
             category (str): An optional category
             tags (list[str]): Optional tags
+            safe (bool): Optional. If true, do not allow duplicates. Defaults
+                to True.
+            identifier (str): [Optional] Identifier for the variable.
             
         Returns:
             Variable: The new variable
@@ -99,11 +103,12 @@ class Store(dict):
         '''
         new = Variable(name, doc, unit, components=components, sep=sep,
                        category=category, tags=tags, identifier=identifier)
-        if new.key in self and safe:
-            raise KeyError('Key "' + str(name) + '" already exists. Names '
-                          + 'must be unique.')
-        elif new.key in self and not safe:
-            return self[new.key]
+        if self._unique:
+            if new.key in self and safe:
+                raise KeyError('Key "' + str(name) + '" already exists. Names '
+                              + 'must be unique.')
+            elif new.key in self and not safe:
+                return self[new.key]
         self[new.key] = new
         if identifier is not None:
             self._id_dct[identifier] = new.key
