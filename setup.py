@@ -12,7 +12,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="resultbox",
-    version="0.0.7",
+    version="0.1.0",
     author="Reuben Rusk",
     author_email="pythoro@mindquip.com",
     description="Easily manage, tabulate, plot, and store analysis results.",
