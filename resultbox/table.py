@@ -15,6 +15,9 @@ import numpy as np
 from . import constants
 import warnings
 
+from .variable import Variable
+
+
 def encoded(obj):
     if isinstance(obj, str):
         return bytes(obj, 'utf-8')
@@ -65,8 +68,14 @@ def to_csv(df, fname, variable=None, mode='w', sep=',', **kwargs):
     if variable is not None:
         if isinstance(variable, (list, tuple)):
             for v in variable:
+                if not isinstance(v, Variable):
+                    raise ValueError("Did not receive a Variable instance for "
+                                     + str(v))
                 s += v + '\n' + v.doc + '\n\n'
         else:
+            if not isinstance(variable, Variable):
+                raise ValueError("Did not receive a Variable instance for "
+                                 + str(variable))
             s += variable + '\n' + variable.doc + '\n\n'
     with open(fname, mode=mode) as f:
         f.write(s)
