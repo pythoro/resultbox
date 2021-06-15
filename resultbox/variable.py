@@ -191,7 +191,7 @@ class Store(dict):
         if key in self._id_dct:
             return self[self._id_dct[key]]
         else:
-            return super().__missing__(key)
+            raise KeyError(str(key) + ' was not found in the variable Store.')
             
     add = new
 
