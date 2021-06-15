@@ -117,8 +117,9 @@ class Tabulator():
     def merge_keys(self, *args):
         return [k for ks in args for k in listify(ks)]
     
-    def _prepare_data(self, box, base_keys, store=None):
+    def _prepare_data(self, box, base_keys, values, store=None):
         keys = self.all_keys(base_keys)
+        values = self.all_keys(values)
         minimal = box.minimal()
         if store is not None:
             keys_to_expand = self.get_keys_to_expand(base_keys, store)
@@ -126,7 +127,11 @@ class Tabulator():
             for k in keys_to_expand:
                 keys.remove(k)
                 keys.extend(store[k].subkeys)
-        filtered = box.filtered(keys, minimal)
+                if k in values:
+                    values.remove(k)
+                    values.extend(store[k].subkeys)
+        filtered = box.filtered(values, minimal)
+        filtered = box.filtered(keys, filtered, func='any')
         filtered = box.exclusively(keys, filtered)
         if len(filtered) == 0:
             raise ValueError('No records left in filtered results.')
@@ -172,7 +177,7 @@ class Tabulator():
         index = self.guess_index(box, values, columns) if index is None else index
         columns = [] if columns is None else columns
         base_keys = self.merge_keys(values, columns, index)
-        filtered = self._prepare_data(box, base_keys, store)
+        filtered = self._prepare_data(box, base_keys, listify(values), store)
         if aliases is not None:
             filtered = aliases.translate(filtered)
             values = aliases.translate(values)
@@ -198,7 +203,6 @@ class Tabulator():
                 df = df.append(row, sort=True)
             df = df.reset_index(drop=True)
         # pd.set_option('display.max_columns', 5)
-        # print(df)
         try:
             df = pd.pivot_table(df, values=values, index=index, columns=columns,
                                 aggfunc=aggfunc)

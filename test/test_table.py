@@ -86,6 +86,16 @@ def get_lst7():
                 'dependent': {'c': [[1], [2]], 'd': [[1, 2], [3, 4], [5, 6]]}}]
     return lst
 
+
+def get_lst8():
+    lst = [{'index': 0, 'independent': {'a': 1, 'c': 1}, 'dependent': {'d': 11}},
+           {'index': 1, 'independent': {'a': 1, 'c': 2}, 'dependent': {'d': 12}},
+           {'index': 4, 'independent': {'a': 2, 'b': 1, 'c': 1}, 'dependent': {'d': 15}},
+           {'index': 5, 'independent': {'a': 2, 'b': 1, 'c': 2}, 'dependent': {'d': 16}},
+           {'index': 6, 'independent': {'a': 2, 'b': 2, 'c': 1}, 'dependent': {'d': 17}},
+           {'index': 7, 'independent': {'a': 2, 'b': 2, 'c': 2}, 'dependent': {'d': 18}}]
+    return lst
+
 class Test_Tabulator(unittest.TestCase):
     def test_tabulate(self):
         t = Tabulator()
@@ -425,3 +435,17 @@ c,,,,
 2,30.0,31.0,34.0,37.0
 '''
         self.assertEqual(s, expected)
+
+    def test_tabulate_missing(self):
+        t = Tabulator()
+        box = Box(get_lst8())
+        index = ['a', 'b']
+        columns = ['c']
+        values = 'd'
+        pt = t.tabulate(box=box, values=values, columns=columns, index=index)
+        expected = '''c        1   2
+a b           
+1 -999  11  12
+2  1    15  16
+   2    17  18'''
+        self.assertEqual(str(pt), expected)

@@ -169,7 +169,7 @@ class Box(list):
         dep = {k: v for k, v in zip(keys, values)}
         self.add_dict(indep, dep)
         
-    def filter(self, keys, lst=None):
+    def filter(self, keys, lst=None, func='all'):
         ''' Return a generator for entries that all include the keys
         
         Args:
@@ -179,6 +179,8 @@ class Box(list):
         Returns:
             list: A generator for the filtered entries
         '''
+        f = all if func == 'all' else any
+        
         if lst is None:
             lst = self
         if DEP in lst[0] and INDEP in lst[0]:
@@ -188,14 +190,14 @@ class Box(list):
             
         def filt_func(d):
             if filt_dep:
-                return all([k in d[INDEP] or k in d[DEP]
+                return f([k in d[INDEP] or k in d[DEP]
                             for k in listify(keys)])
             else:
-                return all([k in d for k in listify(keys)])
+                return f([k in d for k in listify(keys)])
             
         return filter(filt_func, lst)
     
-    def filtered(self, keys, lst=None):
+    def filtered(self, keys, lst=None, func='all'):
         ''' Return a list of entries that all include the keys
         
         Args:
@@ -208,7 +210,7 @@ class Box(list):
         lst = self if lst is None else lst
         if len(lst) == 0:
             raise ValueError('No rows in list')
-        return [row for row in self.filter(keys, lst)]
+        return [row for row in self.filter(keys, lst, func=func)]
     
     def iwhere(self, dct=None, lst=None, **kwargs):
         ''' Return a generator for entries that all contain key-value pairs
@@ -269,7 +271,20 @@ class Box(list):
     def exclusively(self, keys, lst=None):
         ''' Return a list of dictionaries that only contain values for keys '''
         minimal = self.minimal() if lst is None else lst
-        return [{k: d[k] for k in keys} for d in minimal]
+        def make_exclusive(d, keys):
+            dct = {}
+            for k in keys:
+                if k in d:
+                    dct[k] = d[k]
+                else:
+                    dct[k] = -999
+            return dct
+        lst = []
+        for d in minimal:
+            dct = make_exclusive(d, keys)
+            if len(dct) > 0:
+                lst.append(dct)
+        return lst
     
     def _combine(self, dct):
         d = self._combined
