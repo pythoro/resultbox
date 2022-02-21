@@ -162,6 +162,11 @@ class Tabulator():
                 cols[i] = var.key
         df.columns = cols
    
+    def _index_present(self, index, box):
+        if len(box.find(index)) > 0:
+            return True
+        return False
+   
     def tabulate(self, box, values, columns=None, index=None, aggfunc='mean',
                  aliases=None, store=None):
         ''' General purpose tabulation

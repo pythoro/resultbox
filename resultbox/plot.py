@@ -10,9 +10,12 @@ import matplotlib.pyplot as plt
 from . import utils
 import warnings
 
-def plot(box, x_var, y_var, fig_num=None, legend=False, xlim=None, 
+def plot(box, x_var, y_var, dct=None, fig_num=None, legend=False, xlim=None, 
                 ylim=None, y_ind=None, **kwargs):
-    pass
+    keys = [x_var, y_var]
+    x_list, y_list, labels = box.vectors(keys, dct=dct)
+    fig = plt.figure(fig_num)
+    plt.scatter(x_list, y_list)
 
 def vector_plot(box, x_var, y_var, dct=None, fig_num=None, legend=False, xlim=None, 
                 ylim=None, y_ind=None, **kwargs):
@@ -53,5 +56,5 @@ def vector_plot(box, x_var, y_var, dct=None, fig_num=None, legend=False, xlim=No
         plt.xlim(xlim)
     if ylim is not None:
         plt.ylim(ylim)
-    return fig
+    return fig.number
 

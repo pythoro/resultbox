@@ -197,6 +197,17 @@ class Test_Box(unittest.TestCase):
         self.assertListEqual(expected_vec1, vec1)
         self.assertListEqual(expected_labels, labels)
 
+    def test_vectors_indep(self):
+        b = Box(get_lst3())
+        keys = ['b', 'd']
+        vec0, vec1, labels = b.vectors(keys)
+        expected_vec0 = [1, 2]
+        expected_vec1 = [[12, 30], [13, 31]]
+        expected_labels = ['a=1', 'a=1']
+        self.assertListEqual(expected_vec0, vec0)
+        self.assertListEqual(expected_vec1, vec1)
+        self.assertListEqual(expected_labels, labels)
+
     def test_vectors_scalar(self):
         b = Box(get_lst4())
         keys = ['c']

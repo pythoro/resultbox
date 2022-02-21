@@ -163,7 +163,7 @@ class Store(dict):
         usecols = ['identifier', 'name', 'doc', 'unit', 'components',
                    'sep', 'category', 'tags']
         df = pd.read_csv(fname, usecols=usecols, **kwargs)
-        records = df.to_dict(orient='rows')
+        records = df.to_dict(orient='records')
         for dct in records:
             for k in dct.keys():
                 if pd.isna(dct[k]):

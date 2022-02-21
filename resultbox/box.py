@@ -361,14 +361,20 @@ class Box(list):
         out = {k: [] for k in keys}
         label_list = []
         for dct in filtered:
-            indep = dct[INDEP]
+            indep = dct[INDEP].copy()
+            keys_to_find = []
+            for k in keys:
+                if k in indep:
+                    out[k].append(indep.pop(k))
+                else:
+                    keys_to_find.append(k)
             if labels=='str':
                 label = dict_to_str(indep, val_sep='=', key_sep=', ')
             else:
                 label = indep
             label_list.append(label)
             dep = dct[DEP]
-            for k in keys:
+            for k in keys_to_find:
                 out[k].append(dep[k])
         lst_out = [out[k] for k in keys]
         if labels is not None and labels is not False:
