@@ -20,8 +20,8 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/pythoro/resultbox.git",
     download_url="https://github.com/pythoro/resultbox/archive/v0.0.5.zip",
-    packages=['resultbox'],
-    keywords=['RESULTS'],
+    packages=["resultbox"],
+    keywords=["RESULTS"],
     classifiers=[
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
@@ -29,7 +29,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Natural Language :: English",
-        "Topic :: Software Development :: Libraries :: Python Modules"
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires=["numpy", "pandas", "scipy", "matplotlib"],
 )

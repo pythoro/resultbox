@@ -8,6 +8,6 @@ Constants used in resultbox.
 
 """
 
-IND = 'index'
-DEP = 'dependent'
-INDEP = 'independent'
+IND = "index"
+DEP = "dependent"
+INDEP = "independent"
