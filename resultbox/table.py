@@ -205,7 +205,7 @@ class Tabulator():
             rows = [pd.DataFrame(row, index=indices(row)) for row in filtered]
             df = rows[0].copy()
             for row in rows[1:]:
-                df = df.append(row, sort=True)
+                df = pd.concat([df, row], sort=True)
             df = df.reset_index(drop=True)
         # pd.set_option('display.max_columns', 5)
         try:
