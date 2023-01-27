@@ -31,5 +31,5 @@ setuptools.setup(
         "Natural Language :: English",
         "Topic :: Software Development :: Libraries :: Python Modules"
     ],
-    install_requires=['json-tricks'],
+    install_requires=["numpy", "pandas", "scipy", "matplotlib"],
 )
